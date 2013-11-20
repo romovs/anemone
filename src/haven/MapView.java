@@ -84,6 +84,8 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     int beast_check_delay = 0;
 	long lastah = 0;
     
+	static boolean fixCameraBug = false; // new
+	
     public double getScale() {
         return Config.zoom?_scale:1;
     }
@@ -138,7 +140,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	
 	public boolean release(MapView mv, Coord sc, Coord mc, int button) {
 	    return(false);
-	}
+		}
 	
 	public void moved(MapView mv) {}
 	
@@ -405,9 +407,15 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	
 	public void setpos(MapView mv, Gob player, Coord sz) {
 	    if(setoff) {
-		borderize(mv, player, sz, border);
-		off = mv.mc.add(player.getc().inv());
-		setoff = false;
+			borderize(mv, player, sz, border);
+			off = mv.mc.add(player.getc().inv());
+			
+			if(fixCameraBug){ // new
+				fixCameraBug = false;
+				off = Coord.z;
+			}
+			
+			setoff = false;
 	    }
 	    mv.mc = player.getc().add(off);
 	}
@@ -730,8 +738,10 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     public void uimsg(String msg, Object... args) {
 	if(msg == "move") {
 	    move((Coord)args[0]);
-	    if(cam != null)
-		cam.moved(this);
+	    if(cam != null){ // new
+			cam.moved(this);
+			fixCameraBug = true;
+		}
 	} else if(msg == "flashol") {
 	    unflashol();
 	    olflash = (Integer)args[0];
