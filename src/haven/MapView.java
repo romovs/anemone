@@ -830,9 +830,11 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	    g.image(t.tex(), sc);
 	    //g.setColor(FlowerMenu.pink);
 	    //Utils.drawtext(g, Integer.toString(t.i), sc);
-	    for(Tile tt : gettrans(tc)) {
-		g.image(tt.tex(), sc);
-	    }
+		if(!Config.edgedTiles){ // new
+			for(Tile tt : gettrans(tc)) {
+			g.image(tt.tex(), sc);
+			}
+		}
 	} catch (Loading e) {}
     }
     

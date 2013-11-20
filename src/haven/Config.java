@@ -129,9 +129,11 @@ public class Config {
     public static boolean muteChat = false;
     public static boolean showgobpath;
     public static boolean showothergobpath = true;
-
+	
+	public static boolean edgedTiles = false; // new
     public static boolean maxWindow = true; // new
 	public static boolean broadleafTile = false; // new
+	
     static {
 	try {
 	    String p;
@@ -575,6 +577,7 @@ public class Config {
         hearthred = options.getProperty("hearthred", "false").equals("true");
         hideObjectList.clear();
         String hideObjects = options.getProperty("hideObjects", "");
+        edgedTiles = options.getProperty("edgedTiles", "false").equals("true"); // new
 		maxWindow = options.getProperty("maxWindow", "false").equals("true"); // new
 		broadleafTile = options.getProperty("broadleafTile", "false").equals("true"); // new
 		
@@ -676,6 +679,7 @@ public class Config {
         options.setProperty("hearthunknown", hearthunknown?"true":"false");
         options.setProperty("hearthred", hearthred?"true":"false");
         options.setProperty("showViewDistance", showViewDistance?"true":"false");
+        options.setProperty("edgedTiles", edgedTiles?"true":"false"); // new
 		options.setProperty("maxWindow", maxWindow?"true":"false"); // new
 		options.setProperty("broadleafTile", broadleafTile?"true":"false"); // new
 		
