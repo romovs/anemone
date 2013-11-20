@@ -103,6 +103,18 @@ public class RootWidget extends ConsoleHost {
 		ui.mainview.resetcam();
 	    } else if(code == KeyEvent.VK_END) {
 		screenshot = true;
+		} else if(code == KeyEvent.VK_UP) { // new
+			for(Widget w = ui.root.child; w != null; w = w.next){
+				if(w instanceof Fightview){
+					((Fightview)w).currentUp();
+				}
+			}
+	    } else if(code == KeyEvent.VK_DOWN) { // new
+			for(Widget w = ui.root.child; w != null; w = w.next){
+				if(w instanceof Fightview){
+					((Fightview)w).currentDown();
+				}
+			}
 	    } else if((code == KeyEvent.VK_A)&&ctrl) { // new
 			Config.pathDrinker = !Config.pathDrinker;
 			String str = "Auto drinker: "+((Config.pathDrinker)?"ON":"OFF");
