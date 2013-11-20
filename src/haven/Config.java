@@ -249,6 +249,22 @@ public class Config {
 	beasts.put(pat, "Rabbit");
 	inf.show = false; // new
 	hlcfg.put(pat, inf);
+	
+	
+	//aurochs ////// new
+	pat = "kritter/aurochs";
+	inf = new HLInfo(pat, "mmap/aurochs");
+	inf.setColor(new Color(0x8E8E8E));
+	beasts.put(pat, "Aurochs");
+	inf.show = false; 
+	hlcfg.put(pat, inf);
+	//mufflon
+	pat = "kritter/mufflon";
+	inf = new HLInfo(pat, "mmap/mufflon");
+	inf.setColor(new Color(0x8E8E8E));
+	beasts.put(pat, "Mufflon");
+	inf.show = false;
+	hlcfg.put(pat, inf);
     }
 
     private static void loadHighlight() {
