@@ -555,7 +555,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     }
 	
     public static Coord s2m(Coord c) {
-	return(new Coord((c.x / 4) + (c.y / 2), (c.y / 2) - (c.x / 4)));
+	return(new Coord( (int)( (float)c.x / 4 + (float)c.y / 2 ), (int)( (float)c.y / 2 - (float)c.x / 4 ) ) ); // new
     }
 	
     static Coord viewoffset(Coord sz, Coord vc) {
