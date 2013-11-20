@@ -130,6 +130,7 @@ public class Config {
     public static boolean showgobpath;
     public static boolean showothergobpath = true;
 
+	public static boolean broadleafTile = false; // new
     static {
 	try {
 	    String p;
@@ -573,6 +574,8 @@ public class Config {
         hearthred = options.getProperty("hearthred", "false").equals("true");
         hideObjectList.clear();
         String hideObjects = options.getProperty("hideObjects", "");
+		broadleafTile = options.getProperty("broadleafTile", "false").equals("true"); // new
+		
         if (!hideObjects.isEmpty()) {
             for (String objectName : hideObjects.split(",")) {
                 if (!objectName.isEmpty()) {
@@ -671,6 +674,8 @@ public class Config {
         options.setProperty("hearthunknown", hearthunknown?"true":"false");
         options.setProperty("hearthred", hearthred?"true":"false");
         options.setProperty("showViewDistance", showViewDistance?"true":"false");
+		options.setProperty("broadleafTile", broadleafTile?"true":"false"); // new
+		
         options.setProperty("version", currentVersion);
         
         try {

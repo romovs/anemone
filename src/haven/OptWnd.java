@@ -236,6 +236,13 @@ public class OptWnd extends Window {
 		}
 	    }).a = Config.showothergobpath;
 		
+		(new CheckBox(new Coord(370, 340), tab, "Broadleaf tile fix") { // new
+		public void changed(boolean val) {
+		    Config.broadleafTile = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.broadleafTile;
+		
 	    (new CheckBox(new Coord(440, 130), tab, "Auto-hearth") {
 		public void changed(boolean val) {
 		    Config.autohearth = val;
