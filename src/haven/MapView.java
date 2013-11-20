@@ -937,7 +937,8 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 		if (Config.showBeast && gob.isBeast()) {
 		    HLInfo inf = Config.hlcfg.get(gob.beastname);
 		    g.chcolor(inf.col.getRed(), inf.col.getGreen(), inf.col.getBlue(), 96);
-		    drawradius(g, gob.sc, 100);
+		    if(inf.show) // new
+				drawradius(g, gob.sc, 100);
 		}
 		
 		if(gob.isHuman() && !ui.sess.glob.party.memb.keySet().contains(gob.id)){

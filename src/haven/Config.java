@@ -219,30 +219,35 @@ public class Config {
 	Color col = new Color(0xff797c);
 	inf.setColor(col);
 	beasts.put(pat, "Bear");
+	inf.show = true; // new
 	hlcfg.put(pat, inf);
 	//boar
 	pat = "kritter/boar";
 	inf = new HLInfo(pat, "mmap/boar");
 	inf.setColor(col);
 	beasts.put(pat, "Boar");
+	inf.show = true; // new
 	hlcfg.put(pat, inf);
 	//deer
 	pat = "kritter/deer";
 	inf = new HLInfo(pat, "mmap/deer");
 	inf.setColor(new Color(0x7BAF8E));
 	beasts.put(pat, "Deer");
+	inf.show = false; // new
 	hlcfg.put(pat, inf);
 	//fox
 	pat = "kritter/fox";
 	inf = new HLInfo(pat, "mmap/fox");
 	inf.setColor(new Color(0xAF8E5B));
 	beasts.put(pat, "Fox");
+	inf.show = false;
 	hlcfg.put(pat, inf);
 	//rabbit
 	pat = "kritter/hare";
 	inf = new HLInfo(pat, "mmap/rabbit");
 	inf.setColor(new Color(0x8E8E8E));
 	beasts.put(pat, "Rabbit");
+	inf.show = false; // new
 	hlcfg.put(pat, inf);
     }
 
