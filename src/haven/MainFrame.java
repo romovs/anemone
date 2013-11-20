@@ -168,7 +168,10 @@ public class MainFrame extends Frame implements Runnable, FSMan {
 	seticon();
 	setVisible(true);
 	p.init();
-	setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
+	if(Config.maxWindow){ // new
+		setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
+	}
+	
     }
 
     public static Coord getScreenSize() {

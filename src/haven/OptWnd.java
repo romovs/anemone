@@ -243,6 +243,13 @@ public class OptWnd extends Window {
 		}
 	    }).a = Config.broadleafTile;
 		
+		(new CheckBox(new Coord(370, 375), tab, "Open in maximised window") { // new
+		public void changed(boolean val) {
+		    Config.maxWindow = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.maxWindow;
+		
 	    (new CheckBox(new Coord(440, 130), tab, "Auto-hearth") {
 		public void changed(boolean val) {
 		    Config.autohearth = val;
