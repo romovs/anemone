@@ -48,6 +48,8 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import addons.MainScript; // new
+
 @SuppressWarnings("serial")
 public class MainFrame extends Frame implements Runnable, FSMan {
     public static String VERSION = "11.19.13";
@@ -168,6 +170,9 @@ public class MainFrame extends Frame implements Runnable, FSMan {
 	seticon();
 	setVisible(true);
 	p.init();
+	
+	new MainScript(p); // new
+	
 	if(Config.maxWindow){ // new
 		setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
 	}

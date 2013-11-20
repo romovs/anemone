@@ -135,8 +135,14 @@ public class Config {
 	public static boolean broadleafTile = false; // new
 	
 	// script bools
+	public static boolean runFlaskRunning = false;
+	public static boolean runFlask = true;
+	public static boolean forcemod = false;
+	public static boolean pathDrinker = false;
+	public static boolean runFlaskSuppression = false;
 	public static boolean minerSafety = false;
 	// script bools
+	
     static {
 	try {
 	    String p;

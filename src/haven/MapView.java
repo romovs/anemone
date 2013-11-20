@@ -60,11 +60,11 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     Grabber grab = null;
     ILM mask;
     final MCache map;
-    final Glob glob;
+    public final Glob glob;
     Collection<Gob> plob = null;
     boolean plontile;
     int plrad = 0;
-    int playergob = -1;
+    public int playergob = -1;
     public Profile prof = new Profile(300);
     private Profile.Frame curf;
     Coord plfpos = null;
@@ -79,12 +79,13 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     long polchtm = 0;
     int si = 4;
     double _scale = 1;
-    double scales[] = {0.5, 0.66, 0.8, 0.9, 1, 1.25, 1.5, 1.75, 2};
+    double scales[] = {0.5, 0.66, 0.8, 0.9, 1, 1.25, 1.5, 1.75, 2, 2.25}; // new
     Map<String, Integer> radiuses;
     int beast_check_delay = 0;
 	long lastah = 0;
     
 	static boolean fixCameraBug = false; // new
+	public static Gob gobAtMouse; // new
 	
     public double getScale() {
         return Config.zoom?_scale:1;
@@ -588,7 +589,18 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	}
 	return(null);
     }
-
+	
+	void runFlaskScript(int button){ //new flask script
+		if(button == 1) Config.runFlask = true;
+		if(button == 3)	Config.runFlask = false;
+		
+		if(Config.runFlaskSuppression){
+			Config.runFlask = false;
+			Config.runFlaskSuppression = false;
+			//System.out.println("runflask Suppressed");
+		}
+	}
+	
 	boolean checkMinesuportSafeTile(Coord c){//new
 		int minesupportRadius = 100;
 		if(map.gettilen(c.div(11) ) != 255) return true;
@@ -607,6 +619,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	}// new
 	
     public boolean mousedown(Coord c, int button) {
+	int modflag;
 	setfocus(this);
 	Coord c0 = c;
 	c = new Coord((int)(c.x/getScale()), (int)(c.y/getScale()));
@@ -622,27 +635,32 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	if(Config.minerSafety && button == 1)
 		if(!checkMinesuportSafeTile(mousepos) ) return true;
 	
+	if(Config.pathDrinker) runFlaskScript(button); //new flask script
+	
+	modflag = ui.modflags(); // new
+	if(modflag == 5) modflag = 0; // manually set all modflags to a new variable
+	
 	if((cam != null) && cam.click(this, c, mc, button)) {
 	    /* Nothing */
 	} else if(plob != null) {
 	    Gob gob = null;
 	    for(Gob g : plob)
 		gob = g;
-	    wdgmsg("place", gob.rc, button, ui.modflags());
+	    wdgmsg("place", gob.rc, button, modflag); // new
 	} else {
 	    if(hit == null){
-		if(ui.modshift && (button == 1)){
+		if(modflag == 1 && (button == 1)){ // new
 		    glob.oc.enqueue(mc);
 		    glob.oc.checkqueue();
 		} else {
 		    glob.oc.clearqueue();
-		    wdgmsg("click", c0, mc, button, ui.modflags());
+		    wdgmsg("click", c0, mc, button, modflag); // new
 		}
 	    } else {
-		if(ui.modmeta){
+		if(modflag == 4){ // new
 		    ui.chat.getawnd().wdgmsg("msg","@$["+hit.id+"]");
 		} else {
-		    wdgmsg("click", c0, mc, button, ui.modflags(), hit.id, hit.getc());
+		    wdgmsg("click", c0, mc, button, modflag, hit.id, hit.getc()); // new
 		}
 	    }
 	}
@@ -670,7 +688,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	this.pmousepos = c;
 	Coord mc = s2m(c.add(viewoffset(sz, this.mc).inv()));
 	this.mousepos = mc;
-	Gob hit = gobatpos(c);
+	Gob hit = gobAtMouse = gobatpos(c);
 	if(hit == null){
 	    tip = null;
 	    tips = null;
@@ -730,7 +748,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     public boolean mousewheel(Coord c, int amount) {
 	if(!Config.zoom)
 	    return false;
-	si = Math.min(8, Math.max(0, si - amount));
+	si = Math.min(scales.length-1, Math.max(0, si - amount)); // new
 	setScale(scales[si]);
 	return(true);
     }
@@ -1175,7 +1193,11 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 		c2.x = c1.x;
 		g.line(m2s(c1).add(oc), m2s(c2).add(oc), 1);
 	    }
-	    g.chcolor();
+	    
+		
+		//add mapgrid lines
+		
+		g.chcolor();
 	}
 	if(curf != null)
 	    curf.tick("map");
