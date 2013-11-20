@@ -589,6 +589,23 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	return(null);
     }
 
+	boolean checkMinesuportSafeTile(Coord c){//new
+		int minesupportRadius = 100;
+		if(map.gettilen(c.div(11) ) != 255) return true;
+		
+		synchronized(glob.oc){
+			for(Gob g : glob.oc){
+				if(g.resname().equals("gfx/terobjs/mining/minesupport") ){
+					double dist = tilify(c).dist(g.getc() );
+					//System.out.println(dist);
+					if(dist < minesupportRadius ) return true;
+				}
+			}
+		}
+		
+		return false;
+	}// new
+	
     public boolean mousedown(Coord c, int button) {
 	setfocus(this);
 	Coord c0 = c;
@@ -601,6 +618,9 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 		return true;
 	    } catch (GrabberException e){}
 	}
+	
+	if(Config.minerSafety && button == 1)
+		if(!checkMinesuportSafeTile(mousepos) ) return true;
 	
 	if((cam != null) && cam.click(this, c, mc, button)) {
 	    /* Nothing */

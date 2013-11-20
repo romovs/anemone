@@ -134,6 +134,9 @@ public class Config {
     public static boolean maxWindow = true; // new
 	public static boolean broadleafTile = false; // new
 	
+	// script bools
+	public static boolean minerSafety = false;
+	// script bools
     static {
 	try {
 	    String p;

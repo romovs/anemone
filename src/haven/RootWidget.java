@@ -102,7 +102,12 @@ public class RootWidget extends ConsoleHost {
 		ui.mainview.resetcam();
 	    } else if(code == KeyEvent.VK_END) {
 		screenshot = true;
-	    } else if(key == ':') {
+	    } else if((code == KeyEvent.VK_B)&&ctrl) { // new
+			Config.minerSafety = !Config.minerSafety;
+			String str = "Mining safety: "+((Config.minerSafety)?"ON":"OFF");
+			ui.cons.out.println(str);
+			ui.slen.error(str);
+	    }else if(key == ':') {
 		entercmd();
 	    } else if(key != 0) {
 		wdgmsg("gk", (int)key);
