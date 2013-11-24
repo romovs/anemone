@@ -137,21 +137,17 @@ class MaidUI extends UI {
 	
 	private void onIMeterChange(MeterListener l, IMeter im, Object[] args) {
 		String name = im.bg.name;
-		int values[] = new int[args.length / 2];
-		for (int i = 0; i < values.length; i++) {
-			values[i] = (Integer) args[i * 2 + 1];
-		}
 
 		if ("gfx/hud/meter/hp".equals(name)) {
-			l.onHealChange(new MeterEvent(MeterEvent.Type.HP, values));
+			l.onHealChange(new MeterEvent(MeterEvent.Type.HP, args));
 		} else if ("gfx/hud/meter/nrj".equals(name)) {
-			l.onStaminaChange(new MeterEvent(MeterEvent.Type.STAMINA, values));
+			l.onStaminaChange(new MeterEvent(MeterEvent.Type.STAMINA, args));
 		} else if ("gfx/hud/meter/hngr".equals(name)) {
-			l.onHungerChange(new MeterEvent(MeterEvent.Type.HUNGER, values));
+			l.onHungerChange(new MeterEvent(MeterEvent.Type.HUNGER, args));
 		} else if ("gfx/hud/meter/happy".equals(name)) {
-			l.onHappinessChange(new MeterEvent(MeterEvent.Type.HAPINESS, values));
+			l.onHappinessChange(new MeterEvent(MeterEvent.Type.HAPINESS, args));
 		} else if ("gfx/hud/meter/auth".equals(name)) {
-			l.onAuthorityChange(new MeterEvent(MeterEvent.Type.AUTHORITY, values));
+			l.onAuthorityChange(new MeterEvent(MeterEvent.Type.AUTHORITY, args));
 		}
 	}
 	
