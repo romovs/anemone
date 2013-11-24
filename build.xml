@@ -17,26 +17,33 @@
       git-rev = ${gitrev}
     </echo>
   </target>
-	
+
   <target name="resources">
-	  	<exec executable="java" failifexecutionfails="false">
-	  	  <arg line="-jar resources/LayerUtil.jar -re resources/src resources/compiled/res" />
-	  	</exec>
-  	
-  		<jar destfile="build/client-res.jar" update="true">
-  			<fileset dir="resources/compiled" />
-  		</jar>
+     <exec executable="java" failifexecutionfails="false">
+      <arg line="-jar resources/LayerUtil.jar -re resources/src resources/compiled/res" />
+     </exec>
+      <jar destfile="build/client-res.jar" update="true">
+         <fileset dir="resources/compiled" />
+      </jar>
   </target>
 
   <target name="haven-client" depends="build-env">
-    <javac srcdir="src" destdir="build/classes" debug="on"
+    <javac srcdir="src" destdir="build/classes" debug="true" debuglevel="lines,vars,source" 
 	   source="1.5" target="1.5" includeantruntime="no">
       <classpath>
+    <pathelement path="lib/haven.jar" />
 	<pathelement path="lib/jogl.jar" />
 	<pathelement path="lib/gluegen-rt.jar" />
 	<pathelement path="lib/jnlp.jar" />
 	<pathelement path="lib/jorbis.jar" />
 	<pathelement path="lib/jogg.jar" />
+	<pathelement path="lib/antlr.jar" />
+    <pathelement path="lib/asm.jar" />
+    <pathelement path="lib/asm-analysis.jar" />
+    <pathelement path="lib/asm-commons.jar" />
+    <pathelement path="lib/asm-tree.jar" />
+    <pathelement path="lib/asm-util.jar" />
+    <pathelement path="lib/groovy.jar" />
       </classpath>
       <compilerarg value="-Xlint:unchecked" />
       <!-- <compilerarg value="-Xbarda" /> -->
@@ -47,13 +54,7 @@
     <copy todir="build/classes/haven" file="etc/res-bgload" />
     <copy todir="build/classes/haven" file="etc/icon.png" />
     <mkdir dir="build/res" />
-    <copy todir="build" >
-	<fileset file="fep.conf"/>
-	<fileset file="curio.conf"/>
-	<fileset file="craft.conf"/>
-	<fileset file="highlight.conf"/>
-	<fileset file="changelog.txt"/>
-    </copy>
+
   </target>
   
   <target name="appletview" depends="build-env">
@@ -71,15 +72,15 @@
   </target>
 
   <target name="jar" depends="haven-client,buildinfo,lib-classes,resources">
-    <jar destfile="build/haven.jar" update="true">
-      <fileset dir="build/classes" excludes="*.class"/>
+    <jar destfile="build/maid.jar" update="true">
+      <fileset dir="build/classes" />
       <fileset dir="build/classes-lib" />
       <manifest>
-	<attribute name="Main-Class" value="haven.MainFrame" />
-	<attribute name="Class-Path" value="jogl.jar gluegen-rt.jar haven-res.jar" />
+		<attribute name="Main-Class" value="haven.MaidFrame" />
+	<attribute name="Class-Path" value="haven.jar jogl.jar gluegen-rt.jar haven-res.jar antlr.jar asm.jar asm-analysis.jar asm-commons.jar asm-tree.jar asm-util.jar groovy.jar" />
       </manifest>
     </jar>
-    <chmod file="build/haven.jar" perm="a+x" />
+    <chmod file="build/maid.jar" perm="a+x" />
   </target>
   
   <target name="res-jar" depends="build-env" unless="has-res-jar">
@@ -90,9 +91,17 @@
   <target name="jars" depends="build-env, jar, res-jar">
     <copy todir="build">
       <fileset dir="lib">
+    <include name="haven.jar" />
 	<include name="jogl.jar" />
 	<include name="gluegen-rt.jar" />
 	<include name="haven-res.jar" />
+	<include name="antlr.jar" />
+    <include name="asm.jar" />
+    <include name="asm-analysis.jar" />
+    <include name="asm-commons.jar" />
+    <include name="asm-tree.jar" />
+    <include name="asm-util.jar" />
+    <include name="groovy.jar" />
       </fileset>
     </copy>
   </target>
@@ -100,7 +109,7 @@
   <target name="deftgt" depends="jars, appletview" />
 
   <target name="run" depends="jars">
-    <java jar="build/haven.jar" fork="true" />
+    <java jar="build/maid.jar" fork="true" />
   </target>
   
   <target name="clean">
@@ -109,13 +118,11 @@
   </target>
   
   <target name="profile" depends="jars">
-    <nbprofiledirect>
-    </nbprofiledirect>
       <java fork="true" jar="build/haven.jar">
         <jvmarg value="${profiler.info.jvmargs.agent}" />
         <sysproperty key="haven.dbtext" value="on" />
         <sysproperty key="haven.defserv" value="sh.seatribe.se" />
-        <sysproperty key="haven.resdir" value="/home/fredrik/src/haven/res" />
+        <sysproperty key="haven.resdir" value="build/res" />
       </java>
   </target>
 </project>
