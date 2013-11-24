@@ -169,7 +169,7 @@ public class Config {
 	    hide = false;
 	    grid = false;
 	    timestamp = false;
-	    nightvision = false;
+	    nightvision = true;
 	    zoom = false;
 	    new_minimap = true;
 	    GoogleTranslator.lang = "en";
