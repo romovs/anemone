@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 import ender.CurioInfo;
 
 public class Item extends Widget implements DTarget {
@@ -512,5 +513,17 @@ public class Item extends Widget implements DTarget {
     public boolean iteminteract(Coord cc, Coord ul) {
 	wdgmsg("itemact", ui.modflags());
 	return(true);
+    }
+    
+    public ItemType getItemType(Item itm) {
+
+    	String resname = itm.res.get().name;
+    	int idx = resname.lastIndexOf("/");    	
+    	resname = resname.substring(idx+1);
+    	
+    	if (!Config.itemTypes.containsKey(resname))
+    			return ItemType.NOT_IMPLEMENTED;
+    	
+    	return Config.itemTypes.get(resname);
     }
 }
