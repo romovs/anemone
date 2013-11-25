@@ -15,7 +15,7 @@ public class TrackingWnd extends Window {
 	this.a1 = a1;
 	this.a2 = a2;
 	justclose = true;
-	new Label(Coord.z, this, "Direction: "+direction+"°, delta: "+delta+"°");
+	new Label(Coord.z, this, "Direction: "+direction+"Â°, delta: "+delta+"Â°");
 	pack();
 	Gob pl;
 	if((ui.mainview.playergob != -1) && ((pl = ui.sess.glob.oc.getgob(ui.mainview.playergob)) != null) && (pl.sc != null)) {
