@@ -86,6 +86,20 @@ class MaidUI extends UI {
 				onImgChange(maid.getTaskListener(), id, (String) args[0]);
 			} else if (maid.getCursorListener() != null && "curs".equals(msg)) {
 				onCursChange(maid.getCursorListener(), (String) args[0]);
+			} else if (wdg instanceof IMeter && "set".equals(msg)) {	// update Maid.meter*	
+				String name = ((IMeter)wdg).bg.name;
+
+				if ("gfx/hud/meter/hp".equals(name)) {
+					//TODO
+				} else if ("gfx/hud/meter/nrj".equals(name)) {				
+					maid.meterStamina = (MeterEventObjectStamina)new MeterEvent(MeterEvent.Type.STAMINA, args).getEventObject();
+				} else if ("gfx/hud/meter/hngr".equals(name)) {
+					maid.meterHunger = (MeterEventObjectHunger)new MeterEvent(MeterEvent.Type.HUNGER, args).getEventObject();
+				} else if ("gfx/hud/meter/happy".equals(name)) {
+					//TODO
+				} else if ("gfx/hud/meter/auth".equals(name)) {
+					//TODO
+				}				
 			}
 		} catch (Throwable t) {
 			errorInEventProcessing(t);

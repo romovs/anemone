@@ -29,6 +29,10 @@ public class Maid {
     private ItemListener itemListener;
     private WidgetListener<?> widgetListener;
     private int menuGridId = 0;
+    
+    // helper objects for getting current meter values for situations when event based mechanism is not needed
+    public MeterEventObjectHunger meterHunger;			
+    public MeterEventObjectStamina meterStamina;
 
     public Maid() {
         taskGroup = new ThreadGroup("groovy");
