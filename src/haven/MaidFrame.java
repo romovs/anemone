@@ -261,15 +261,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
         }
     }
 
-    @Override
-    public void setTitle(String charname) {
-        if (charname != null)
-            charname += " - MaidBot";
-        else 
-            charname = "MaidBot";
-        super.setTitle(charname);
-    }   
-
     public static void main(final String[] args) {
         /*
          * Set up the error handler as early as humanly possible.
