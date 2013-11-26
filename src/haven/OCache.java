@@ -26,6 +26,7 @@
 
 package haven;
 
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import haven.event.MovementEvent;
+
 
 public class OCache implements Iterable<Gob> {
     /* XXX: Use weak refs */
@@ -169,6 +172,8 @@ public class OCache implements Iterable<Gob> {
 	g.setattr(lm);
 	if(isplayerid(id))
 	    ismoving = true;
+	if (g.movementListener != null)
+		g.movementListener.onMovementStart(new MovementEvent());
     }
 	
     public synchronized void linstep(int id, int frame, int l) {
@@ -184,6 +189,10 @@ public class OCache implements Iterable<Gob> {
 	    g.delattr(Moving.class);
 	    if(isplayer){
 		ismoving = false;
+		
+		if (g.movementListener != null)
+			g.movementListener.onMovementStop(new MovementEvent());
+		
 		checkqueue();
 	    }
 	} else {

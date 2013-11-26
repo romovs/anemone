@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.event.MovementListener;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +53,8 @@ public class Gob implements Sprite.Owner {
     private boolean isHighlight;
     private boolean isBeast;
     String beastname;
+    
+    public MovementListener movementListener;
 	
     public static class Overlay {
 	public Indir<Resource> res;

@@ -394,6 +394,22 @@ public class Maid {
         return retval[0];
     }
 
+    // Wait for player to stop moving
+    public void waitMoveStop() throws InterruptedException {
+    	Gob gob = getPlayer();
+
+    	gob.movementListener = new MovementAdapter() {
+            @Override
+            public void onMovementStop(MovementEvent taskEvent) {
+                wakeup();
+            }
+        };
+        
+        sleep();
+        
+        gob.movementListener = null;
+    }
+    
     public void doLogout() {
         haven.ui.sess.close();
     }
