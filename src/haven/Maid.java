@@ -395,7 +395,7 @@ public class Maid {
     }
 
     // Wait for player to stop moving
-    public void waitMoveStop() throws InterruptedException {
+    public void waitForMoveStop() throws InterruptedException {
     	Gob gob = getPlayer();
 
     	gob.movementListener = new MovementAdapter() {
