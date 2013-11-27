@@ -30,6 +30,7 @@ public class Maid {
     private WidgetListener<?> widgetListener;
     private PackListener packListener;
     private int menuGridId = 0;
+    private HWindow areaChat;
     
     // helper objects for getting current meter values for situations when event based mechanism is not needed
     public MeterEventObjectHunger meterHunger;			
@@ -898,4 +899,17 @@ public class Maid {
         c = c.add(MCache.tilesz.div(2));
         return (c);
     }
+    
+	public void doSayAreaChat(String str) {
+		if (areaChat == null) {
+			SlenHud panel = haven.ui.slen;
+			for (HWindow wnd : panel.wnds) {
+				if (wnd.title.contains("Area Chat")) {
+					areaChat = wnd;
+					break;
+				}
+			}
+		}
+		areaChat.wdgmsg("msg", str);
+	}
 }
