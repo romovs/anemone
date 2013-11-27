@@ -1,12 +1,25 @@
 <?xml version="1.0" ?>
 
 <project name="haven" default="deftgt">
+
+  <tstamp>
+    <format property="built.date" pattern="dd.MM.yy" />
+  </tstamp>
+
   <target name="build-env">
     <mkdir dir="build" />
     <mkdir dir="build/classes" />
     <available property="has-res-jar" file="build/haven-res.jar" />
     <available property="has-buildinfo" file="build/classes/buildinfo" />
     <available property="unpacked-lib" file="build/classes-lib" />
+  </target>
+  
+  <target name="pre-src">
+    <copy file="pre-src/haven/Version.java" toFile="src/haven/Version.java" overwrite="true">
+        <filterset>
+            <filter token="DATE" value="${built.date}"/>
+        </filterset>
+    </copy>
   </target>
   
   <target name="buildinfo" depends="build-env" unless="has-buildinfo">
@@ -27,9 +40,9 @@
       </jar>
   </target>
 
-  <target name="haven-client" depends="build-env">
+  <target name="haven-client" depends="build-env, pre-src">
     <javac srcdir="src" destdir="build/classes" debug="true" debuglevel="lines,vars,source" 
-	   source="1.5" target="1.5" includeantruntime="no">
+	   source="1.7" target="1.7" includeantruntime="no">
       <classpath>
     <pathelement path="lib/haven.jar" />
 	<pathelement path="lib/jogl.jar" />
@@ -46,7 +59,7 @@
     <pathelement path="lib/groovy.jar" />
       </classpath>
       <compilerarg value="-Xlint:unchecked" />
-      <!-- <compilerarg value="-Xbarda" /> -->
+      <!-- <compilerarg value="-Xlint:deprecation" /> -->
     </javac>
     <copy todir="build/classes/haven" file="etc/ressrv.crt" />
     <copy todir="build/classes/haven" file="etc/authsrv.crt" />

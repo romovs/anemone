@@ -26,14 +26,6 @@
 
 package haven;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-
 public class LoginScreen extends Widget {
     Login cur;
     Text error;
@@ -54,40 +46,6 @@ public class LoginScreen extends Widget {
 	parent.setfocus(this);
 	new Img(Coord.z, bg, this);
 	new Img(new Coord(420, 215).add(logo.sz().div(2).inv()), logo, this);
-	
-	//show changelog on first run after update;
-	boolean same = Config.currentVersion.equals(MainFrame.VERSION); 
-	if(!same){
-	    Config.currentVersion = MainFrame.VERSION;
-	    Config.saveOptions();
-	    showChangelog();
-	}
-    }
-
-    private void showChangelog() {
-	Window wnd = new Window(new Coord(100,50), new Coord(50,50), ui.root, "Changelog");
-	wnd.justclose = true;
-	Textlog txt= new Textlog(Coord.z, new Coord(350,500), wnd);
-	int maxlines = txt.maxLines = 200; 
-	wnd.pack();
-	try {
-	    FileInputStream fstream;
-	    fstream = new FileInputStream("changelog.txt");
-	    DataInputStream in = new DataInputStream(fstream);
-	    BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-	    String strLine;
-	    int count = 0;
-	    while ((count<maxlines)&&(strLine = br.readLine()) != null)   {
-		txt.append(strLine);
-		count++;
-	    }
-	    br.close();
-	    in.close();
-	    fstream.close();
-	} catch (FileNotFoundException e) {
-	} catch (IOException e) {
-	}
-	txt.setprog(0);
     }
 
     private static abstract class Login extends Widget {
