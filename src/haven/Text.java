@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -137,7 +138,7 @@ public class Text {
 	    return(renderwrap(text, null, width));
 	}
                 
-	public Line render(String text, Color c) {
+	public Line render(String text, Color fg) {
 	    Line t = new Line(text);
 	    Coord sz = strsize(text);
 	    if(sz.x < 1)
@@ -147,17 +148,40 @@ public class Text {
 	    if(aa)
 		Utils.AA(g);
 	    g.setFont(font);
-	    g.setColor(c);
+	    g.setColor(fg);
 	    t.m = g.getFontMetrics();
 	    g.drawString(text, 0, t.m.getAscent());
 	    g.dispose();
 	    return(t);
 	}
 		
+	public Line render(String text, Color fg, Color bg) {
+	    Line t = new Line(text);
+	    Coord sz = strsize(text);
+	    if(sz.x < 1)
+		sz = sz.add(1, 0);
+	    t.img = TexI.mkbuf(sz);
+	    Graphics g = t.img.createGraphics();
+	    if(aa)
+		Utils.AA(g);
+	    g.setFont(font);
+	    
+	    t.m = g.getFontMetrics();
+        Rectangle2D rect = t.m.getStringBounds(text, g);
+
+        g.setColor(bg);
+        g.fillRect(0, t.m.getAscent() - (int)rect.getHeight(), (int)rect.getWidth(), (int)rect.getHeight()*2);
+        
+	    g.setColor(fg);
+	    g.drawString(text, 0, t.m.getAscent());
+	    g.dispose();
+	    return(t);
+	}
+	
 	public Line render(String text) {
 	    return(render(text, defcol));
 	}
-                
+	
 	public Line renderf(String fmt, Object... args) {
 	    return(render(String.format(fmt, args)));
 	}
