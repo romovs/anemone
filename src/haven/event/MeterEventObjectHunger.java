@@ -6,7 +6,7 @@ public class MeterEventObjectHunger extends MeterEventObject {
 		VERY_HUNGRY,
 		HUNGRY,
 		FULL,
-		STUFFED
+		OVERSTUFFED
 	}
 	
 	public HungerType type;
