@@ -67,11 +67,6 @@
     <copy todir="build/classes/haven" file="etc/res-bgload" />
     <copy todir="build/classes/haven" file="etc/icon.png" />
     <mkdir dir="build/res" />
-
-  </target>
-  
-  <target name="appletview" depends="build-env">
-    <copy file="etc/applet.html" todir="build" />
   </target>
 
   <target name="lib-classes" depends="build-env" unless="unpacked-lib">
@@ -119,7 +114,7 @@
     </copy>
   </target>
   
-  <target name="deftgt" depends="jars, appletview" />
+  <target name="deftgt" depends="jars" />
 
   <target name="run" depends="jars">
     <java jar="build/maid.jar" fork="true" />
