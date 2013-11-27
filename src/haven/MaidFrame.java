@@ -16,6 +16,12 @@ public class MaidFrame extends MainFrame implements KeyListener {
 
     public MaidFrame(int w, int h) {
         super(w, h);
+        
+        Console.setscmd("bot", new Console.Command() {
+            public void run(Console cons, String[] args) {
+                maid.doTask(args[1]);
+            }
+        });
     }
 
     private void addSession() {
