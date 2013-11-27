@@ -40,8 +40,8 @@ public class MeterEvent extends MaidEvent {
 			} else if (((Color)values[0]).equals(new Color(255,192,0)) && 
 					((Color)values[2]).equals(new Color(0,255,0))) {	
 				return new MeterEventObjectHunger(MeterEventObjectHunger.HungerType.FULL, (Integer)values[3]);
-			} else if (((Color)values[0]).equals(new Color(255,0,0)) && 
-					((Color)values[2]).equals(new Color(0,255,0))) {
+			} else if (((Color)values[0]).equals(new Color(0,255,0)) && 
+					((Color)values[2]).equals(new Color(255,0,0))) {
 				return new MeterEventObjectHunger(MeterEventObjectHunger.HungerType.OVERSTUFFED, (Integer)values[3]);
 			} else {
 				return new MeterEventObjectHunger(MeterEventObjectHunger.HungerType.STARVING, (Integer)values[3]);
