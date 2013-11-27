@@ -741,6 +741,31 @@ public class Maid {
     public Gob doAreaFind(double radius, String name) {
         return doAreaFind(0, 0, radius, name);
     }
+    
+    
+    public Gob doAreaFindCrops(double radius, String name, int stage) {
+    	Coord coord = getCoord();
+        double max = toTile(radius);
+
+        Gob retval = null;
+
+        synchronized (haven.ui.sess.glob.oc) {
+            for (Gob gob : haven.ui.sess.glob.oc) {
+                String gobName = getName(gob);
+
+                if (gobName != null && gobName.indexOf(name) > 0) {
+                    double dist = gob.getc().dist(coord);
+                    if (dist < max && gob.getblob(0) == stage) {
+                        max = dist;
+                        retval = gob;
+                    }
+                }
+            }
+        }
+
+        return retval;
+    }
+
 
     public Gob[] doAreaList(Coord coord, double radius) {
         List<Gob> list = new LinkedList<Gob>();
