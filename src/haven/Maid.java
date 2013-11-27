@@ -520,6 +520,18 @@ public class Maid {
         }
         return items.toArray(new Item[items.size()]);
     }
+    
+    // return only items matching itemsName
+    public Item[] getItems(Inventory inv, String itemsName) {
+        List<Item> items = new ArrayList<Item>(24);
+        for (Widget i = inv.child; i != null; i = i.next) {
+             if (i instanceof Item && getName((Item) i).toLowerCase().indexOf(itemsName) != -1) {
+                items.add((Item) i);
+            }
+        }
+        
+        return items.toArray(new Item[items.size()]);
+    }
 
     public String getName(Item i) {
         if (i.tooltip != null) {
