@@ -28,6 +28,7 @@ public class Maid {
     private MeterListener meterListener;
     private ItemListener itemListener;
     private WidgetListener<?> widgetListener;
+    private PackListener packListener;
     private int menuGridId = 0;
     
     // helper objects for getting current meter values for situations when event based mechanism is not needed
@@ -239,6 +240,14 @@ public class Maid {
     public void setWidgetListener(WidgetListener<?> widgetListener) {
         this.widgetListener = widgetListener;
     }
+    
+    public PackListener getPackListener() {
+        return packListener;
+    }
+
+    public void setPackListener(PackListener packListener) {
+        this.packListener = packListener;
+    }
 
     void clearListeners() {
         cursorListener = null;
@@ -246,6 +255,7 @@ public class Maid {
         meterListener = null;
         taskListener = null;
         widgetListener = null;
+        packListener = null;
     }
 
     public void sleep() throws InterruptedException {
@@ -408,6 +418,38 @@ public class Maid {
         sleep();
         
         gob.movementListener = null;
+    }
+    
+    // Wait for inventory (as in Widget of type Inventory, not user "inventory") and all its items to be created.
+    // Basically we just wait for Inventory Widget to be created and then wait for 'pack' message telling us that
+    // all items have been loaded.
+    public void waitForInventory() throws InterruptedException {
+ 
+        widgetListener = new WidgetListener<Inventory>() {
+        	
+            public Class<Inventory> getInterest() {
+                return Inventory.class;
+            }
+ 
+            @Override
+            public void onCreate(WidgetEvent<Inventory> e) {
+                packListener = new PackListener() {
+                    @Override
+                    public void onPackExecute(PackEvent e) {
+                        wakeup();
+                    }
+                };
+            }
+            
+            @Override
+            public void onDestroy(WidgetEvent<Inventory> e) {
+            }
+        };
+
+        sleep();
+
+        widgetListener = null;
+        packListener = null;
     }
     
     public void doLogout() {

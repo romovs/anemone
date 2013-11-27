@@ -61,6 +61,8 @@ class MaidUI extends UI {
 					onItemDisplay(maid.getItemListener(), (Item) ui.widgets.get(id));
 				} else if (maid.getWidgetListener() != null && "sm".equals(type)) {
 					onWidgetCreate(maid.getWidgetListener(), (FlowerMenu) ui.widgets.get(id));
+				} else if (maid.getWidgetListener() != null && "inv".equals(type)) {
+					onWidgetCreate(maid.getWidgetListener(), (Inventory) ui.widgets.get(id));
 				}
 			} catch (Throwable t) {
 				errorInEventProcessing(t);
@@ -100,6 +102,8 @@ class MaidUI extends UI {
 				} else if ("gfx/hud/meter/auth".equals(name)) {
 					//TODO
 				}				
+			} else if (maid.getPackListener() != null && "pack".equals(msg)) {
+				maid.getPackListener().onPackExecute(new PackEvent());
 			}
 		} catch (Throwable t) {
 			errorInEventProcessing(t);
