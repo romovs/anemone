@@ -144,6 +144,9 @@ public class Fightview extends Widget {
     }
     
     public void draw(GOut g) {
+    	if (g == null)
+    		return;
+    	
         curava.c.x = MainFrame.innerSize.width - 100;
         curgive.c.x = MainFrame.innerSize.width - 135;
         c.x = MainFrame.innerSize.width - 10 - bg.sz().x;
