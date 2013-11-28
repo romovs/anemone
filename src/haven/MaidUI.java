@@ -63,6 +63,8 @@ class MaidUI extends UI {
 					onWidgetCreate(maid.getWidgetListener(), (FlowerMenu) ui.widgets.get(id));
 				} else if (maid.getWidgetListener() != null && "inv".equals(type)) {
 					onWidgetCreate(maid.getWidgetListener(), (Inventory) ui.widgets.get(id));
+				} else if (maid.getWidgetListener() != null && "make".equals(type)) {
+					onWidgetCreate(maid.getWidgetListener(), (Makewindow) ui.widgets.get(id));
 				}
 			} catch (Throwable t) {
 				errorInEventProcessing(t);

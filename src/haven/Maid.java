@@ -6,6 +6,7 @@ import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import haven.event.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -395,6 +396,31 @@ public class Maid {
             }
 
             public void onDestroy(WidgetEvent<FlowerMenu> e) {
+            }
+        };
+
+        sleep();
+
+        widgetListener = null;
+
+        return retval[0];
+    }
+    
+    public Makewindow waitForMakeWindow(String name) throws InterruptedException {
+        final Makewindow retval[] = new Makewindow[1];
+
+        widgetListener = new WidgetListener<Makewindow>() {
+
+            public Class<Makewindow> getInterest() {
+                return Makewindow.class;
+            }
+
+            public void onCreate(WidgetEvent<Makewindow> e) {
+                retval[0] = (Makewindow)e.getWidget();
+                wakeup();
+            }
+
+            public void onDestroy(WidgetEvent<Makewindow> e) {
             }
         };
 
@@ -912,4 +938,12 @@ public class Maid {
 		}
 		areaChat.wdgmsg("msg", str);
 	}
+	
+    public void doCraft(Makewindow mw) {
+    	mw.wdgmsg(mw.obtn, "activate");
+    }
+	
+    public void doCraftAll(Makewindow mw) {
+    	mw.wdgmsg(mw.cbtn, "activate");
+    }
 }
