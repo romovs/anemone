@@ -52,7 +52,7 @@ import addons.MainScript; // new
 
 @SuppressWarnings("serial")
 public class MainFrame extends Frame implements Runnable, FSMan {
-    private static final String TITLE = String.format("Haven and Hearth (YACM v%s)", Version.VERSION);
+    private static final String TITLE = String.format("Haven and Hearth (Anemone v%s)", Version.VERSION);
     HavenPanel p;
     ThreadGroup g;
     DisplayMode fsmode = null, prefs = null;
