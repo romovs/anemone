@@ -6,13 +6,18 @@ import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import haven.event.*;
+import haven.pathfinder.AStar;
+import haven.pathfinder.DbgWnd;
+import haven.pathfinder.Map;
+import haven.pathfinder.PathFinder;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Array;
 import java.util.*;
-
 
 public class Maid {
 
@@ -945,5 +950,46 @@ public class Maid {
 	
     public void doCraftAll(Makewindow mw) {
     	mw.wdgmsg(mw.cbtn, "activate");
+    }
+    
+     
+    public Map getScene() {
+    	
+        // FIXME: actually 1000x1000 should be enough. since blocking gobs are seen in 500 radius only. 
+        // need to fix this in tiles/gob init methods.
+        int width = 2000; 
+        int height = 2000;
+
+        Map scene = new Map(width, height); 
+    	
+        return scene;
+    }
+  
+    public void pathfinderTest() {
+
+        for (Widget w : haven.ui.rwidgets.keySet()) {
+           doSay(w.toString());
+        }
+        
+        Map scene = getScene();
+        DbgWnd app = new DbgWnd(scene, 1000, 1000);
+
+        MapView mv = getWidget(MapView.class);
+        Gob player = getPlayer();
+        scene.initScene(mv, player, doAreaList(50.0d));
+        PathFinder finder = new AStar();
+
+        app.setVisible(true);
+        
+        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+        long start = bean.isCurrentThreadCpuTimeSupported( ) ? bean.getCurrentThreadCpuTime( ) : 0L;
+            
+        finder.find(scene, new Coord(1070,480), true);
+        
+        bean = ManagementFactory.getThreadMXBean();
+        long end = bean.isCurrentThreadCpuTimeSupported( ) ? bean.getCurrentThreadCpuTime( ) : 0L;
+        
+        
+        System.out.format("TIME: %s sec.\n", (end-start)/1000000000);
     }
 }

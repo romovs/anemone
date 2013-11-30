@@ -27,6 +27,7 @@
 package haven;
 
 import haven.event.MovementListener;
+import haven.pathfinder.Node;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class Gob implements Sprite.Owner {
     private boolean isHighlight;
     private boolean isBeast;
     String beastname;
-    
+    private Node.Type obType;
     public MovementListener movementListener;
 	
     public static class Overlay {
@@ -406,4 +407,46 @@ public class Gob implements Sprite.Owner {
         }
         return 0;
     } 
+    
+
+    public Node.Type resolveObType(MapView mv) {
+
+    	if (obType != null)
+    		return obType;
+    	
+    	String resname = getres().name;
+   	
+    	// remove "gfx/" prefix
+    	String resnameStripped = resname.substring(4);
+
+    	// strip trailing numbers 
+    	///terobjs/trees/pine/06
+    	// terobjs/trees/fir/fir06
+    	// also strips 1 from kritter/boat/boat-1 	
+    	resnameStripped = resnameStripped.replaceAll("\\d*$", "");
+
+    	// strip trailing direction
+    	// terobjs/ridges/grass/e2n
+    	// terobjs/ridges/grass/e
+    	// terobjs/ridges/grass/es
+    	resnameStripped = resnameStripped.replaceAll("\\/[a-z]?\\d?[a-z]{1}$", "");
+    	
+    	// strip walls direction/type
+    	// arch/walls/brick-cp
+    	// arch/walls/brick-we
+    	//arch/walls/fence-cp
+    	//arch/gates/fence-ns
+    	resnameStripped = resnameStripped.replaceAll("\\-[a-z]{2}$", "");
+
+    	// strip trailing "/"
+    	resnameStripped = resnameStripped.replaceAll("\\/$", "");
+
+    	if (!Config.obTypes.containsKey(resnameStripped))
+        	obType = Node.Type.NOT_IMPLEMENTED;
+    	else
+    		obType = Config.obTypes.get(resnameStripped);
+    			
+    	System.out.println("[OBTYPE] " + getres().name + " : " + resnameStripped + " : " + obType);
+    	return obType;
+    }
 }

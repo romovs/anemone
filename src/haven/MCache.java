@@ -45,9 +45,9 @@ import java.util.zip.Inflater;
 
 public class MCache {
     Tileset[] sets = null;
-    Grid last = null;
+    public Grid last = null;
     java.util.Map<Coord, Grid> req = new TreeMap<Coord, Grid>();
-    java.util.Map<Coord, Grid> grids = new TreeMap<Coord, Grid>();
+    public java.util.Map<Coord, Grid> grids = new TreeMap<Coord, Grid>();
     Session sess;
     Set<Overlay> ols = new HashSet<Overlay>();
     public static final Coord tilesz = new Coord(11, 11);
@@ -116,11 +116,11 @@ public class MCache {
 	
     public class Grid {
 	public int tiles[][];
-	public Tile gcache[][];
+	public Tile gcache[][];						// ground tile set
 	public Tile tcache[][][];
 	public int ol[][];
 	Set<Overlay> ols = new HashSet<Overlay>();
-	Collection<Gob> fo = new LinkedList<Gob>();
+	Collection<Gob> fo = new LinkedList<Gob>(); // flavor objects
 	boolean regged = false;
 	public long lastreq = 0;
 	public int reqs = 0;

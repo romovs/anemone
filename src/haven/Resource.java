@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.pathfinder.Node;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -600,7 +602,7 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	public void init() {}
     }
     static {ltypes.put("tooltip", Tooltip.class);}
-	
+	private Node.Type tileType;
     public class Tile extends Layer {
 	transient BufferedImage img;
 	transient private Tex tex;
@@ -628,6 +630,27 @@ public class Resource implements Comparable<Resource>, Prioritized, Serializable
 	}
 		
 	public void init() {}
+	
+	public Resource getOuter() {
+	    return Resource.this;
+	}
+	
+    public Node.Type resolveTileType() {
+
+    	if (tileType != null)
+    		return tileType;
+    	
+    	// remove "gfx/" prefix
+    	String resnameStripped = name.substring(4);
+    	
+    	if (!Config.obTypes.containsKey(resnameStripped))
+        	tileType = Node.Type.NOT_IMPLEMENTED;
+    	else
+    		tileType = Config.obTypes.get(resnameStripped);
+    	
+    	return tileType;
+    }
+	
     }
     static {ltypes.put("tile", Tile.class);}
 	

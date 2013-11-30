@@ -27,6 +27,7 @@
 package haven;
 
 import static haven.Utils.getprop;
+import haven.pathfinder.Node;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -113,6 +114,7 @@ public class Config {
     public static Map<String, Map<String, Float>> FEPMap = new HashMap<String, Map<String, Float>>();
     public static Map<String, CurioInfo> curios = new HashMap<String, CurioInfo>();
     public static Map<String, ItemType> itemTypes = new HashMap<String, ItemType>();
+    public static Map<String, Node.Type> obTypes = new HashMap<String, Node.Type>();
     public static Map<String, SkillAvailability> skills;
     public static Map<String, String> crafts = new HashMap<String, String>();
     public static Map<String, String> beasts = new HashMap<String, String>();
@@ -185,6 +187,7 @@ public class Config {
 	    loadFEP();
 	    loadCurios();
 	    loadItemTypes();
+	    loadObTypes();
 	    loadSkills();
 	    loadCraft();
 	    loadHighlight();
@@ -478,6 +481,22 @@ public class Config {
 	} catch (Exception e) {}
     }
     
+    private static void loadObTypes() {
+	try {
+	    FileInputStream fstream;
+	    fstream = new FileInputStream("obtypes.conf");
+	    BufferedReader br = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
+	    String strLine;
+	    while ((strLine = br.readLine()) != null)   {
+	    	String [] tmp = strLine.split(":");
+	    	String name = tmp[0].toLowerCase();
+	    	obTypes.put(name, Node.Type.valueOf(tmp[1].trim()));
+	    }
+	    br.close();
+	    fstream.close();
+	} catch (Exception e) {
+	}
+    }
 
     private static void usage(PrintStream out) {
 	out.println("usage: haven.jar [-hdPf] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");

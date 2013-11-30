@@ -59,7 +59,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     private int olflash = 0;
     Grabber grab = null;
     ILM mask;
-    final MCache map;
+    public final MCache map;
     public final Glob glob;
     Collection<Gob> plob = null;
     boolean plontile;
@@ -559,8 +559,12 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	return(new Coord( (int)( (float)c.x / 4 + (float)c.y / 2 ), (int)( (float)c.y / 2 - (float)c.x / 4 ) ) ); // new
     }
 	
-    static Coord viewoffset(Coord sz, Coord vc) {
-	return(m2s(vc).inv().add(sz.div(2)));
+    public static Coord viewoffsetIsoProjection(Coord sz, Coord vc) {
+    	return(m2s(vc).inv().add(sz.div(2)));
+    }
+    
+    public static Coord viewoffsetFloorProjection(Coord sz, Coord vc) {
+    	return(vc.inv().add(sz.div(2)));
     }
 	
     public void grab(Grabber grab) {
@@ -624,7 +628,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	Coord c0 = c;
 	c = new Coord((int)(c.x/getScale()), (int)(c.y/getScale()));
 	Gob hit = gobatpos(c);
-	Coord mc = s2m(c.add(viewoffset(sz, this.mc).inv()));
+	Coord mc = s2m(c.add(viewoffsetIsoProjection(sz, this.mc).inv()));
 	if(grab != null) {
 	    try{
 		grab.mmousedown(mc, button);
@@ -669,7 +673,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	
     public boolean mouseup(Coord c, int button) {
 	c = new Coord((int)(c.x/getScale()), (int)(c.y/getScale()));
-	Coord mc = s2m(c.add(viewoffset(sz, this.mc).inv()));
+	Coord mc = s2m(c.add(viewoffsetIsoProjection(sz, this.mc).inv()));
 	if(grab != null) {
 	    try {
 		grab.mmouseup(mc, button);
@@ -686,7 +690,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     public void mousemove(Coord c) {
 	c = new Coord((int)(c.x/getScale()), (int)(c.y/getScale()));
 	this.pmousepos = c;
-	Coord mc = s2m(c.add(viewoffset(sz, this.mc).inv()));
+	Coord mc = s2m(c.add(viewoffsetIsoProjection(sz, this.mc).inv()));
 	this.mousepos = mc;
 	Gob hit = gobAtMouse = gobatpos(c);
 	if(hit == null){
@@ -1020,7 +1024,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     
     private void drawtracking(GOut g) {
 	g.chcolor(255, 0, 255, 128);
-	Coord oc = viewoffset(sz, mc);
+	Coord oc = viewoffsetIsoProjection(sz, mc);
 	for(int i = 0; i<TrackingWnd.instances.size(); i++){
 	    TrackingWnd wnd = TrackingWnd.instances.get(i);
 	    if(wnd.pos == null){continue;}
@@ -1155,7 +1159,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	    curf = prof.new Frame();
 	stw = (tilesz.x * 4) - 2;
 	sth = tilesz.y * 2;
-	oc = viewoffset(sz, mc);
+	oc = viewoffsetIsoProjection(sz, mc);
 	tc = mc.div(tilesz);
 	tc.x += -(sz.x / (2 * stw)) - (sz.y / (2 * sth)) - 2;
 	tc.y += (sz.x / (2 * stw)) - (sz.y / (2 * sth));
@@ -1265,9 +1269,11 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 			Resource.Neg neg = gob.getneg();
 			if(neg == null)
 			    continue;
+			
 			if((neg.bs.x > 0) && (neg.bs.y > 0)) {
 			    Coord c1 = gob.getc().add(neg.bc);
 			    Coord c2 = c1.add(neg.bs);
+
 			    g.frect(m2s(c1).add(oc),
 				    m2s(new Coord(c2.x, c1.y)).add(oc),
 				    m2s(c2).add(oc),
@@ -1379,7 +1385,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     }
 	
     public void drawarrows(GOut g) {
-	Coord oc = viewoffset(sz, mc);
+	Coord oc = viewoffsetIsoProjection(sz, mc);
 	Coord hsz = sz.div(2);
 	double ca = -Coord.z.angle(hsz);
 	for(Party.Member m : glob.party.memb.values()) {
@@ -1519,7 +1525,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     }
 
     private void drawPlayerPath(GOut g) {
-	Coord oc = viewoffset(sz, mc);
+	Coord oc = viewoffsetIsoProjection(sz, mc);
 	Coord pc, cc;
 	Moving m;
 	LinMove lm;
@@ -1546,7 +1552,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     private void drawGobPath(GOut g) {
 	Moving m;
 	LinMove lm;
-	Coord oc = viewoffset(sz, mc);
+	Coord oc = viewoffsetIsoProjection(sz, mc);
 	g.chcolor(Color.ORANGE);
 	synchronized (glob.oc) {
 	    for (Gob gob : glob.oc){
@@ -1572,7 +1578,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	Coord cc0 = cc;
 	cc = new Coord((int) (cc.x/getScale()), (int)(cc.y/getScale()));
 	Gob hit = gobatpos(cc);
-	Coord mc = s2m(cc.add(viewoffset(sz, this.mc).inv()));
+	Coord mc = s2m(cc.add(viewoffsetIsoProjection(sz, this.mc).inv()));
 	if(hit == null)
 	    wdgmsg("itemact", cc0, mc, ui.modflags());
 	else
