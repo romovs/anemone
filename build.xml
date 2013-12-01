@@ -45,7 +45,7 @@
 	   source="1.7" target="1.7" includeantruntime="no">
       <classpath>
     <pathelement path="lib/haven.jar" />
-	<pathelement path="lib/jogl.jar" />
+	<pathelement path="lib/jogl-all.jar" />
 	<pathelement path="lib/gluegen-rt.jar" />
 	<pathelement path="lib/jnlp.jar" />
 	<pathelement path="lib/jorbis.jar" />
@@ -85,7 +85,7 @@
       <fileset dir="build/classes-lib" />
       <manifest>
 		<attribute name="Main-Class" value="haven.MaidFrame" />
-	<attribute name="Class-Path" value="haven.jar jogl.jar gluegen-rt.jar haven-res.jar antlr.jar asm.jar asm-analysis.jar asm-commons.jar asm-tree.jar asm-util.jar groovy.jar" />
+	<attribute name="Class-Path" value="haven.jar jogl-all.jar gluegen-rt.jar haven-res.jar antlr.jar asm.jar asm-analysis.jar asm-commons.jar asm-tree.jar asm-util.jar groovy.jar" />
       </manifest>
     </jar>
     <chmod file="build/maid.jar" perm="a+x" />
@@ -100,7 +100,7 @@
     <copy todir="build">
       <fileset dir="lib">
     <include name="haven.jar" />
-	<include name="jogl.jar" />
+	<include name="jogl-all.jar" />
 	<include name="gluegen-rt.jar" />
 	<include name="haven-res.jar" />
 	<include name="antlr.jar" />
