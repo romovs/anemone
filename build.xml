@@ -121,7 +121,7 @@
       </fileset>
     </copy> 
     <copy todir="build/res">
-      <fileset dir="resources/compiled/res" includes="**">
+      <fileset dir="resources/res_working" includes="**">
       </fileset>
     </copy> 
   </target>
