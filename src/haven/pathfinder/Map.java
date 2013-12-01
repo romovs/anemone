@@ -2,6 +2,7 @@ package haven.pathfinder;
 
 import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
+
 import haven.Coord;
 import haven.Gob;
 import haven.MCache;
@@ -16,8 +17,10 @@ public class Map
     public int w;
     public int h;
     public double minWeight = Double.MAX_VALUE;
-    public Node cells[][];
-    
+    public Node nodes[][];
+    private static final int PLAYER_SIZE = 4;
+    public static final int NO_CLEARANCE = 1;
+
 	public Map(int w, int h)
 	{
 		super();
@@ -25,30 +28,29 @@ public class Map
 		this.w = w;
 		this.h = h;
 
-		cells = new Node[w][h];
+		nodes = new Node[w][h];
 
         for(int i=0;i<h;i++){
             for(int j=0;j<w;j++){
-               cells[j][i] = new Node(j, i);
+               nodes[j][i] = new Node(j, i);
             }
         }
     }
 	
-	public void SetCell(int x, int y, Node.Type type, Node srcCell, Node dstCell) 
+	private void setNode(int x, int y, Node.Type type) 
 	{
-		cells[x][y].type = type;
-		Node.srcNode = srcCell;
-		Node.dstNode = dstCell;
+		nodes[x][y].type = type;
 
 		if (type.getValue() < minWeight)
 			minWeight = type.getValue();
 	}
     
 	// each pixel considered as a single node
-    public void createNodesFromHitbox(int x, int y, int width, int height, Node.Type type, Node src, Node dst) {
+    public void createNodesFromHitbox(int x, int y, int width, int height, Node.Type type) {
     	for (int i = x; i < x+width; i++) {
-	        for (int j = y; j < y+height; j++) {
-	    		SetCell(i, j, type, src, dst);
+	        for (int j = y; j < y+height; j++) {   	
+	        	if (nodes[i][j].type != Node.Type.BLOCK && nodes[i][j].type != Node.Type.BLOCK_DYNAMIC)
+	        		setNode(i, j, type);
 	        }
     	}
     }
@@ -57,16 +59,15 @@ public class Map
 		// setup player current location
         Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
 		Coord playerCoord = player.getc().add(oc);
-        Node src = cells[playerCoord.x][playerCoord.y];
+        Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
         initTiles(mv, player);
         initGobes(mv, gobs);
+        initClearances(PLAYER_SIZE);
     }
     
     private void initTiles(MapView mv, Gob player) {
-    	Node src = Node.srcNode;
-    	Node dst = Node.dstNode;
     	MCache map = mv.map;
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
@@ -107,7 +108,7 @@ public class Map
 	
 					    if (sc.x+11 < w && sc.y+11 < h && sc.x >= 0 && sc.y >= 0) {
 							System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
-					    	createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType, src, dst);
+					    	createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
 					    }
 				    }
 				}
@@ -116,8 +117,6 @@ public class Map
     }
     
     private void initGobes(MapView mv, Gob[] gobs) {
-    	Node src = Node.srcNode;
-    	Node dst = Node.dstNode;
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
         
@@ -139,27 +138,55 @@ public class Map
 
         	if (a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
         			a.x >= 0 && a.y >= 0 && c.x >= 0 && c.y >= 0) {
-        		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t, src, dst);
+        		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t);
         	}
     	}
     }  
     
+    // Initialize clearance values for an object of size 'size' (player = 4).
+    // Final node clearance will be either NO_CLEARANCE or 'size'. 
+    //
+    // NOTE: Nodes with clearance=NO_CLEARANCE could be actually traversed by objects of size < 'size'
+    //       hence, the clearance values need to be recomputed each time for objects of different size.
+    private void initClearances(int size) {
+    	for (int x = w - 1; x >= 0; x--) {
+    		for (int y = h - 1; y >= 0; y--) {
+    			
+    			if (x+size >= w || y+size >= h) {
+    				nodes[x][y].clearance = 1;	
+    			} else {    				
+    				boolean allClear = true;
+
+    				for (int i = 0; i < size; i++) {
+    	    			if (nodes[x+i][y].type == Node.Type.BLOCK || nodes[x+i][y].type == Node.Type.BLOCK_DYNAMIC ||
+    	    	    			nodes[x][y+i].type == Node.Type.BLOCK || nodes[x][y+i].type == Node.Type.BLOCK_DYNAMIC ||
+    	    	    			nodes[x+i][y+i].type == Node.Type.BLOCK || nodes[x+i][y+i].type == Node.Type.BLOCK_DYNAMIC) {
+    	    				allClear = false;
+    	    				break;
+    	    			}    					
+    				}
+    		
+    				nodes[x][y].clearance = allClear?size:NO_CLEARANCE;
+    			}
+    		}
+    	}
+    }
     
     public Node[] getAdjacent4(Node n){
         Node next[] = new Node[4];
         
         // top
         if(n.y!=0)
-        	next[0]=cells[n.x][n.y-1];        
+        	next[0]=nodes[n.x][n.y-1];        
         // right
         if(n.x!=w-1)
-        	next[1]=cells[n.x+1][n.y];
+        	next[1]=nodes[n.x+1][n.y];
         // bottom
         if(n.y!=h-1)
-        	next[2]=cells[n.x][n.y+1];     
+        	next[2]=nodes[n.x][n.y+1];     
         // left
         if(n.x!=0)
-        	next[3]=cells[n.x-1][n.y];
+        	next[3]=nodes[n.x-1][n.y];
 
         return next;
     }
@@ -169,28 +196,28 @@ public class Map
         
         // top
         if(n.y!=0)
-        	next[0]=cells[n.x][n.y-1];   
+        	next[0]=nodes[n.x][n.y-1];   
         // right
         if(n.x!=w-1)
-        	next[1]=cells[n.x+1][n.y];
+        	next[1]=nodes[n.x+1][n.y];
         // bottom
         if(n.y!=h-1)
-        	next[2]=cells[n.x][n.y+1];
+        	next[2]=nodes[n.x][n.y+1];
         // left
         if(n.x!=0)
-        	next[3]=cells[n.x-1][n.y];
+        	next[3]=nodes[n.x-1][n.y];
         // WN
         if(n.y!=0 && n.x!=0)
-        	next[4]=cells[n.x-1][n.y-1];
+        	next[4]=nodes[n.x-1][n.y-1];
         // NE
         if(n.y!=0 && n.x!=w-1)
-        	next[5]=cells[n.x+1][n.y-1];
+        	next[5]=nodes[n.x+1][n.y-1];
         // ES
         if(n.y!=h-1 && n.x!=w-1)
-        	next[6]=cells[n.x+1][n.y+1];        
+        	next[6]=nodes[n.x+1][n.y+1];        
         // SW
         if(n.y!=h-1 && n.x!=0)
-        	next[7]=cells[n.x-1][n.y+1];   
+        	next[7]=nodes[n.x-1][n.y+1];   
         
         return next;
     }
@@ -202,7 +229,9 @@ public class Map
         for(int i = 0; i<4; i++) {
             if(next[i]!=null) {
                 double nextDist = next[i].distFromSrc();
-                if(nextDist < dist && nextDist >= 0) {
+                if(nextDist < dist && nextDist >= 0 && 
+                		next[i].clearance > NO_CLEARANCE &&
+                		next[i].distFromDst() == -1) {
                 	lowest = next[i];
                     dist = next[i].distFromSrc();
                 }
@@ -218,7 +247,9 @@ public class Map
         for(int i = 0; i<8; i++) {
             if(next[i]!=null) {
                 double nextDist = next[i].distFromSrc();
-                if(nextDist < dist && nextDist >= 0) {
+                if(nextDist < dist && nextDist >= 0 && 
+                		next[i].clearance > NO_CLEARANCE && 
+                		next[i].distFromDst() == -1) {
                 	lowest = next[i];
                     dist = next[i].distFromSrc();
                 }

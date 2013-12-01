@@ -14,7 +14,7 @@ public class AStar implements PathFinder
 {
     protected ArrayList<Node> open;
     protected ArrayList<Node> closed;
-
+    private static final int MAX_ITERATIONS = 100000;
 
     protected double mode; 
     private static final int INITIAL_CAPACITY = 100;
@@ -25,7 +25,7 @@ public class AStar implements PathFinder
 
     public boolean find(Map map, Coord destination, boolean isFast)
     {
-    	Node.dstNode = map.cells[destination.x][destination.y];
+    	Node.dstNode = map.nodes[destination.x][destination.y];
     	
     	mode = isFast?2:map.minWeight;
 
@@ -36,8 +36,11 @@ public class AStar implements PathFinder
 
         boolean found = false;
 
-        while(!found) {
-        	
+
+        
+        int iter = 0;
+        while(iter < MAX_ITERATIONS && !found) {
+        	iter++;
             Node dst = Node.getDst();
             double min = Double.MAX_VALUE;
 
@@ -63,8 +66,10 @@ public class AStar implements PathFinder
             
             for(int i = 0; i < 4; i++){
                 if(next[i] != null) {
-                    if(next[i].type != Node.Type.BLOCK && next[i].type != Node.Type.BLOCK_DYNAMIC) {
-                        next[i].addToPathFromStart(now.distFromSrc());
+                    if(next[i].type != Node.Type.BLOCK && next[i].type != Node.Type.BLOCK_DYNAMIC &&
+                    		next[i].clearance > Map.NO_CLEARANCE) {
+                        next[i].addToPathFromSrc(now.distFromSrc()); 
+                        next[i].pathTraversed = true;
                         if(!open.contains(next[i]) && !closed.contains(next[i]))
                         	open.add(next[i]);
                     }
@@ -74,11 +79,6 @@ public class AStar implements PathFinder
                     }
                 }
             }
-
-            now.pathTraversed = true;
-            
-            if(open.isEmpty())
-            	break;
         }
         
         // if path has been found mark all the nodes within it
@@ -87,6 +87,7 @@ public class AStar implements PathFinder
             Node cur = Node.getDst();
             Node end = Node.getSrc();
             while(cur != end) {
+                cur.addToPathFromDst(cur.distFromDst());
                 next = map.getLowestAdjacent4(cur);
                 cur = next;
                 cur.setPartOfPath(true);

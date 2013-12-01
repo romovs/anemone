@@ -26,7 +26,7 @@ public class DbgWnd extends JFrame
 
         for(int i=0;i<map.h;i++){
             for(int j=0;j<map.w;j++){
-            	Node cell = map.cells[j][i];
+            	Node cell = map.nodes[j][i];
             	
             	if (cell.isPartOfPath()) {
             		g.setColor(new Color(176, 23, 31));
@@ -37,7 +37,7 @@ public class DbgWnd extends JFrame
             	} else if (cell.isDst()) {
             		g.setColor(Color.RED);
             	} else {
-	            	switch (map.cells[j][i].type) {
+	            	switch (map.nodes[j][i].type) {
 	            		case BLOCK_DYNAMIC:
 	            		case BLOCK: g.setColor(Color.BLACK); break;
 	            		case NORMAL: g.setColor(Color.LIGHT_GRAY); break;
