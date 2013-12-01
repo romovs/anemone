@@ -1,7 +1,9 @@
 <?xml version="1.0" ?>
 
-<project name="haven" default="deftgt">
-
+<project name="haven" default="jars"> 
+  <property name="arch" value="linux-amd64"/> <!-- linux-amd64/linux-i586/windows-amd64/windows-i586 -->
+  <property name="name" value="anemone"/>
+  
   <tstamp>
     <format property="built.date" pattern="dd.MM.yy" />
   </tstamp>
@@ -26,9 +28,7 @@
     <exec executable="git" outputproperty="gitrev" failifexecutionfails="false">
       <arg line="rev-parse HEAD" />
     </exec>
-    <echo file="build/classes/buildinfo" xml:space="default">
-      git-rev = ${gitrev}
-    </echo>
+    <echo file="build/classes/buildinfo" xml:space="default">git-rev = ${gitrev}</echo>
   </target>
 
   <target name="resources">
@@ -68,7 +68,7 @@
     <copy todir="build/classes/haven" file="etc/icon.png" />
     <mkdir dir="build/res" />
   </target>
-
+  
   <target name="lib-classes" depends="build-env" unless="unpacked-lib">
     <mkdir dir="build/classes-lib" />
     <unjar src="lib/jogg.jar" dest="build/classes-lib">
@@ -99,22 +99,27 @@
   <target name="jars" depends="build-env, jar, res-jar">
     <copy todir="build">
       <fileset dir="lib">
-    <include name="haven.jar" />
-	<include name="jogl-all.jar" />
-	<include name="gluegen-rt.jar" />
-	<include name="haven-res.jar" />
-	<include name="antlr.jar" />
-    <include name="asm.jar" />
-    <include name="asm-analysis.jar" />
-    <include name="asm-commons.jar" />
-    <include name="asm-tree.jar" />
-    <include name="asm-util.jar" />
-    <include name="groovy.jar" />
+        <include name="haven.jar" />
+	    <include name="jogl-all.jar" />
+	    <include name="gluegen-rt.jar" />
+	    <include name="haven-res.jar" />
+	    <include name="antlr.jar" />
+        <include name="asm.jar" />
+        <include name="asm-analysis.jar" />
+        <include name="asm-commons.jar" />
+        <include name="asm-tree.jar" />
+        <include name="asm-util.jar" />
+        <include name="groovy.jar" />
+        <include name="*{arch}.jar" />
+      </fileset>
+      <fileset dir="${basedir}" includes="*.conf">
       </fileset>
     </copy>
+    <copy todir="build/scripts">
+      <fileset dir="${basedir}/scripts" includes="**">
+      </fileset>
+    </copy> 
   </target>
-  
-  <target name="deftgt" depends="jars" />
 
   <target name="run" depends="jars">
     <java jar="build/maid.jar" fork="true" />
@@ -125,6 +130,34 @@
     <delete dir="build/classes-lib" />
   </target>
   
+  <target name="rebuild" depends="clean, jars">   
+  </target>
+
+  <target name="distall">
+    <antcall target="dist">
+      <param name="arch" value="linux-amd64"/>
+    </antcall>
+    <antcall target="dist">
+      <param name="arch" value="linux-i586"/>
+    </antcall>
+    <antcall target="dist">
+      <param name="arch" value="windows-amd64"/>
+    </antcall>
+    <antcall target="dist">
+      <param name="arch" value="windows-i586"/>
+    </antcall>
+  </target>
+ 
+  <target name="dist" depends="rebuild">
+    <copy todir="build" file="README" />
+    <mkdir dir="build/scripts" />
+    <zip destfile="${basedir}/${name}-${built.date}-${arch}.zip" update="true">
+        <fileset dir="build" includes="*.jar, res, scripts" excludes="*{arch}.jar, scripts/*"/>
+        <fileset dir="${basedir}" includes="*.conf"/>
+        <fileset dir="natives" includes="*${arch}.jar"/>
+    </zip>
+  </target>
+
   <target name="profile" depends="jars">
       <java fork="true" jar="build/haven.jar">
         <jvmarg value="${profiler.info.jvmargs.agent}" />
