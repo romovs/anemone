@@ -121,7 +121,7 @@ public class Maid {
         System.err.println(text);
     }
 
-    void doTask(final String name) {
+    void doTask(final String name, final String... args) {
         if (task != null) {
             doSay("-- Already running a task.");
             return;
@@ -130,9 +130,9 @@ public class Maid {
 
             @Override
             public void run() {
+            	binding.setVariable("args", args);
                 try {
                     preProcessing();
-
                     engine.run(name + ".groovy", binding);
 
                     postProcessing();

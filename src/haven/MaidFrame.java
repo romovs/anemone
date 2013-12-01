@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +20,10 @@ public class MaidFrame extends MainFrame implements KeyListener {
         
         Console.setscmd("bot", new Console.Command() {
             public void run(Console cons, String[] args) {
-                maid.doTask(args[1]);
+            	String[] maidArgs = null;
+            	if (args.length > 2)
+            		maidArgs = Arrays.copyOfRange(args, 2, args.length);
+                maid.doTask(args[1], maidArgs);
             }
         });
     }
