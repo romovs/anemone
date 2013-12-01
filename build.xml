@@ -110,13 +110,18 @@
         <include name="asm-tree.jar" />
         <include name="asm-util.jar" />
         <include name="groovy.jar" />
-        <include name="*{arch}.jar" />
       </fileset>
       <fileset dir="${basedir}" includes="*.conf">
+      </fileset>
+      <fileset dir="natives" includes="*${arch}.jar">
       </fileset>
     </copy>
     <copy todir="build/scripts">
       <fileset dir="${basedir}/scripts" includes="**">
+      </fileset>
+    </copy> 
+    <copy todir="build/res">
+      <fileset dir="resources/compiled/res" includes="**">
       </fileset>
     </copy> 
   </target>
