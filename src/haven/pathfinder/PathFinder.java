@@ -1,9 +1,10 @@
 package haven.pathfinder;
 
+import java.util.List;
 import haven.Coord;
 
 
 public interface PathFinder
 {
-    public boolean find(Map map, Coord dst, boolean isFast);
+    public List<Node> find(Map map, Coord dst, boolean isFast);
 }

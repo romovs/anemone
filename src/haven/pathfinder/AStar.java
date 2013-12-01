@@ -15,12 +15,13 @@ public class AStar implements PathFinder
 
     protected double mode; 
     private static final int INITIAL_CAPACITY = 100;
+    private static final int PATH_CAPACITY = 100;
     
     public AStar() {
         super();
     }
 
-    public boolean find(Map map, Coord destination, boolean isFast)
+    public List<Node> find(Map map, Coord destination, boolean isFast)
     {
     	Node.dstNode = map.nodes[destination.x][destination.y];
     	
@@ -78,19 +79,22 @@ public class AStar implements PathFinder
         
         // if path has been found mark all the nodes within it
         if(found) {
+            List<Node> path = new ArrayList(PATH_CAPACITY);
             Node next;
             Node cur = Node.getDst();
             Node end = Node.getSrc();
             while(cur != end) {
+            	path.add(cur);
                 cur.addToPathFromDst(cur.distFromDst());
                 next = map.getLowestAdjacent8(cur);
                 cur = next;
                 cur.setPartOfPath(true);
             }
-            return true;
+            Collections.reverse(path);
+            return path;
         }
         
-        return false;
+        return null;
     }
     
 
