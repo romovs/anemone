@@ -5,11 +5,8 @@ import haven.Coord;
 import java.util.*;
 
 
-// A* with Manhattan distance heuristic.
-// 
-// TODO: clearance support.
-// TODO: diagonal movement with Chebyshev distance heuristic.
-
+// A* with Manhattan/Chebyshev distance heuristics.
+//
 public class AStar implements PathFinder
 {
     protected ArrayList<Node> open;
@@ -36,8 +33,6 @@ public class AStar implements PathFinder
 
         boolean found = false;
 
-
-        
         int iter = 0;
         while(iter < MAX_ITERATIONS && !found) {
         	iter++;
@@ -50,7 +45,7 @@ public class AStar implements PathFinder
                 now = (Node)open.get(i);
                 if(!closed.contains(now)) {
                 	double score = now.distFromSrc();
-                    score += manhattanDist(now.x, now.y, dst.x, dst.y, mode);
+                    score += chebyshevDist(now.x, now.y, dst.x, dst.y, mode);
                     if(score < min) {
                         min = score;
                         best = now;
@@ -62,9 +57,9 @@ public class AStar implements PathFinder
             open.remove(now);
             closed.add(now);
             
-            Node next[] = map.getAdjacent4(now);
+            Node next[] = map.getAdjacent8(now);
             
-            for(int i = 0; i < 4; i++){
+            for(int i = 0; i < 8; i++){
                 if(next[i] != null) {
                     if(next[i].type != Node.Type.BLOCK && next[i].type != Node.Type.BLOCK_DYNAMIC &&
                     		next[i].clearance > Map.NO_CLEARANCE) {
@@ -88,7 +83,7 @@ public class AStar implements PathFinder
             Node end = Node.getSrc();
             while(cur != end) {
                 cur.addToPathFromDst(cur.distFromDst());
-                next = map.getLowestAdjacent4(cur);
+                next = map.getLowestAdjacent8(cur);
                 cur = next;
                 cur.setPartOfPath(true);
             }
