@@ -1,0 +1,29 @@
+                                Anemone
+                                
+
+Introduction:
+-------------
+
+Anemone is a client for Haven & Hearth. It's based on Xcom's modification 
+and Groovy Maid scripting engine and provides a number of new features as well 
+as some bug fixes and tweaks:
+
+- Pathfinding framework.
+- Support for retrieving hunger/health meter values.
+- Item identification. Makes possible to retrieve all items of type 'food' from 
+  the inventory for example.
+- Pulling support for meter values (when event based approach is not needed).
+- Support for movement start/stop events and appropriate blocking methods.
+- Methods for finding crops of certain grow stage.
+- Methods for retrieving items by name from inventory.
+- Methods for crafting.
+- Methods for doing area chat.
+- Blocking method for getting container/object inventory.
+- ...
+
+
+References:
+-----------
+
+Xcom's client: https://github.com/X-com/Haven-and-Hearth-client-modified-by-Ender/tree/Ender-Edited
+Groovy Maid: https://github.com/ArvinJA/HnH-Groovy-Maid
