@@ -13,7 +13,7 @@ public class AStar implements PathFinder
     protected ArrayList<Node> closed;
     private static final int MAX_ITERATIONS = 100000;
 
-    protected double mode; 
+    protected int mode; 
     private static final int INITIAL_CAPACITY = 100;
     private static final int PATH_CAPACITY = 100;
     private static final int FAST_MODE_D = 3;
@@ -47,7 +47,7 @@ public class AStar implements PathFinder
                 now = (Node)open.get(i);
                 if(!closed.contains(now)) {
                 	double score = now.distFromSrc();
-                    score += chebyshevDist(now.x, now.y, dst.x, dst.y, mode);
+                    score += distChebyshev(now.x, now.y, dst.x, dst.y, mode);
                     if(score < min) {
                         min = score;
                         best = now;
@@ -96,11 +96,19 @@ public class AStar implements PathFinder
         return null;
     }
     
-    public double manhattanDist(int ax, int ay, int bx, int by, double d) {
+    public int distManhattan(int ax, int ay, int bx, int by, int d) {
         return d * (Math.abs(ax - bx) + Math.abs(ay - by));
     }
     
-    public double chebyshevDist(int ax, int ay, int bx, int by, double d) {
+    public int distChebyshev(int ax, int ay, int bx, int by, int d) {
         return d * Math.max(Math.abs(ax - bx), Math.abs(ay - by));
+    }
+    
+    // non-diagonal step is x2 over diagonal
+    // http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+    public int distLowerDiagonal(int ax, int ay, int bx, int by, int d, int d2) {
+        int dx = Math.abs(ax - bx);
+        int dy = Math.abs(ay - by);
+        return d * (dx + dy) + (d2 - 2 * d) * Math.min(dx, dy);
     }
 }

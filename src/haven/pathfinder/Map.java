@@ -16,7 +16,7 @@ public class Map
 {
     public int w;
     public int h;
-    public double minWeight = Double.MAX_VALUE;
+    public int minWeight = Integer.MAX_VALUE;
     public Node nodes[][];
     private static final int PLAYER_SIZE = 4;
     public static final int NO_CLEARANCE = 1;
