@@ -157,7 +157,7 @@
     <copy todir="build" file="README" />
     <mkdir dir="build/scripts" />
     <zip destfile="${basedir}/${name}-${built.date}-${arch}.zip" update="false">
-        <fileset dir="build" includes="*.jar, res, scripts" excludes="gluegen*.jar, jogl*.jar, scripts/*"/>
+        <fileset dir="build" includes="*.jar, res/**, scripts" excludes="*natives*.jar, scripts/*"/>
         <fileset dir="${basedir}" includes="*.conf"/>
         <fileset dir="natives" includes="*${arch}.jar"/>
     </zip>
