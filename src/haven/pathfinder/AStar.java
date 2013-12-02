@@ -10,7 +10,8 @@ import java.util.*;
 public class AStar implements PathFinder
 {
     protected ArrayList<Node> open;
-    protected ArrayList<Node> closed;
+    protected HashSet<Node> closed;
+    
     private static final int MAX_ITERATIONS = 100000;
 
     protected int mode; 
@@ -30,8 +31,7 @@ public class AStar implements PathFinder
 
         open = new ArrayList<Node>(INITIAL_CAPACITY);
         open.add(Node.getSrc());
-        
-        closed = new ArrayList<Node>(INITIAL_CAPACITY);
+        closed = new HashSet<Node>();
 
         boolean found = false;
 
@@ -46,10 +46,9 @@ public class AStar implements PathFinder
             for(int i = 0; i < open.size(); i++) {
                 now = (Node)open.get(i);
                 if(!closed.contains(now)) {
-                	double score = now.distFromSrc();
-                    score += distChebyshev(now.x, now.y, dst.x, dst.y, mode);
-                    if(score < min) {
-                        min = score;
+                	double f = now.distFromSrc() + distChebyshev(now.x, now.y, dst.x, dst.y, mode);
+                    if(f < min) {
+                        min = f;
                         best = now;
                     }
                 }
@@ -62,15 +61,16 @@ public class AStar implements PathFinder
             Node next[] = map.getAdjacent8(now);
             
             for(int i = 0; i < 8; i++){
-                if(next[i] != null) {
-                    if(next[i].type != Node.Type.BLOCK && next[i].type != Node.Type.BLOCK_DYNAMIC &&
-                    		next[i].clearance > Map.NO_CLEARANCE) {
-                        next[i].addToPathFromSrc(now.distFromSrc()); 
-                        next[i].pathTraversed = true;
-                        if(!open.contains(next[i]) && !closed.contains(next[i]))
-                        	open.add(next[i]);
+            	Node nxt = next[i];
+                if(nxt != null) {
+                    if(nxt.type != Node.Type.BLOCK && nxt.type != Node.Type.BLOCK_DYNAMIC &&
+                    		nxt.clearance > Map.NO_CLEARANCE) {
+                        nxt.addToPathFromSrc(now.distFromSrc()); 
+                        nxt.pathTraversed = true;
+                        if(!open.contains(nxt) && !closed.contains(nxt))
+                        	open.add(nxt);
                     }
-                    if(next[i] == dst) {
+                    if(nxt == dst) {
                     	found = true;
                     	break;
                     }
