@@ -156,8 +156,8 @@
   <target name="dist" depends="rebuild">
     <copy todir="build" file="README" />
     <mkdir dir="build/scripts" />
-    <zip destfile="${basedir}/${name}-${built.date}-${arch}.zip" update="true">
-        <fileset dir="build" includes="*.jar, res, scripts" excludes="*{arch}.jar, scripts/*"/>
+    <zip destfile="${basedir}/${name}-${built.date}-${arch}.zip" update="false">
+        <fileset dir="build" includes="*.jar, res, scripts" excludes="gluegen*.jar, jogl*.jar, scripts/*"/>
         <fileset dir="${basedir}" includes="*.conf"/>
         <fileset dir="natives" includes="*${arch}.jar"/>
     </zip>
