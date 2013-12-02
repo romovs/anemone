@@ -176,85 +176,74 @@ public class Map
         Node next[] = new Node[4];
         
         // top
-        if(n.y!=0)
-        	next[0]=nodes[n.x][n.y-1];        
+        if(n.y > 0 && !nodes[n.x][n.y-1].pathTraversed) {
+        	next[0] = nodes[n.x][n.y-1];   
+        	next[0].parent = n;
+        }
         // right
-        if(n.x!=w-1)
-        	next[1]=nodes[n.x+1][n.y];
+        if(n.x+1 < w && !nodes[n.x+1][n.y].pathTraversed) {
+        	next[1] = nodes[n.x+1][n.y];
+        	next[1].parent = n;
+        }
         // bottom
-        if(n.y!=h-1)
-        	next[2]=nodes[n.x][n.y+1];     
+        if(n.y+1 < h && !nodes[n.x][n.y+1].pathTraversed) {
+        	next[2] = nodes[n.x][n.y+1];
+        	next[2].parent = n;
+        }
         // left
-        if(n.x!=0)
-        	next[3]=nodes[n.x-1][n.y];
+        if(n.x > 0 && !nodes[n.x-1][n.y].pathTraversed) {
+        	next[3] = nodes[n.x-1][n.y];
+        	next[3].parent = n;
+        }
 
         return next;
     }
+    
     
     public Node[] getAdjacent8(Node n){
         Node next[] = new Node[8];
         
         // top
-        if(n.y!=0)
-        	next[0]=nodes[n.x][n.y-1];   
+        if(n.y > 0 && !nodes[n.x][n.y-1].pathTraversed) {
+        	next[0] = nodes[n.x][n.y-1];   
+        	next[0].parent = n;
+        }
         // right
-        if(n.x!=w-1)
-        	next[1]=nodes[n.x+1][n.y];
+        if(n.x+1 < w && !nodes[n.x+1][n.y].pathTraversed) {
+        	next[1] = nodes[n.x+1][n.y];
+        	next[1].parent = n;
+        }
         // bottom
-        if(n.y!=h-1)
-        	next[2]=nodes[n.x][n.y+1];
+        if(n.y+1 < h && !nodes[n.x][n.y+1].pathTraversed) {
+        	next[2] = nodes[n.x][n.y+1];
+        	next[2].parent = n;
+        }
         // left
-        if(n.x!=0)
-        	next[3]=nodes[n.x-1][n.y];
+        if(n.x > 0 && !nodes[n.x-1][n.y].pathTraversed) {
+        	next[3] = nodes[n.x-1][n.y];
+        	next[3].parent = n;
+        }
         // WN
-        if(n.y!=0 && n.x!=0)
-        	next[4]=nodes[n.x-1][n.y-1];
+        if(n.y > 0 && n.x > 0 && !nodes[n.x-1][n.y-1].pathTraversed) {
+        	next[4] = nodes[n.x-1][n.y-1];
+        	next[4].parent = n;
+        }
         // NE
-        if(n.y!=0 && n.x!=w-1)
-        	next[5]=nodes[n.x+1][n.y-1];
+        if(n.y > 0 && n.x+1 < w && !nodes[n.x+1][n.y-1].pathTraversed) {
+        	next[5] = nodes[n.x+1][n.y-1];
+        	next[5].parent = n;
+        }
         // ES
-        if(n.y!=h-1 && n.x!=w-1)
-        	next[6]=nodes[n.x+1][n.y+1];        
+        if(n.y+1 < h && n.x+1 < w && !nodes[n.x+1][n.y+1].pathTraversed) {
+        	next[6] = nodes[n.x+1][n.y+1]; 
+        	next[6].parent = n;
+        }
         // SW
-        if(n.y!=h-1 && n.x!=0)
-        	next[7]=nodes[n.x-1][n.y+1];   
+        if(n.y+1 < h && n.x > 0 && !nodes[n.x-1][n.y+1].pathTraversed){
+        	next[7] = nodes[n.x-1][n.y+1];   
+        	next[7].parent = n;
+        }
         
         return next;
     }
-    
-    public Node getLowestAdjacent4(Node n){
-        Node next[] = getAdjacent4(n);
-        Node lowest = next[0];
-        double dist = Double.MAX_VALUE;
-        for(int i = 0; i<4; i++) {
-            if(next[i]!=null) {
-                double nextDist = next[i].distFromSrc();
-                if(nextDist < dist && nextDist >= 0 && 
-                		next[i].clearance > NO_CLEARANCE &&
-                		next[i].distFromDst() == -1) {
-                	lowest = next[i];
-                    dist = next[i].distFromSrc();
-                }
-            }
-        }
-        return lowest;
-    }   
-    
-    public Node getLowestAdjacent8(Node n){
-        Node next[] = getAdjacent8(n);
-        Node lowest = next[0];
-        double dist = Double.MAX_VALUE;
-        for(int i = 0; i<8; i++) {
-            if(next[i]!=null) {
-                double nextDist = next[i].distFromSrc();
-                if(nextDist < dist && nextDist >= 0 && 
-                		next[i].clearance > NO_CLEARANCE && 
-                		next[i].distFromDst() == -1) {
-                	lowest = next[i];
-                    dist = next[i].distFromSrc();
-                }
-            }
-        }
-        return lowest;
-    }   
 }

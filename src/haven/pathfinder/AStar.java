@@ -16,6 +16,7 @@ public class AStar implements PathFinder
     protected double mode; 
     private static final int INITIAL_CAPACITY = 100;
     private static final int PATH_CAPACITY = 100;
+    private static final int FAST_MODE_D = 3;
     
     public AStar() {
         super();
@@ -25,7 +26,7 @@ public class AStar implements PathFinder
     {
     	Node.dstNode = map.nodes[destination.x][destination.y];
     	
-    	mode = isFast?2:map.minWeight;
+    	mode = isFast?FAST_MODE_D:map.minWeight;
 
         open = new ArrayList<Node>(INITIAL_CAPACITY);
         open.add(Node.getSrc());
@@ -79,15 +80,13 @@ public class AStar implements PathFinder
         
         // if path has been found mark all the nodes within it
         if(found) {
-            List<Node> path = new ArrayList(PATH_CAPACITY);
-            Node next;
+            List<Node> path = new ArrayList<Node>(PATH_CAPACITY);
             Node cur = Node.getDst();
             Node end = Node.getSrc();
             while(cur != end) {
             	path.add(cur);
                 cur.addToPathFromDst(cur.distFromDst());
-                next = map.getLowestAdjacent8(cur);
-                cur = next;
+                cur = cur.parent;
                 cur.setPartOfPath(true);
             }
             Collections.reverse(path);
@@ -96,8 +95,6 @@ public class AStar implements PathFinder
         
         return null;
     }
-    
-
     
     public double manhattanDist(int ax, int ay, int bx, int by, double d) {
         return d * (Math.abs(ax - bx) + Math.abs(ay - by));

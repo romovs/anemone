@@ -14,7 +14,7 @@ public class Node
     	THICKET(6),
     	BLOCK(Long.MAX_VALUE),
     	BLOCK_DYNAMIC(Long.MAX_VALUE),
-    	NOT_IMPLEMENTED(1);
+    	NOT_IMPLEMENTED(3);
     	
     	private final long w;
 	    Type(long w) { this.w = w; }
@@ -25,9 +25,9 @@ public class Node
     public int clearance;
     public static Node srcNode;
     public static Node dstNode;
-
     public Type type = Type.NORMAL;
     
+    public Node parent;
     private long distFromSrc = -1;
     private long distFromDst = -1;
 
