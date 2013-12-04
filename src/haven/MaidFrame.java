@@ -11,13 +11,13 @@ import java.util.List;
 
 public class MaidFrame extends MainFrame implements KeyListener {
 
-    private List<ThreadUI> threads = new ArrayList<ThreadUI>();
+    public static List<ThreadUI> threads = new ArrayList<ThreadUI>();
     private int index;
     private Maid maid;
 
     public MaidFrame(int w, int h) {
         super(w, h);
-        
+
         Console.setscmd("bot", new Console.Command() {
             public void run(Console cons, String[] args) {
             	String[] maidArgs = null;
@@ -29,13 +29,21 @@ public class MaidFrame extends MainFrame implements KeyListener {
     }
 
     private void addSession() {
-        p.ui = new UI(new Coord(getWidth(), getHeight()), null);
-
         Thread t = new HackThread(new Runnable() {
 
             public void run() {
                 try {
                     while (true) {
+                    	
+                    	UI loginUi = p.newui(null);
+                    	
+                    	// add login UI so we can switch to it
+                    	// once the session has been established we will need to replace it with proper UI
+                    	ThreadUI loginThreadUi = new ThreadUI(Thread.currentThread(), loginUi);
+                    	threads.add(loginThreadUi);
+                        index = threads.size() - 1;
+                        p.ui = loginUi;
+
                         Bootstrap bill = new Bootstrap();
                         if (Config.defserv != null) {
                             bill.setaddr(Config.defserv);
@@ -44,37 +52,24 @@ public class MaidFrame extends MainFrame implements KeyListener {
                             bill.setinitcookie(Config.authuser, Config.authck);
                             Config.authck = null;
                         }
-                        Session sess = bill.run(p);
+                        
+                        Session sess = bill.run(p, loginUi);
                         RemoteUI rui = new RemoteUI(sess);
-                        rui.run(p.newui(sess));
+
+                        // remove the login UI
+                        threads.remove(loginThreadUi);
+                        
+                        UI n = p.newui(sess);
+                        threads.add(new ThreadUI(Thread.currentThread(), n));
+
+                        rui.run(n);
                     }
                 } catch (InterruptedException e) {
                 }
             }
         }, "Haven alternate thread");
 
-        threads.add(new ThreadUI(t, p.ui));
-
         t.start();
-
-        lastSession();
-    }
-
-    private void removeSession() {
-        if (threads.size() > 1) {
-            ThreadUI tui = threads.remove(index);
-
-            tui.thread.interrupt();
-            if (tui.ui.sess != null) {
-                tui.ui.sess.close();
-            }
-
-            previousSession();
-        } else {
-            if (p.ui.sess != null) {
-                p.ui.sess.close();
-            }
-        }
     }
 
     private void nextSession() {
@@ -102,16 +97,9 @@ public class MaidFrame extends MainFrame implements KeyListener {
     }
 
     private void switchUItoIndex() {
-        System.out.println(index);
-
-        p.ui = threads.get(index).getUi();
-
-        //p.repaint();
-        try {
-            p.uglyjoglhack();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        UI newUi = threads.get(index).getUi();
+        UI.instance = newUi;
+        p.ui = newUi;
     }
 
     @Override
@@ -201,9 +189,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 case KeyEvent.VK_INSERT:
                     addSession();
                     break;
-                case KeyEvent.VK_DELETE:
-                    removeSession();
-                    break;
                 case KeyEvent.VK_PAGE_UP:
                     nextSession();
                     break;
@@ -230,7 +215,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
         }
     }
 
-    @Override
+   // @Override
     public void run() {
         addWindowListener(new WindowAdapter() {
 
@@ -251,7 +236,16 @@ public class MaidFrame extends MainFrame implements KeyListener {
         p.setfsm(this);
         ui.start();
         try {
-            while (true) {
+            while (true) {         	
+            	UI loginUi = p.newui(null);
+            	
+            	// add login UI so we can switch to it
+            	// once the session has been established we will need to replace it with proper UI
+            	ThreadUI loginThreadUi = new ThreadUI(Thread.currentThread(), loginUi);
+            	threads.add(loginThreadUi);
+                index = threads.size() - 1;
+                p.ui = loginUi;
+            	
                 Bootstrap bill = new Bootstrap();
                 if (Config.defserv != null) {
                     bill.setaddr(Config.defserv);
@@ -260,9 +254,16 @@ public class MaidFrame extends MainFrame implements KeyListener {
                     bill.setinitcookie(Config.authuser, Config.authck);
                     Config.authck = null;
                 }
-                Session sess = bill.run(p);
+                
+                Session sess = bill.run(p, loginUi);
                 RemoteUI rui = new RemoteUI(sess);
-                rui.run(new MaidUI(maid, p.newui(sess)));
+
+                // remove the login UI
+                threads.remove(loginThreadUi);
+                
+                UI n = p.newui(sess);
+                threads.add(new ThreadUI(Thread.currentThread(), n));
+                rui.run(n);
             }
         } catch (InterruptedException e) {
         } finally {
@@ -388,25 +389,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
             }
         } catch (IOException e) {
             throw (new RuntimeException(e));
-        }
-    }
-
-    private class ThreadUI {
-
-        private Thread thread;
-        private UI ui;
-
-        public ThreadUI(Thread thread, UI ui) {
-            this.thread = thread;
-            this.ui = ui;
-        }
-
-        public Thread getThread() {
-            return thread;
-        }
-
-        public UI getUi() {
-            return ui;
         }
     }
 }

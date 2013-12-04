@@ -39,7 +39,7 @@ public class Logout extends Window {
 	
     public void wdgmsg(Widget sender, String msg, Object... args) {
 	if(sender == y) {
-	    ui.sess.close();
+	    ui.close();
 	} else if(sender == n) {
 	    ui.destroy(this);
 	} else if(sender == this) {

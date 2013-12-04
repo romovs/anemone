@@ -485,7 +485,7 @@ public class Maid {
     }
     
     public void doLogout() {
-        haven.ui.sess.close();
+        haven.ui.close();
     }
 
     public Gob getPlayer() {

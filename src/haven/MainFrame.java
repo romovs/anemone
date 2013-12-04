@@ -34,24 +34,13 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.LinkedList;
 
 import addons.MainScript; // new
 
 @SuppressWarnings("serial")
-public class MainFrame extends Frame implements Runnable, FSMan {
+public class MainFrame extends Frame implements FSMan {
     private static final String TITLE = String.format("Haven and Hearth (Anemone v%s)", Version.VERSION);
     HavenPanel p;
     ThreadGroup g;
@@ -189,41 +178,6 @@ public class MainFrame extends Frame implements Runnable, FSMan {
     public static Coord getCenterPoint() {
         return new Coord(centerPoint.x, centerPoint.y);
     }
-	
-    public void run() {
-	addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent e) {
-		    g.interrupt();
-		}
-	    });
-    addComponentListener(new ComponentAdapter() {
-        public void componentResized(ComponentEvent evt) {
-            innerSize.setSize(getWidth() - insetsSize.width, getHeight() - insetsSize.height);
-            centerPoint.setLocation(innerSize.width / 2, innerSize.height / 2);
-        }
-    });
-	Thread ui = new HackThread(p, "Haven UI thread");
-	p.setfsm(this);
-	ui.start();
-	try {
-	    while(true) {
-		Bootstrap bill = new Bootstrap();
-		if(Config.defserv != null)
-		    bill.setaddr(Config.defserv);
-		if((Config.authuser != null) && (Config.authck != null)) {
-		    bill.setinitcookie(Config.authuser, Config.authck);
-		    Config.authck = null;
-		}
-		Session sess = bill.run(p);
-		RemoteUI rui = new RemoteUI(sess);
-		rui.run(p.newui(sess));
-	    }
-	} catch(InterruptedException e) {
-	} finally {
-	    ui.interrupt();
-	    dispose();
-	}
-    }
     
     public static void setupres() {
 	if(ResCache.global != null)
@@ -252,110 +206,5 @@ public class MainFrame extends Frame implements Runnable, FSMan {
     
     static {
 	WebBrowser.self = JnlpBrowser.create();
-    }
-
-    private static void javabughack() throws InterruptedException {
-	/* Work around a stupid deadlock bug in AWT. */
-	try {
-	    javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
-		    public void run() {
-			PrintStream bitbucket = new PrintStream(new ByteArrayOutputStream());
-			bitbucket.print(LoginScreen.textf);
-			bitbucket.print(LoginScreen.textfs);
-		    }
-		});
-	} catch(java.lang.reflect.InvocationTargetException e) {
-	    /* Oh, how I love Swing! */
-	    throw(new Error(e));
-	}
-	/* Work around another deadl bug in Sun's JNLP client. */
-	javax.imageio.spi.IIORegistry.getDefaultInstance();
-    }
-
-    private static void main2(String[] args) {
-	Config.cmdline(args);
-	ThreadGroup g = HackThread.tg();
-	setupres();
-	MainFrame f = new MainFrame(800, 600);
-	if(Config.fullscreen)
-	    f.setfs();
-	f.g = g;
-	if(g instanceof haven.error.ErrorHandler) {
-	    final haven.error.ErrorHandler hg = (haven.error.ErrorHandler)g;
-	    hg.sethandler(new haven.error.ErrorGui(null) {
-		    public void errorsent() {
-			hg.interrupt();
-		    }
-		});
-	}
-	f.run();
-	dumplist(Resource.loadwaited, Config.loadwaited);
-	dumplist(Resource.cached(), Config.allused);
-	if(ResCache.global != null) {
-	    try {
-		Collection<Resource> used = new LinkedList<Resource>();
-		for(Resource res : Resource.cached()) {
-		    if(res.prio >= 0)
-			used.add(res);
-		}
-		Writer w = new OutputStreamWriter(ResCache.global.store("tmp/allused"), "UTF-8");
-		try {
-		    Resource.dumplist(used, w);
-		} finally {
-		    w.close();
-		}
-	    } catch(IOException e) {}
-	}
-    }
-    
-    public static void main(final String[] args) {
-	/* Set up the error handler as early as humanly possible. */
-	ThreadGroup g = new ThreadGroup("Haven client");
-	String ed;
-	if(!(ed = Utils.getprop("haven.errorurl", "")).equals("")) {
-	    try {
-		final haven.error.ErrorHandler hg = new haven.error.ErrorHandler(new java.net.URL(ed));
-		hg.sethandler(new haven.error.ErrorGui(null) {
-			public void errorsent() {
-			    hg.interrupt();
-			}
-		    });
-		g = hg;
-	    } catch(java.net.MalformedURLException e) {
-	    }
-	}
-	Thread main = new HackThread(g, new Runnable() {
-		public void run() {
-		    try {
-			javabughack();
-		    } catch(InterruptedException e) {
-			return;
-		    }
-		    main2(args);
-		}
-	    }, "Haven main thread");
-	main.start();
-	try {
-	    main.join();
-	} catch(InterruptedException e) {
-	    g.interrupt();
-	    return;
-	}
-	System.exit(0);
-    }
-	
-    private static void dumplist(Collection<Resource> list, String fn) {
-	try {
-	    if(fn != null) {
-		Writer w = new OutputStreamWriter(new FileOutputStream(fn), "UTF-8");
-		try {
-		    Resource.dumplist(list, w);
-		} finally {
-		    w.close();
-		}
-	    }
-	} catch(IOException e) {
-	    throw(new RuntimeException(e));
-	}
     }
 }

@@ -64,8 +64,8 @@ public class Bootstrap implements UI.Receiver {
 	address = addr;
     }
 	
-    public Session run(HavenPanel hp) throws InterruptedException {
-	ui = hp.newui(null);
+    public Session run(HavenPanel hp, UI ui) throws InterruptedException {
+	this.ui = ui;
 	ui.setreceiver(this);
 	ui.bind(new LoginScreen(ui.root), 1);
 	String username;

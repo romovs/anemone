@@ -129,6 +129,17 @@ public class UI {
 	rwidgets.put(root, 0);
 	this.sess = sess;
     }
+    
+    public void close() {
+     	int i;
+    	for (i = 0; i < MaidFrame.threads.size(); i++) {
+    		if (MaidFrame.threads.get(i).getUi() == this)
+    			break;
+        }
+    	if (i < MaidFrame.threads.size())
+    		MaidFrame.threads.remove(i);
+    	this.sess.close();
+    }
 	
     public void setreceiver(Receiver rcvr) {
 	this.rcvr = rcvr;

@@ -85,7 +85,7 @@ public class OptWnd extends Window {
 		}};
 	    new Button(new Coord(10, 70), 125, tab, "Log out") {
 		public void click() {
-		    ui.sess.close();
+		    ui.close();
 		}};
 	    new Button(new Coord(10, 100), 125, tab, "Toggle fullscreen") {
 		public void click() {
