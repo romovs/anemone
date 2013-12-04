@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 public class BuddyWnd extends Window {
-    public static BuddyWnd instance;
     private List<Buddy> buddies = new ArrayList<Buddy>();
     private Map<Integer, Buddy> idmap = new HashMap<Integer, Buddy>();
     private BuddyList bl;
@@ -78,13 +77,13 @@ public class BuddyWnd extends Window {
 	}
     };
     
-    static {
+   /* static {
 	Widget.addtype("buddy", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
 		    return(new BuddyWnd(c, parent));
 		}
 	    });
-    }
+    }*/
     
     private class Buddy {
 	int id;
@@ -363,7 +362,7 @@ public class BuddyWnd extends Window {
 
     public BuddyWnd(Coord c, Widget parent) {
 	super(c, new Coord(400, 370), parent, "Kin");
-	instance = this;
+
 	bl = new BuddyList(new Coord(10, 5), new Coord(180, 280), this) {
 		public void changed(Buddy b) {
 		    if(b != null)

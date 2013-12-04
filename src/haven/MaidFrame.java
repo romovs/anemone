@@ -12,7 +12,7 @@ import java.util.List;
 public class MaidFrame extends MainFrame implements KeyListener {
 
     public static List<ThreadUI> threads = new ArrayList<ThreadUI>();
-    private int index;
+    public static int index;
     private Maid maid;
 
     public MaidFrame(int w, int h) {
@@ -27,6 +27,10 @@ public class MaidFrame extends MainFrame implements KeyListener {
             }
         });
     }
+    
+    public static ThreadUI getCurrentThreadUI() {
+    	return threads.get(index);
+    }
 
     private void addSession() {
         Thread t = new HackThread(new Runnable() {
@@ -35,7 +39,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 try {
                     while (true) {
                     	
-                    	UI loginUi = p.newui(null);
+                    	UI loginUi = p.newui(maid, null);
                     	
                     	// add login UI so we can switch to it
                     	// once the session has been established we will need to replace it with proper UI
@@ -60,7 +64,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
                         // remove the login UI
                         threads.remove(loginThreadUi);
                         
-                        UI n = p.newui(sess);
+                        UI n = p.newui(maid, sess);
                         threads.add(new ThreadUI(Thread.currentThread(), n));
 
                         rui.run(n);
@@ -239,7 +243,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
         ui.start();
         try {
             while (true) {         	
-            	UI loginUi = p.newui(null);
+            	UI loginUi = p.newui(maid, null);
             	
             	// add login UI so we can switch to it
             	// once the session has been established we will need to replace it with proper UI
@@ -263,7 +267,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 // remove the login UI
                 threads.remove(loginThreadUi);
                 
-                UI n = p.newui(sess);
+                UI n = p.newui(maid, sess);
                 threads.add(new ThreadUI(Thread.currentThread(), n));
                 rui.run(n);
             }

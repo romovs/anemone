@@ -45,7 +45,6 @@ import java.util.Observer;
 import java.util.TreeMap;
 
 public class CharWnd extends Window {
-    public static CharWnd instance;
     Widget cattr, skill, belief;
     Worship ancw;
     Label cost, skcost;
@@ -79,7 +78,7 @@ public class CharWnd extends Window {
 	
 	ArrayList<sliderClass> autoSlide = new ArrayList<sliderClass>(); // new
 	
-    static {
+   /* static {
 	Widget.addtype("chr", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
 		    int studyid = -1;
@@ -88,8 +87,19 @@ public class CharWnd extends Window {
 		    return(new CharWnd(c, parent, studyid));
 		}
 	    });
-    }
+    }*/
     
+	
+	public Widget create(Coord c, Widget parent, Object[] args) {
+	    System.out.print("blaaaa___________1");
+	    int studyid = -1;
+	    if(args.length > 0)
+		studyid = (Integer)args[0];
+	    System.out.print("blaaaa___________2");
+
+	    return(new CharWnd(c, parent, studyid));
+	}
+	
     class Attr implements Observer {
 	String nm;
 	Glob.CAttr attr;
@@ -742,7 +752,6 @@ public class CharWnd extends Window {
 
     public CharWnd(Coord c, Widget parent, int studyid) {
 	super(c, new Coord(400, 340), parent, "Character Sheet");
-	instance = this;
 	int y;
 	cattr = new Widget(Coord.z, new Coord(400, 300), this);
 	new Label(new Coord(10, 10), cattr, "Base Attributes:");

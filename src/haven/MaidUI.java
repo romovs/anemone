@@ -1,34 +1,27 @@
 package haven;
 
+import haven.UI.UIException;
 import haven.event.*;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class MaidUI extends UI {
+public class MaidUI extends UI {
 	private static final Pattern progress = Pattern.compile("gfx/hud/prog/(\\d+)");
 	private static final Pattern cursorName = Pattern.compile("gfx/hud/curs/(.+)");
 	
 	private final Maid maid;
-	private final UI ui;
 	
 	private int progressWdgId;
 
-	public MaidUI(Maid maid, UI ui) {
-		super(null, null);
-                
-                try {
-                    UI.instance = ui;
-                } catch (Exception e) {
-                    System.err.println("Not running Ender's");
-                }
-		
+	public MaidUI(Maid maid, Coord c, Session ses) {
+		super(c, ses);
 		this.maid = maid;
-		this.ui = ui;
 	}
 
 	@Override
 	public void setreceiver(final Receiver rcvr) {
-		ui.setreceiver(new Receiver() {
+		this.rcvr = new Receiver() {
 			public void rcvmsg(int id, String msg, Object... args) {
 				System.out.print("rcvmsg\tid: " + id + "\tmsg:" + msg);
 				for(int i = 0; i < args.length; i++) {
@@ -38,12 +31,48 @@ class MaidUI extends UI {
 				
 				rcvr.rcvmsg(id, msg, args);
 			}
-		});
+		};
 	}
 
 	@Override
 	public void newwidget(int id, String type, Coord c, int parent, Object... args) throws InterruptedException {
-		ui.newwidget(id, type, c, parent, args);
+		WidgetFactory f;
+		if(type.indexOf('/') >= 0) {
+		    int ver = -1, p;
+		    if((p = type.indexOf(':')) > 0) {
+			ver = Integer.parseInt(type.substring(p + 1));
+			type = type.substring(0, p);
+		    }
+		    Resource res = Resource.load(type, ver);
+		    res.loadwaitint();
+		    f = res.layer(Resource.CodeEntry.class).get(WidgetFactory.class);
+		} else {
+		    f = Widget.gettype(type);
+		}
+		synchronized(this) {
+		    Widget pwdg = widgets.get(parent);
+		    if(pwdg == null)
+			throw(new UIException("Null parent widget " + parent + " for " + id, type, args));
+		    
+		    Widget wdg ;
+		    if (type.equals("chr")) {
+			    int studyid = -1;
+			    if(args.length > 0)
+				studyid = (Integer)args[0];
+			    wdg = new CharWnd(c, pwdg, studyid);
+			    MaidFrame.getCurrentThreadUI().charWnd = (CharWnd)wdg;
+		    } else if (type.equals("buddy")) { 
+		    	wdg = new BuddyWnd(c, pwdg);
+		    	MaidFrame.getCurrentThreadUI().buddyWnd = (BuddyWnd)wdg;
+		    } else {
+		    	wdg = f.create(c, pwdg, args);
+		    }
+
+		    bind(wdg, id);
+		    wdg.binded();
+		    if(wdg instanceof MapView)
+			mainview = (MapView)wdg;
+		}
 		
 		System.out.print("newwidget\tid: " + id + "\ttype:" + type + "\tcoord: " + c + "\tparent:" + parent + "\targs:");
 		for(int i = 0; i < args.length; i++) {
@@ -58,13 +87,13 @@ class MaidUI extends UI {
 				if (maid.getTaskListener() != null && "img".equals(type)) {
 					onImgChange(maid.getTaskListener(), id, (String) args[0]);
 				} else if (maid.getItemListener() != null && "item".equals(type)) {
-					onItemDisplay(maid.getItemListener(), (Item) ui.widgets.get(id));
+					onItemDisplay(maid.getItemListener(), (Item) widgets.get(id));
 				} else if (maid.getWidgetListener() != null && "sm".equals(type)) {
-					onWidgetCreate(maid.getWidgetListener(), (FlowerMenu) ui.widgets.get(id));
+					onWidgetCreate(maid.getWidgetListener(), (FlowerMenu) widgets.get(id));
 				} else if (maid.getWidgetListener() != null && "inv".equals(type)) {
-					onWidgetCreate(maid.getWidgetListener(), (Inventory) ui.widgets.get(id));
+					onWidgetCreate(maid.getWidgetListener(), (Inventory) widgets.get(id));
 				} else if (maid.getWidgetListener() != null && "make".equals(type)) {
-					onWidgetCreate(maid.getWidgetListener(), (Makewindow) ui.widgets.get(id));
+					onWidgetCreate(maid.getWidgetListener(), (Makewindow) widgets.get(id));
 				}
 			} catch (Throwable t) {
 				errorInEventProcessing(t);
@@ -74,7 +103,14 @@ class MaidUI extends UI {
 
 	@Override
 	public void uimsg(int id, String msg, Object... args) {
-		ui.uimsg(id, msg, args);
+		Widget wdg;
+		synchronized(this) {
+		    wdg = widgets.get(id);
+		}
+		if(wdg != null)
+		    wdg.uimsg(msg.intern(), args);
+		else
+		    throw(new UIException("Uimsg to non-existent widget " + id, msg, args));
 		
 		System.out.print("uimsg\tid: " + id + "\tmsg:" + msg);
 		for(int i = 0; i < args.length; i++) {
@@ -83,7 +119,7 @@ class MaidUI extends UI {
 		System.out.println();
 		
 		try {
-			Widget wdg = ui.widgets.get(id);
+		    wdg = widgets.get(id);
 			if (maid.getMeterListener() != null && wdg instanceof IMeter && "set".equals(msg)) {
 				onIMeterChange(maid.getMeterListener(), (IMeter) wdg, args);
 			} else if (maid.getTaskListener() != null && wdg instanceof Img && "ch".equals(msg)) {
@@ -114,7 +150,7 @@ class MaidUI extends UI {
 
 	@Override
 	public void destroy(int id) {
-		Widget wdg = ui.widgets.get(id);
+		Widget wdg = widgets.get(id);
 		
 		System.out.println("destroy\tid: " + id);
 		
@@ -128,7 +164,12 @@ class MaidUI extends UI {
 			errorInEventProcessing(t);
 		}
 		
-		ui.destroy(id);
+		synchronized(this) {
+		    if(widgets.containsKey(id)) {
+			wdg = widgets.get(id);
+			destroy(wdg);
+		    }
+		}
 	}
 	
 	private void errorInEventProcessing(Throwable t) {

@@ -238,11 +238,11 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	ui.fsm = this.fsm;
     }
     
-    UI newui(Session sess) {
-	ui = new UI(new Coord(w, h), sess);
+    MaidUI newui(Maid maid, Session sess) {
+	ui = new MaidUI(maid, new Coord(w, h), sess);
 	ui.root.gprof = prof;
 	ui.fsm = this.fsm;
-	return(ui);
+	return (MaidUI) (ui);
     }
 	
     private static Cursor makeawtcurs(BufferedImage img, Coord hs) {
