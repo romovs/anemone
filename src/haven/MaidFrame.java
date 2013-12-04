@@ -42,6 +42,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
                     	ThreadUI loginThreadUi = new ThreadUI(Thread.currentThread(), loginUi);
                     	threads.add(loginThreadUi);
                         index = threads.size() - 1;
+                		MainFrame.instance.setTitle(null);
                         p.ui = loginUi;
 
                         Bootstrap bill = new Bootstrap();
@@ -100,6 +101,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
         UI newUi = threads.get(index).getUi();
         UI.instance = newUi;
         p.ui = newUi;
+		MainFrame.instance.setTitle(p.ui.sess != null ? p.ui.sess.charname : null);
     }
 
     @Override
