@@ -46,7 +46,7 @@ public class Logout extends Window {
 	    if(msg == "close")
 		ui.destroy(this);
 	    if(msg == "activate")
-		ui.sess.close();
+		MaidFrame.getCurrentThreadUI().getUi().close();
 	} else {
 	    super.wdgmsg(sender, msg, args);
 	}
