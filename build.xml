@@ -133,6 +133,7 @@
   <target name="clean">
     <delete dir="build/classes" />
     <delete dir="build/classes-lib" />
+    <delete file="build/maid.jar" />
   </target>
   
   <target name="rebuild" depends="clean, jars">   
