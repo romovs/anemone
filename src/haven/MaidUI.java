@@ -80,7 +80,10 @@ public class MaidUI extends UI {
 		    wdg.binded();
 		    if(wdg instanceof MapView) {
 		    	mainview = (MapView)wdg;
-            	newwidget(SessionBar.ID, "sessionbar", SessionBar.initPos, 0);
+		    	
+		    	MaidFrame.getCurrentSession().sb = new SessionBar(SessionBar.initPos, pwdg);
+		    	if (MaidFrame.getSessionCount() == 1)
+		    		MaidFrame.getCurrentSession().sb.visible = false;
 		    }
 		}
 		

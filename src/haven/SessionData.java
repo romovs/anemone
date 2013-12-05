@@ -7,6 +7,7 @@ public class SessionData {
 	public CharWnd charWnd;
 	public BuddyWnd buddyWnd;
 	private Tex avatar = null;
+	public SessionBar sb;
 	
     public SessionData(Thread thread, UI ui) {
         this.thread = thread;

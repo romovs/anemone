@@ -33,6 +33,8 @@ public class MaidFrame extends MainFrame implements KeyListener {
     }
 
     private void addSession() {
+    	sessions.get(0).sb.visible = true;
+    	
         Thread t = new HackThread(new Runnable() {
 
             public void run() {
