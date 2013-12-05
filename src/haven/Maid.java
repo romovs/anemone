@@ -9,6 +9,7 @@ import haven.event.*;
 import haven.pathfinder.AStar;
 import haven.pathfinder.DbgWnd;
 import haven.pathfinder.Map;
+import haven.pathfinder.Node;
 import haven.pathfinder.PathFinder;
 
 import java.io.File;
@@ -27,7 +28,6 @@ public class Maid {
     private final GroovyScriptEngine engine;
     private final Binding binding;
     private final ThreadGroup taskGroup;
-    private HavenPanel haven;
     private Thread task, wait;
     private TaskListener taskListener;
     private CursorListener cursorListener;
@@ -37,6 +37,7 @@ public class Maid {
     private PackListener packListener;
     private int menuGridId = 0;
     private HWindow areaChat;
+    public MaidUI ui;
     
     // helper objects for getting current meter values for situations when event based mechanism is not needed
     public MeterEventObjectHunger meterHunger;			
@@ -200,9 +201,9 @@ public class Maid {
         clearListeners();
     }
 
-    void setHaven(HavenPanel haven) {
+  /*  void setHaven(HavenPanel haven) {
         this.haven = haven;
-    }
+    }*/
 
     void setMenuGridId(int menuGridId) {
         this.menuGridId = menuGridId;
@@ -485,22 +486,22 @@ public class Maid {
     }
     
     public void doLogout() {
-        haven.ui.close();
+    	ui.close();
     }
 
     public Gob getPlayer() {
-        return haven.ui.sess.glob.oc.getgob(haven.ui.mainview.playergob);
+        return ui.sess.glob.oc.getgob(ui.mainview.playergob);
     }
 
     public Coord getScreenCenter() {
         Coord sc = new Coord(
-                (int) Math.round(Math.random() * 200 + haven.ui.mainview.sz.x / 2 - 100),
-                (int) Math.round(Math.random() * 200 + haven.ui.mainview.sz.y / 2 - 100));
+                (int) Math.round(Math.random() * 200 + ui.mainview.sz.x / 2 - 100),
+                (int) Math.round(Math.random() * 200 + ui.mainview.sz.y / 2 - 100));
         return sc;
     }
 
     public String getCursorName() {
-        return haven.ui.root.getcurs(haven.mousepos).basename();
+        return ui.root.getcurs(MainFrame.p.mousepos).basename();
     }
 
     public Coord getCoord(Gob gob) {
@@ -545,7 +546,7 @@ public class Maid {
     }
 
     public <C> C getWidget(Class<C> klass) {
-        for (Widget w : haven.ui.rwidgets.keySet()) {
+        for (Widget w : ui.rwidgets.keySet()) {
 
             if (klass.isInstance(w)) {
                 return klass.cast(w);
@@ -556,7 +557,7 @@ public class Maid {
 
     public <C> C[] getWidgets(Class<C> klass) {
         List<C> widgets = new ArrayList<C>();
-        for (Widget w : haven.ui.rwidgets.keySet()) {
+        for (Widget w : ui.rwidgets.keySet()) {
 
             if (klass.isInstance(w)) {
                 widgets.add(klass.cast(w));
@@ -566,7 +567,7 @@ public class Maid {
     }
 
     public Inventory getInventory(String name) {
-        for (Widget wdg = haven.ui.root.child; wdg != null; wdg = wdg.next) {
+        for (Widget wdg = ui.root.child; wdg != null; wdg = wdg.next) {
             if (wdg instanceof Window) {
                 Window window = (Window) wdg;
                 if (window.cap != null && window.cap.text.equalsIgnoreCase(name)) {
@@ -641,7 +642,7 @@ public class Maid {
     }
 
     public Buff[] getBuffs() {
-        Collection<Buff> c = haven.ui.sess.glob.buffs.values();
+        Collection<Buff> c = ui.sess.glob.buffs.values();
         return c.toArray(new Buff[c.size()]);
     }
 
@@ -680,7 +681,7 @@ public class Maid {
     }
 
     public boolean isDragging() {
-        for (Widget wdg = haven.ui.root.child; wdg != null; wdg = wdg.next) {
+        for (Widget wdg = ui.root.child; wdg != null; wdg = wdg.next) {
             if ((wdg instanceof Item) && (((Item) wdg).dm)) {
                 return true;
             }
@@ -690,14 +691,14 @@ public class Maid {
 
     public void doAction(String msg, Object... args) {
         if (menuGridId != 0) {
-            haven.ui.rcvr.rcvmsg(menuGridId, msg, args);
+        	ui.rcvr.rcvmsg(menuGridId, msg, args);
         } else {
             doErr("menuGrid not identified");
         }
     }
 
     public void doInteract(Coord mc, int modflags) {
-        haven.ui.mainview.wdgmsg("itemact", getScreenCenter(), mc, modflags);
+    	ui.mainview.wdgmsg("itemact", getScreenCenter(), mc, modflags);
     }
 
     public void doInteract(Coord mc) {
@@ -705,7 +706,7 @@ public class Maid {
     }
 
     public void doClick(Coord mc, int button, int modflags) {
-        haven.ui.mainview.wdgmsg("click", getScreenCenter(), mc, button, modflags);
+    	ui.mainview.wdgmsg("click", getScreenCenter(), mc, button, modflags);
     }
 
     public void doClick(Coord mc, int button) {
@@ -731,7 +732,7 @@ public class Maid {
     public void doClick(Gob gob, int button, int modflags) {
         Coord sc = getScreenCenter();
         Coord oc = gob.getc();
-        haven.ui.mainview.wdgmsg("click", sc, oc, button, modflags, gob.id, oc);
+        ui.mainview.wdgmsg("click", sc, oc, button, modflags, gob.id, oc);
     }
 
     public void doClick(Gob gob, int button) {
@@ -757,7 +758,7 @@ public class Maid {
     public void doInteract(Gob gob, int modflags) {
         Coord sc = getScreenCenter();
         Coord oc = gob.getc();
-        haven.ui.mainview.wdgmsg("itemact", sc, oc, modflags, gob.id, oc);
+        ui.mainview.wdgmsg("itemact", sc, oc, modflags, gob.id, oc);
     }
 
     public void doInteract(Gob gob) {
@@ -765,7 +766,7 @@ public class Maid {
     }
 
     public void doOpenInventory() {
-        haven.ui.root.wdgmsg("gk", 9);
+    	ui.root.wdgmsg("gk", 9);
     }
 
     public void doTake(Item i) {
@@ -801,8 +802,8 @@ public class Maid {
 
         Gob retval = null;
 
-        synchronized (haven.ui.sess.glob.oc) {
-            for (Gob gob : haven.ui.sess.glob.oc) {
+        synchronized (ui.sess.glob.oc) {
+            for (Gob gob : ui.sess.glob.oc) {
                 String gobName = getName(gob);
 
                 if (gobName != null && gobName.indexOf(name) > 0) {
@@ -835,8 +836,8 @@ public class Maid {
 
         Gob retval = null;
 
-        synchronized (haven.ui.sess.glob.oc) {
-            for (Gob gob : haven.ui.sess.glob.oc) {
+        synchronized (ui.sess.glob.oc) {
+            for (Gob gob : ui.sess.glob.oc) {
                 String gobName = getName(gob);
 
                 if (gobName != null && gobName.indexOf(name) > 0) {
@@ -858,8 +859,8 @@ public class Maid {
 
         double max = toTile(radius);
 
-        synchronized (haven.ui.sess.glob.oc) {
-            for (Gob gob : haven.ui.sess.glob.oc) {
+        synchronized (ui.sess.glob.oc) {
+            for (Gob gob : ui.sess.glob.oc) {
                 double dist = gob.getc().dist(coord);
                 if (dist < max) {
                     list.add(gob);
@@ -933,7 +934,7 @@ public class Maid {
     
 	public void doSayAreaChat(String str) {
 		if (areaChat == null) {
-			SlenHud panel = haven.ui.slen;
+			SlenHud panel = ui.slen;
 			for (HWindow wnd : panel.wnds) {
 				if (wnd.title.contains("Area Chat")) {
 					areaChat = wnd;
@@ -967,7 +968,7 @@ public class Maid {
   
     public void pathfinderTest() {
 
-        for (Widget w : haven.ui.rwidgets.keySet()) {
+        for (Widget w : ui.rwidgets.keySet()) {
            doSay(w.toString());
         }
         
@@ -976,20 +977,37 @@ public class Maid {
 
         MapView mv = getWidget(MapView.class);
         Gob player = getPlayer();
+        
+        long start = getCpuTime();
         scene.initScene(mv, player, doAreaList(50.0d));
+        long end = getCpuTime();
+        System.out.format("Scene Init Time: %s sec.\n", (double)(end-start)/1000000000.0d);
+        
         PathFinder finder = new AStar();
 
         app.setVisible(true);
         
+        start = getCpuTime();            
+        List<Node> path = finder.find(scene, new Coord(1070,480), true);      
+        end = getCpuTime();  
+        System.out.format("Finder Time: %s sec.\n", (double)(end-start)/1000000000.0d);
+        
+		Coord frameSz = MainFrame.getInnerSize();
+		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
+
+		/* for (Node n : path) {	
+        	doLeftClick(new Coord(n.x, n.y).sub(oc));
+        	try {
+				waitForMoveStop();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }*/
+    }
+    
+    private long getCpuTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        long start = bean.isCurrentThreadCpuTimeSupported( ) ? bean.getCurrentThreadCpuTime( ) : 0L;
-            
-        finder.find(scene, new Coord(1070,480), true);
-        
-        bean = ManagementFactory.getThreadMXBean();
-        long end = bean.isCurrentThreadCpuTimeSupported( ) ? bean.getCurrentThreadCpuTime( ) : 0L;
-        
-        
-        System.out.format("TIME: %s sec.\n", (end-start)/1000000000);
+        return bean.isCurrentThreadCpuTimeSupported( ) ? bean.getCurrentThreadCpuTime( ) : 0L;
     }
 }

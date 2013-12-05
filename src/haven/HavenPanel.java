@@ -127,7 +127,7 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	
     public void init() {
 	setFocusTraversalKeysEnabled(false);
-	ui = new UI(new Coord(w, h), null);
+	ui = new UI(null, new Coord(w, h), null);
 	addKeyListener(new KeyAdapter() {
 		public void keyTyped(KeyEvent e) {
 		    checkfs();
@@ -238,11 +238,13 @@ public class HavenPanel extends GLCanvas implements Runnable {
 	ui.fsm = this.fsm;
     }
     
-    MaidUI newui(Maid maid, Session sess) {
-	ui = new MaidUI(maid, new Coord(w, h), sess);
-	ui.root.gprof = prof;
-	ui.fsm = this.fsm;
-	return (MaidUI) (ui);
+    MaidUI newui(Session sess) {
+	    Maid maid = new Maid();
+		ui = new MaidUI(maid, new Coord(w, h), sess);
+		maid.ui = (MaidUI)ui;
+		ui.root.gprof = prof;
+		ui.fsm = this.fsm;
+		return (MaidUI) (ui);
     }
 	
     private static Cursor makeawtcurs(BufferedImage img, Coord hs) {

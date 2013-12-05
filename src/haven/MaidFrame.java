@@ -13,7 +13,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
 
     private static List<SessionData> sessions = new ArrayList<SessionData>();
     private static int index;
-    private Maid maid;
 
     public MaidFrame(int w, int h) {
         super(w, h);
@@ -23,7 +22,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
             	String[] maidArgs = null;
             	if (args.length > 2)
             		maidArgs = Arrays.copyOfRange(args, 2, args.length);
-                maid.doTask(args[1], maidArgs);
+                MaidUI.instance.maid.doTask(args[1], maidArgs);
             }
         });
     }
@@ -40,7 +39,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
             public void run() {
                 try {
                     while (true) {
-                    	UI loginUi = p.newui(maid, null);
+                    	UI loginUi = p.newui(null);
                     	
                     	// add login UI so we can switch to it
                     	// once the session has been established we will need to replace it with proper UI
@@ -61,7 +60,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
                         
                         Session sess = bill.run(p, loginUi);
                         RemoteUI rui = new RemoteUI(sess);
-                        UI n = p.newui(maid, sess);
+                        UI n = p.newui(sess);
                         replaceSession(loginThreadUi, new SessionData(Thread.currentThread(), n));
                         rui.run(n);
                     }
@@ -110,8 +109,8 @@ public class MaidFrame extends MainFrame implements KeyListener {
         p.ui = newUi;
 		MainFrame.instance.setTitle(p.ui.sess != null ? p.ui.sess.charname : null);
     }
-    
 
+    
     public synchronized static void switchToSession(int index) {
     	if (index != MaidFrame.index) {
     		MaidFrame.index = index;
@@ -142,11 +141,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
     public Component add(Component comp) {
         if (comp instanceof HavenPanel) {
             comp.addKeyListener(this);
-
-            if (maid == null) {
-                maid = new Maid();
-            }
-            maid.setHaven((HavenPanel) comp);
         }
 
         return super.add(comp);
@@ -156,8 +150,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
     public void remove(Component comp) {
         if (comp instanceof HavenPanel) {
             comp.removeKeyListener(this);
-
-            maid = null;
         }
         super.remove(comp);
     }
@@ -216,9 +208,9 @@ public class MaidFrame extends MainFrame implements KeyListener {
             }
             e.consume();
             if (i >= 0) {
-                maid.doTask(i);
+            	MaidUI.instance.maid.doTask(i);
             } else if (i == -2) {
-                maid.stopTask();
+            	MaidUI.instance.maid.stopTask();
             }
         } else if (e.isAltDown()) {
             switch (e.getKeyCode()) {
@@ -273,7 +265,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
         ui.start();
         try {
             while (true) {         	
-            	UI loginUi = p.newui(maid, null);
+            	UI loginUi = p.newui(null);
             	
             	// add login UI so we can switch to it
             	// once the session has been established we will need to replace it with proper UI
@@ -292,7 +284,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 
                 Session sess = bill.run(p, loginUi);
                 RemoteUI rui = new RemoteUI(sess);
-                UI n = p.newui(maid, sess);
+                UI n = p.newui(sess);
                 replaceSession(loginThreadUi, new SessionData(Thread.currentThread(), n));
 
                 rui.run(n);

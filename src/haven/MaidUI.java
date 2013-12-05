@@ -7,14 +7,10 @@ import java.util.regex.Pattern;
 public class MaidUI extends UI {
 	private static final Pattern progress = Pattern.compile("gfx/hud/prog/(\\d+)");
 	private static final Pattern cursorName = Pattern.compile("gfx/hud/curs/(.+)");
-	
-	private final Maid maid;
-	
 	private int progressWdgId;
 
 	public MaidUI(Maid maid, Coord c, Session ses) {
-		super(c, ses);
-		this.maid = maid;
+		super(maid, c, ses);
 	}
 
 	@Override

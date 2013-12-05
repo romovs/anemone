@@ -42,7 +42,7 @@ import addons.MainScript; // new
 @SuppressWarnings("serial")
 public class MainFrame extends Frame implements FSMan {
     private static final String TITLE = String.format("Haven and Hearth (Anemone v%s)", Version.VERSION);
-    HavenPanel p;
+    public static HavenPanel p;
     ThreadGroup g;
     DisplayMode fsmode = null, prefs = null;
     Dimension insetsSize;

@@ -59,6 +59,7 @@ public class UI {
     public FSMan fsm;
     public Console cons = new WidgetConsole();
     private Collection<AfterDraw> afterdraws = null;
+	public final Maid maid;
     
     public interface Receiver {
 	public void rcvmsg(int widget, String msg, Object... args);
@@ -122,8 +123,9 @@ public class UI {
 	}
     }
 	
-    public UI(Coord sz, Session sess) {
+    public UI(Maid maid, Coord sz, Session sess) {
 	instance = this;
+	this.maid = maid;
 	root = new RootWidget(this, sz);
 	widgets.put(0, root);
 	rwidgets.put(root, 0);
