@@ -59,7 +59,7 @@ public class UI {
     public FSMan fsm;
     public Console cons = new WidgetConsole();
     private Collection<AfterDraw> afterdraws = null;
-	
+    
     public interface Receiver {
 	public void rcvmsg(int widget, String msg, Object... args);
     }
@@ -131,13 +131,7 @@ public class UI {
     }
     
     public void close() {
-     	int i;
-    	for (i = 0; i < MaidFrame.threads.size(); i++) {
-    		if (MaidFrame.threads.get(i).getUi() == this)
-    			break;
-        }
-    	if (i < MaidFrame.threads.size())
-    		MaidFrame.threads.remove(i);
+     	MaidFrame.removeSession(this);
     	this.sess.close();
     }
 	

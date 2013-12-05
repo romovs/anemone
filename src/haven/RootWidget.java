@@ -97,10 +97,10 @@ public class RootWidget extends ConsoleHost {
 	    } else if((code == KeyEvent.VK_G)&&alt) {
 		IRChatHW.open();
 	    } else if(((int)key == 2)&ctrl) {//CTRL-B have code of 02
-			BuddyWnd bw = MaidFrame.getCurrentThreadUI().buddyWnd;
+			BuddyWnd bw = MaidFrame.getCurrentSession().buddyWnd;
 	    	bw.visible = !bw.visible;
 	    } else if(((int)key == 20)&ctrl) {//CTRL-T have code of 20
-	    	MaidFrame.getCurrentThreadUI().charWnd.toggle();
+	    	MaidFrame.getCurrentSession().charWnd.toggle();
 	    } else if(code == KeyEvent.VK_HOME) {
 		ui.mainview.resetcam();
 	    } else if(code == KeyEvent.VK_END) {

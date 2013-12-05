@@ -1,8 +1,6 @@
 package haven;
 
-import haven.UI.UIException;
 import haven.event.*;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +34,13 @@ public class MaidUI extends UI {
 
 	@Override
 	public void newwidget(int id, String type, Coord c, int parent, Object... args) throws InterruptedException {
+		System.out.print("newwidget\tid: " + id + "\ttype:" + type + "\tcoord: " + c + "\tparent:" + parent + "\targs:");
+		for(int i = 0; i < args.length; i++) {
+			System.out.print(" " + args[i]);
+		}
+		System.out.println();
+		
+		
 		WidgetFactory f;
 		if(type.indexOf('/') >= 0) {
 		    int ver = -1, p;
@@ -60,26 +65,26 @@ public class MaidUI extends UI {
 			    if(args.length > 0)
 				studyid = (Integer)args[0];
 			    wdg = new CharWnd(c, pwdg, studyid);
-			    MaidFrame.getCurrentThreadUI().charWnd = (CharWnd)wdg;
+			    MaidFrame.getCurrentSession().charWnd = (CharWnd)wdg;
 		    } else if (type.equals("buddy")) { 
 		    	wdg = new BuddyWnd(c, pwdg);
-		    	MaidFrame.getCurrentThreadUI().buddyWnd = (BuddyWnd)wdg;
+		    	MaidFrame.getCurrentSession().buddyWnd = (BuddyWnd)wdg;
+		    } else if (type.equals("av")) {
+		    	wdg = f.create(c, pwdg, args);
+		    	MaidFrame.getCurrentSession().setAvatar((Avaview)wdg);
 		    } else {
 		    	wdg = f.create(c, pwdg, args);
 		    }
 
 		    bind(wdg, id);
 		    wdg.binded();
-		    if(wdg instanceof MapView)
-			mainview = (MapView)wdg;
+		    if(wdg instanceof MapView) {
+		    	mainview = (MapView)wdg;
+            	newwidget(SessionBar.ID, "sessionbar", SessionBar.initPos, 0);
+		    }
 		}
 		
-		System.out.print("newwidget\tid: " + id + "\ttype:" + type + "\tcoord: " + c + "\tparent:" + parent + "\targs:");
-		for(int i = 0; i < args.length; i++) {
-			System.out.print(" " + args[i]);
-		}
-		System.out.println();
-		
+
 		if ("scm".equals(type)) {
 			maid.setMenuGridId(id);
 		} else {

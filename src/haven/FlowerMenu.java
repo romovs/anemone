@@ -213,7 +213,7 @@ public class FlowerMenu extends Widget {
 	} else if(msg == "act") {
 		// ugly hack to remove UI from session list when Sleeping
 		if (opts[0].name.equals("Sleep"))
-			MaidFrame.getCurrentThreadUI().getUi().close();
+			MaidFrame.getCurrentSession().getUI().close();
 
 	    anim = new Chosen(opts[(Integer)args[0]]);
 	    ui.grabmouse(null);

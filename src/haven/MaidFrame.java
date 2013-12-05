@@ -11,8 +11,8 @@ import java.util.List;
 
 public class MaidFrame extends MainFrame implements KeyListener {
 
-    public static List<ThreadUI> threads = new ArrayList<ThreadUI>();
-    public static int index;
+    private static List<SessionData> sessions = new ArrayList<SessionData>();
+    private static int index;
     private Maid maid;
 
     public MaidFrame(int w, int h) {
@@ -28,8 +28,8 @@ public class MaidFrame extends MainFrame implements KeyListener {
         });
     }
     
-    public static ThreadUI getCurrentThreadUI() {
-    	return threads.get(index);
+    public synchronized static SessionData getCurrentSession() {
+    	return (index < sessions.size()) ? sessions.get(index) : null;
     }
 
     private void addSession() {
@@ -38,17 +38,16 @@ public class MaidFrame extends MainFrame implements KeyListener {
             public void run() {
                 try {
                     while (true) {
-                    	
                     	UI loginUi = p.newui(maid, null);
                     	
                     	// add login UI so we can switch to it
                     	// once the session has been established we will need to replace it with proper UI
-                    	ThreadUI loginThreadUi = new ThreadUI(Thread.currentThread(), loginUi);
-                    	threads.add(loginThreadUi);
-                        index = threads.size() - 1;
+                    	SessionData loginThreadUi = new SessionData(Thread.currentThread(), loginUi);
+                    	addSession(loginThreadUi);
                 		MainFrame.instance.setTitle(null);
                         p.ui = loginUi;
-
+                        loginUi.newwidget(SessionBar.ID, "sessionbar", SessionBar.initPos, 0);
+                        
                         Bootstrap bill = new Bootstrap();
                         if (Config.defserv != null) {
                             bill.setaddr(Config.defserv);
@@ -60,13 +59,8 @@ public class MaidFrame extends MainFrame implements KeyListener {
                         
                         Session sess = bill.run(p, loginUi);
                         RemoteUI rui = new RemoteUI(sess);
-
-                        // remove the login UI
-                        threads.remove(loginThreadUi);
-                        
                         UI n = p.newui(maid, sess);
-                        threads.add(new ThreadUI(Thread.currentThread(), n));
-
+                        replaceSession(loginThreadUi, new SessionData(Thread.currentThread(), n));
                         rui.run(n);
                     }
                 } catch (InterruptedException e) {
@@ -76,36 +70,70 @@ public class MaidFrame extends MainFrame implements KeyListener {
 
         t.start();
     }
-
-    private void nextSession() {
-        index = (index + 1) % threads.size();
-
-        switchUItoIndex();
+    
+    
+    private synchronized static void addSession(SessionData ses) {
+    	sessions.add(ses);
+        index = sessions.size() - 1;
+    }
+    
+    private synchronized static void replaceSession(SessionData ses, SessionData newSes) {
+        sessions.remove(ses);
+        sessions.add(newSes);
     }
 
-    private void previousSession() {
-        index = index == 0 ? threads.size() - 1 : index - 1;
-
-        switchUItoIndex();
+    private synchronized static void nextSession() {
+        index = (index + 1) % sessions.size();
+        ((MaidFrame)MainFrame.instance).switchSession();
     }
 
-    private void firstSession() {
+    private synchronized static void previousSession() {
+        index = index == 0 ? sessions.size() - 1 : index - 1;
+        ((MaidFrame)MainFrame.instance).switchSession();
+    }
+
+    private synchronized static void firstSession() {
         index = 0;
-
-        switchUItoIndex();
+        ((MaidFrame)MainFrame.instance).switchSession();
     }
 
-    private void lastSession() {
-        index = threads.size() - 1;
-
-        switchUItoIndex();
+    private synchronized static void lastSession() {
+        index = sessions.size() - 1;
+        ((MaidFrame)MainFrame.instance).switchSession();
     }
 
-    private void switchUItoIndex() {
-        UI newUi = threads.get(index).getUi();
+    private void switchSession() {
+        UI newUi = sessions.get(index).getUI();
         UI.instance = newUi;
         p.ui = newUi;
 		MainFrame.instance.setTitle(p.ui.sess != null ? p.ui.sess.charname : null);
+    }
+    
+
+    public synchronized static void switchToSession(int index) {
+    	if (index != MaidFrame.index) {
+    		MaidFrame.index = index;
+    		((MaidFrame)MainFrame.instance).switchSession();
+    	}
+    }
+
+    // This is not synchronized!!! Extra care should be taken when using!
+    public static List<SessionData> getSessionList() {
+    	return sessions;
+    }
+    
+    public static int getSessionCount() {
+    	return sessions.size();
+    }
+    
+    public synchronized static void removeSession(UI ui) {
+    	int i;
+    	for (i = 0; i < sessions.size(); i++) {
+    		if (sessions.get(i).getUI() == ui)
+    			break;
+        }
+    	if (i < sessions.size())
+    		sessions.remove(i);
     }
 
     @Override
@@ -247,9 +275,8 @@ public class MaidFrame extends MainFrame implements KeyListener {
             	
             	// add login UI so we can switch to it
             	// once the session has been established we will need to replace it with proper UI
-            	ThreadUI loginThreadUi = new ThreadUI(Thread.currentThread(), loginUi);
-            	threads.add(loginThreadUi);
-                index = threads.size() - 1;
+            	SessionData loginThreadUi = new SessionData(Thread.currentThread(), loginUi);
+            	addSession(loginThreadUi);
                 p.ui = loginUi;
             	
                 Bootstrap bill = new Bootstrap();
@@ -263,12 +290,9 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 
                 Session sess = bill.run(p, loginUi);
                 RemoteUI rui = new RemoteUI(sess);
-
-                // remove the login UI
-                threads.remove(loginThreadUi);
-                
                 UI n = p.newui(maid, sess);
-                threads.add(new ThreadUI(Thread.currentThread(), n));
+                replaceSession(loginThreadUi, new SessionData(Thread.currentThread(), n));
+
                 rui.run(n);
             }
         } catch (InterruptedException e) {

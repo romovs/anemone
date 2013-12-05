@@ -287,10 +287,10 @@ public class SlenHud extends ConsoleHost implements DTarget, DropTarget, Console
 	    wdgmsg("equ");
 	    return;
 	} else if(sender == chrb){
-    	MaidFrame.getCurrentThreadUI().charWnd.toggle();
+    	MaidFrame.getCurrentSession().charWnd.toggle();
 	    return;
 	} else if(sender == budb) {
-		BuddyWnd bw = MaidFrame.getCurrentThreadUI().buddyWnd;
+		BuddyWnd bw = MaidFrame.getCurrentSession().buddyWnd;
     	bw.visible = !bw.visible;
 	    return;
 	} else if(sender == optb) {
