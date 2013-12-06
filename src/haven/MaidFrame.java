@@ -86,7 +86,13 @@ public class MaidFrame extends MainFrame implements KeyListener {
         UI newUi = sessions.get(index).getUI();
         UI.instance = newUi;
         p.ui = newUi;
-		MainFrame.instance.setTitle(p.ui.sess != null ? p.ui.sess.charname : null);
+		
+		if (p.ui.sess != null) {
+			MainFrame.instance.setTitle(p.ui.sess.charname);
+			UI.instance.sess.glob.oc.lastctick = 0;
+		} else {
+			MainFrame.instance.setTitle(null);
+		}
     }
 
     
