@@ -47,7 +47,7 @@ public class ChatHW extends HWindow {
 		boolean cl = false;
 		if(args.length > 1)
 		    cl = (Integer)args[1] != 0;
-		return(new ChatHW(parent, t, cl));
+		return(new ChatHW(parent, parent.ui, t, cl));
 	    }
 	});
 	todarken.add(Color.GREEN.getRGB());
@@ -55,8 +55,8 @@ public class ChatHW extends HWindow {
 	todarken.add(Color.YELLOW.getRGB());
     }
 
-    public ChatHW(Widget parent, String title, boolean closable) {
-	super((Widget)UI.instance.chat, title, closable);
+    public ChatHW(Widget parent, UI ui, String title, boolean closable) {
+	super(ui != null?(Widget)ui.chat:null, title, closable);
 	in = new TextEntry(new Coord(0, sz.y - 20), new Coord(sz.x, 20), this, "");
 	in.canactivate = true;
 	in.bgcolor = new Color(64, 64, 64, 192);

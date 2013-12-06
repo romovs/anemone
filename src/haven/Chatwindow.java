@@ -37,7 +37,7 @@ public class Chatwindow extends ChatHW {
     }
 	
     public Chatwindow(Coord c, Coord sz, Widget parent) {
-	super(parent,"Global",true);
+	super(parent, parent.ui, "Global",true);
     }
     public void uimsg(String msg, Object... args) {
 	if(msg == "log") {

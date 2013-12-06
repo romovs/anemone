@@ -342,8 +342,10 @@ public class SlenHud extends ConsoleHost implements DTarget, DropTarget, Console
 	    } else {
 		HWindow w = wnds.get(wi);
 		Button b = btns.get(w);
-		b.visible = true;
-		b.c = new Coord(b.c.x, 29 + (i * 20));
+		if (b != null) {
+			b.visible = true;
+			b.c = new Coord(b.c.x, 29 + (i * 20));
+		}
 	    }
 	}
     }

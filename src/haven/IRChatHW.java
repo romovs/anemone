@@ -7,7 +7,7 @@ public class IRChatHW extends ChatHW {
     private GlobalChat gc = null;
     
     public IRChatHW(String title) {
-	super(null, title, true);
+	super(null, null, title, true);
 	gc = new GlobalChat(this, ui.sess.charname);
     }
     
