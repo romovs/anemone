@@ -79,7 +79,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
     long polchtm = 0;
     int si = 4;
     double _scale = 1;
-    double scales[] = {0.5, 0.66, 0.8, 0.9, 1, 1.25, 1.5, 1.75, 2, 2.25}; // new
+    double scales[] = {0.5, 0.66, 0.8, 0.9, 1, 1.25, 1.5, 1.75, 2};
     Map<String, Integer> radiuses;
     int beast_check_delay = 0;
 	long lastah = 0;
