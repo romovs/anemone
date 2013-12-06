@@ -133,7 +133,6 @@ public class UI {
     }
     
     public void close() {
-     	MaidFrame.removeSession(this);
     	this.sess.close();
     }
 	

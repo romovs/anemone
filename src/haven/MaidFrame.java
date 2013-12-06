@@ -38,42 +38,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
 
             public void run() {
                 try {
-                	SessionData ns = null;
-                    while (true) {         	
-                    	UI loginUi = p.newui(null);
-                        p.ui = loginUi;
-                        
-                    	// add login UI so we can switch to it
-                    	// once the session has been established we will need to replace it with proper UI
-                    	SessionData loginThreadUi = new SessionData(Thread.currentThread(), loginUi);
-                        
-                    	// if session was closed remotely
-                        // we need to replace the old sessiondata object
-                    	if (ns != null)
-                            replaceSession(ns, loginThreadUi);
-                    	else 
-                    		addSession(loginThreadUi);
-                    	
-        		    	if (MaidFrame.getSessionCount() > 1)	
-        		    		p.ui.newwidget(SessionBar.ID, "sessionbar", SessionBar.initPos, 0);	
-
-                        Bootstrap bill = new Bootstrap();
-                        if (Config.defserv != null) {
-                            bill.setaddr(Config.defserv);
-                        }
-                        if ((Config.authuser != null) && (Config.authck != null)) {
-                            bill.setinitcookie(Config.authuser, Config.authck);
-                            Config.authck = null;
-                        }
-                        
-                        Session sess = bill.run(p, loginUi);
-                        RemoteUI rui = new RemoteUI(sess);
-                        UI n = p.newui(sess);
-                        ns = new SessionData(Thread.currentThread(), n);
-                        replaceSession(loginThreadUi, ns);
-
-                        rui.run(n);
-                    }
+                	sessionRunner();
                 } catch (InterruptedException e) {
                 }
             }
@@ -89,8 +54,12 @@ public class MaidFrame extends MainFrame implements KeyListener {
     }
     
     private synchronized static void replaceSession(SessionData ses, SessionData newSes) {
-        sessions.remove(ses);
-        sessions.add(newSes);
+    	int i = sessions.indexOf(ses);
+    	
+    	if (i >= 0)
+    		sessions.set(i, newSes);
+    	else
+    		sessions.add(newSes);
     }
 
     private synchronized static void nextSession() {
@@ -252,6 +221,46 @@ public class MaidFrame extends MainFrame implements KeyListener {
             e.consume();
         }
     }
+    
+    private void sessionRunner() throws InterruptedException {
+    	SessionData ns = null;
+        while (true) {         	
+        	UI loginUi = p.newui(null);
+            p.ui = loginUi;
+        	// add login UI so we can switch to it
+        	// once the session has been established we will need to replace it with proper UI
+        	SessionData loginThreadUi = new SessionData(Thread.currentThread(), loginUi);
+            
+        	// if session was closed remotely
+            // we need to replace the old sessiondata object
+        	if (ns != null)
+                replaceSession(ns, loginThreadUi);
+        	else 
+        		addSession(loginThreadUi);
+        	
+		    Widget pwdg = loginUi.widgets.get(0);
+	    	MaidFrame.getCurrentSession().sb = new SessionBar(SessionBar.initPos, pwdg);
+	    	if (MaidFrame.getSessionCount() == 1)
+	    		MaidFrame.getCurrentSession().sb.visible = false;
+        	
+            Bootstrap bill = new Bootstrap();
+            if (Config.defserv != null) {
+                bill.setaddr(Config.defserv);
+            }
+            if ((Config.authuser != null) && (Config.authck != null)) {
+                bill.setinitcookie(Config.authuser, Config.authck);
+                Config.authck = null;
+            }
+            
+            Session sess = bill.run(p, loginUi);
+            RemoteUI rui = new RemoteUI(sess);
+            UI n = p.newui(sess);
+            ns = new SessionData(Thread.currentThread(), n);
+            replaceSession(loginThreadUi, ns);
+
+            rui.run(n);
+        }
+    }
 
    // @Override
     public void run() {
@@ -274,38 +283,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
         p.setfsm(this);
         ui.start();
         try {
-        	SessionData ns = null;
-            while (true) {         	
-            	UI loginUi = p.newui(null);
-                p.ui = loginUi;
-            	// add login UI so we can switch to it
-            	// once the session has been established we will need to replace it with proper UI
-            	SessionData loginThreadUi = new SessionData(Thread.currentThread(), loginUi);
-                
-            	// if session was closed remotely
-                // we need to replace the old sessiondata object
-            	if (ns != null)
-                    replaceSession(ns, loginThreadUi);
-            	else 
-            		addSession(loginThreadUi);
-
-                Bootstrap bill = new Bootstrap();
-                if (Config.defserv != null) {
-                    bill.setaddr(Config.defserv);
-                }
-                if ((Config.authuser != null) && (Config.authck != null)) {
-                    bill.setinitcookie(Config.authuser, Config.authck);
-                    Config.authck = null;
-                }
-                
-                Session sess = bill.run(p, loginUi);
-                RemoteUI rui = new RemoteUI(sess);
-                UI n = p.newui(sess);
-                ns = new SessionData(Thread.currentThread(), n);
-                replaceSession(loginThreadUi, ns);
-
-                rui.run(n);
-            }
+        	sessionRunner();
         } catch (InterruptedException e) {
         } finally {
             ui.interrupt();

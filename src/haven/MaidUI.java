@@ -69,6 +69,11 @@ public class MaidUI extends UI {
 		    	wdg = f.create(c, pwdg, args);
 		    	if (MaidFrame.getCurrentSession().getAvatar() == null)
 		    		MaidFrame.getCurrentSession().setAvatar((Avaview)wdg);
+		    } else if (type.equals("charlist")) {
+		    	wdg = f.create(c, pwdg, args);
+		    	MaidFrame.getCurrentSession().sb = new SessionBar(SessionBar.initPos, pwdg);
+		    	if (MaidFrame.getSessionCount() == 1)
+		    		MaidFrame.getCurrentSession().sb.visible = false;
 		    } else {
 		    	wdg = f.create(c, pwdg, args);
 		    }

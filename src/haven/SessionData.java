@@ -27,11 +27,13 @@ public class SessionData {
     }
     
     public void setAvatar(Avaview av) {
-	    Gob gob = ui.sess.glob.oc.getgob(av.avagob);
-	    Avatar ava = null;
-	    if(gob != null)
-	    	ava = gob.getattr(Avatar.class);
-	    if(av != null)
-	    	avatar = ava.rend;	
+    	if (av != null) {
+		    Gob gob = ui.sess.glob.oc.getgob(av.avagob);
+		    Avatar ava = null;
+		    if(gob != null)
+		    	ava = gob.getattr(Avatar.class);
+		    if(av != null)
+		    	avatar = ava.rend;	
+    	}
     }
 }
