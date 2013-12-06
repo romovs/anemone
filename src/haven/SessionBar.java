@@ -7,7 +7,6 @@ public class SessionBar extends WindowTrans {
 	public final static int ID = 1000;
 	public static Coord initPos = new Coord(340, 10);
     private final static Tex bg = Resource.loadtex("gfx/hud/bgtex");
-    private static final Tex missing = Resource.loadtex("gfx/hud/equip/missing");
     private static final Coord unborder = new Coord(2, 2);
     private static final Coord dasz = new Coord(74, 74);
     private Color color = Color.WHITE;
@@ -86,7 +85,7 @@ public class SessionBar extends WindowTrans {
 		g.chcolor(color);
 		
 		Window.wbox.draw(g, Coord.z.add(avoffset, 0), avasz.add(Window.wbox.bisz()).add(unborder.mul(2).inv()));
-		g.chcolor();	    
+		g.chcolor();	 
     }
     
     
@@ -120,16 +119,13 @@ public class SessionBar extends WindowTrans {
     }
 
     @Override
-    public boolean mouseup(Coord c, int button) {
+    public boolean mousedown(Coord c, int button) {
 		if (button == 1) {
 			int i = getClickedAvatarIndex(c.x);
-			
 			if (i >= 0)
 				MaidFrame.switchToSession(i);
-
-		    ui.grabmouse(null);
 		}
-		super.mouseup(c, button);
+		super.mousedown(c, button);
 		
 		return (true);
     }
