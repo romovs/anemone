@@ -67,7 +67,8 @@ public class MaidUI extends UI {
 		    	MaidFrame.getCurrentSession().buddyWnd = (BuddyWnd)wdg;
 		    } else if (type.equals("av")) {
 		    	wdg = f.create(c, pwdg, args);
-		    	MaidFrame.getCurrentSession().setAvatar((Avaview)wdg);
+		    	if (MaidFrame.getCurrentSession().getAvatar() == null)
+		    		MaidFrame.getCurrentSession().setAvatar((Avaview)wdg);
 		    } else {
 		    	wdg = f.create(c, pwdg, args);
 		    }
