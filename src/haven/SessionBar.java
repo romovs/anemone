@@ -61,6 +61,12 @@ public class SessionBar extends WindowTrans {
     		g.chcolor(color);
     		Window.wbox.draw(g, Coord.z.add(avoffset, 0), avasz.add(Window.wbox.bisz()).add(unborder.mul(2).inv()));
     		g.image(bg, Coord.z.add(avoffset+BORDER, BORDER), avasz);
+    		
+    		if (MaidFrame.getCurrentSession() == sess) {
+    			g.chcolor(Color.RED);
+    			g.rect(Coord.z.add(avoffset+BORDER+1, BORDER+1), avasz);
+    		}
+    		
     		g.chcolor();	
     		return;
     	} 
