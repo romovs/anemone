@@ -978,18 +978,18 @@ public class Maid {
         MapView mv = getWidget(MapView.class);
         Gob player = getPlayer();
         
-        long start = getCpuTime();
+        long start = DbgUtils.getCpuTime();
         scene.initScene(mv, player, doAreaList(50.0d));
-        long end = getCpuTime();
+        long end = DbgUtils.getCpuTime();
         System.out.format("Scene Init Time: %s sec.\n", (double)(end-start)/1000000000.0d);
         
         PathFinder finder = new AStar();
 
         app.setVisible(true);
         
-        start = getCpuTime();            
+        start = DbgUtils.getCpuTime();            
         List<Node> path = finder.find(scene, new Coord(1070,480), true);      
-        end = getCpuTime();  
+        end = DbgUtils.getCpuTime();  
         System.out.format("Finder Time: %s sec.\n", (double)(end-start)/1000000000.0d);
         
 		Coord frameSz = MainFrame.getInnerSize();
@@ -1004,10 +1004,5 @@ public class Maid {
 				e.printStackTrace();
 			}
         }*/
-    }
-    
-    private long getCpuTime() {
-        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        return bean.isCurrentThreadCpuTimeSupported( ) ? bean.getCurrentThreadCpuTime( ) : 0L;
     }
 }
