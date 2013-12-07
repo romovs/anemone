@@ -611,8 +611,20 @@ public class Maid {
         return cap;
     }
     
-    public Inventory getInventory() {
-        return getInventory("Inventory");
+    /**
+     * Returns user Inventory. Opens it if necessary.
+     *
+     * @return      Inventory object
+     */
+    public Inventory getInventory() throws InterruptedException {
+    	Inventory inv = getInventory("Inventory");
+    	
+    	if (inv == null) {
+    		doOpenInventory();
+    		inv = getInventory("Inventory");
+    	}
+    	
+        return inv;
     }
 
     public Item[] getItems(Inventory inv) {
