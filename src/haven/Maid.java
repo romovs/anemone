@@ -38,6 +38,8 @@ public class Maid {
     private int menuGridId = 0;
     private HWindow areaChat;
     public MaidUI ui;
+    private final static float ITEM_WIDTH = 31;
+    private final static float ITEM_HEIGHT = 32;
     
     // helper objects for getting current meter values for situations when event based mechanism is not needed
     public MeterEventObjectHunger meterHunger;			
@@ -582,6 +584,33 @@ public class Maid {
         return null;
     }
 
+    /**
+     * Returns total number of slots in an inventory. 
+     *
+     * @param  inv	Inventory object
+     * @return      total number of slots
+     */
+    public int getInventoryCapacity(Inventory inv) {
+        return Math.round((float)inv.sz.x/ITEM_WIDTH) * Math.round((float)inv.sz.y/ITEM_HEIGHT);
+    }
+    
+    /**
+     * Returns number of free slots in an inventory.
+     *
+     * @param  inv	Inventory object
+     * @return      number of free slots
+     */
+    public int getInventoryFreeSlots(Inventory inv) {
+    	int cap = getInventoryCapacity(inv);
+    	for (Widget i = inv.child; i != null; i = i.next) {
+	        if (i instanceof Item) {
+	        	int itemSlots = Math.round((float)i.sz.x/ITEM_WIDTH) * Math.round((float)i.sz.y/ITEM_HEIGHT);
+	        	cap -= itemSlots;
+	       }
+    	}
+        return cap;
+    }
+    
     public Inventory getInventory() {
         return getInventory("Inventory");
     }
