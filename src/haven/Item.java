@@ -42,6 +42,9 @@ public class Item extends Widget implements DTarget {
     static Map<Integer, Tex> qmap;
     static Resource missing = Resource.load("gfx/invobjs/missing");
     static Color outcol = new Color(0,0,0,255);
+    static Color clrWater = new Color(24, 116, 205);
+    static Color clrWine = new Color(139, 71, 137);
+	static Color clrHoney = new Color(238, 173, 14);
     boolean dm = false;
     public int q, q2;
     boolean hq;
@@ -163,6 +166,28 @@ public class Item extends Widget implements DTarget {
 	}
 	if(FEP == null){calcFEP();}
 	if(curioStr == null){calcCurio();}
+		
+		if (ttres.name.lastIndexOf("bucket-") > 0) {
+			try {
+				String valStr = tooltip.substring(8, tooltip.indexOf('/'));
+				double val = Double.parseDouble(valStr);
+	
+				Color clr;
+				if (ttres.name.lastIndexOf("water") > 0)
+					clr = clrWater;
+				else if (ttres.name.lastIndexOf("wine") > 0)
+					clr = clrWine;
+				else if (ttres.name.lastIndexOf("honey") > 0)
+					clr = clrHoney;
+				else
+					clr = Color.GRAY;
+
+				int h = (int)(val/10*sz.y);
+				g.chcolor(clr);	
+				g.frect(new Coord(0, sz.y-h), new Coord(9, h-shoff.y));
+				g.chcolor();
+			} catch (Exception e) {} // fail silently.
+		}
     }
 
     static Tex getqtex(int q){
