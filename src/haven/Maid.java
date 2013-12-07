@@ -765,8 +765,9 @@ public class Maid {
         doInteract(gob, 0);
     }
 
-    public void doOpenInventory() {
+    public void doOpenInventory() throws InterruptedException {
     	ui.root.wdgmsg("gk", 9);
+    	waitForInventory();
     }
 
     public void doTake(Item i) {
