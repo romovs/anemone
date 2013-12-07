@@ -124,8 +124,11 @@ public class SessionBar extends WindowTrans {
 			int i = getClickedAvatarIndex(c.x);
 			if (i >= 0)
 				MaidFrame.switchToSession(i);
+			else 
+				super.mousedown(c, button);
+		} else {
+			super.mousedown(c, button);
 		}
-		super.mousedown(c, button);
 		
 		return (true);
     }
