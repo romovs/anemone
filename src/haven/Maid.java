@@ -355,6 +355,33 @@ public class Maid {
         return retval[0];
     }
 
+    /**
+     * Blocks until the specified number of items have been created.
+     *
+     * @param  itemCount	number of items to wait for
+     * @return      		array containing created items
+     */
+    public Item[] waitForItemCreate(final int itemCount) throws InterruptedException {
+        final Item[] retval = new Item[itemCount];    
+        final int[] counter = new int[1];
+        counter[0] = 0;
+        
+        itemListener = new ItemAdapter() {
+            @Override
+            public void onItemCreate(ItemEvent e) {
+                retval[counter[0]++] = e.getItem();
+                if (counter[0] == itemCount)
+                	wakeup();
+            }
+        };
+
+        sleep();
+
+        itemListener = null;
+
+        return retval;
+    }
+    
     public Item waitForItemDestroy() throws InterruptedException {
         final Item[] retval = new Item[1];
         itemListener = new ItemAdapter() {
