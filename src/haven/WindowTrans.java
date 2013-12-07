@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class WindowTrans extends Widget implements DTarget {
@@ -203,6 +204,11 @@ public class WindowTrans extends Widget implements DTarget {
     public void mousemove(Coord c) {
 	if(dm) {
 	    this.c = this.c.add(c.add(doff.inv()));
+	    List<SessionData> sesList = MaidFrame.getSessionList();
+	    for (SessionData s : sesList) {
+	    	if (s != null && s.sb != null)
+	    		s.sb.c = this.c;
+	    }
 	} else {
 	    super.mousemove(c);
 	}
