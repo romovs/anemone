@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 public class MenuGrid extends Widget {
@@ -52,7 +53,7 @@ public class MenuGrid extends Widget {
     public ToolbarWnd digitbar;
     public ToolbarWnd functionbar;
     public ToolbarWnd numpadbar;
-	
+
     static {
 	Widget.addtype("scm", new WidgetFactory() {
 		public Widget create(Coord c, Widget parent, Object[] args) {
@@ -106,10 +107,10 @@ public class MenuGrid extends Widget {
 	super(c, bgsz.mul(gsz).add(1, 1), parent);
 	cons(null);
 	ui.mnu = this;
-	ToolbarWnd.loadBelts();
-	digitbar = new ToolbarWnd(new Coord(0,300), ui.root, "toolbar1");
-	functionbar = new ToolbarWnd(new Coord(50,300), ui.root, "toolbar2", 2, KeyEvent.VK_F1, 12, new Coord(4, 10));
-	numpadbar = new ToolbarWnd(new Coord(100,300), ui.root, "toolbar3", 10, KeyEvent.VK_NUMPAD0){
+    Properties beltsConfig = ToolbarWnd.getBelts();
+	digitbar = new ToolbarWnd(new Coord(0,300), ui.root, "toolbar1", beltsConfig);
+	functionbar = new ToolbarWnd(new Coord(50,300), ui.root, "toolbar2", beltsConfig, 2, KeyEvent.VK_F1, 12, new Coord(4, 10));
+	numpadbar = new ToolbarWnd(new Coord(100,300), ui.root, "toolbar3", beltsConfig, 10, KeyEvent.VK_NUMPAD0){
 	    protected void nextBelt(){
 		loadBelt((belt+1)%5+10);
 	    }

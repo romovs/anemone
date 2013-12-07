@@ -24,7 +24,7 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
     @SuppressWarnings("unchecked")
     private static final Indir<Resource>[] defbelt = new Indir[10];
     public final static Coord bgsz = bg.sz().add(-1, -1);
-    private static final Properties beltsConfig = new Properties();
+    private Properties beltsConfig;
     private Coord gsz, off, beltNumC;
     public Slot pressed, dragging, layout[];
     private IButton lockbtn, flipbtn, minus, plus;
@@ -33,7 +33,6 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
     private Tex[] nums;
     private static Tex[] beltNums;
     public String name;
-    
     public final static RichText.Foundry ttfnd = new RichText.Foundry(TextAttribute.FAMILY, "SansSerif", TextAttribute.SIZE, 10);
     
     static {
@@ -44,21 +43,24 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
 	}
     }
     
-    public ToolbarWnd(Coord c, Widget parent, String name) {
+    public ToolbarWnd(Coord c, Widget parent, String name, Properties bc) {
 	super( c, Coord.z,  parent, null);
 	this.name = name;
+	beltsConfig = bc;
 	init(1, 10, new Coord(5, 10), KeyEvent.VK_0);
     }
     
-    public ToolbarWnd(Coord c, Widget parent, String name, int belt, int key, int sz, Coord off) {
+    public ToolbarWnd(Coord c, Widget parent, String name, Properties bc, int belt, int key, int sz, Coord off) {
 	super( c, Coord.z,  parent, null);
 	this.name = name;
+	beltsConfig = bc;
 	init(belt, sz, off, key);
     }
     
-    public ToolbarWnd(Coord c, Widget parent, String name, int belt, int key) {
+    public ToolbarWnd(Coord c, Widget parent, String name, Properties bc, int belt, int key) {
 	super( c, Coord.z,  parent, null);
 	this.name = name;
+	beltsConfig = bc;
 	init(belt, 10, new Coord(5, 10), key);
     }
 
@@ -146,9 +148,20 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
 	loadBelt(belt - 2);
     }
     
-    public static void loadBelts() {
+	public static Properties getBelts() {
+		Properties loadInfo = new Properties();
+		String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
+		try {
+			loadInfo.load(new FileInputStream(configFileName));
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+		return loadInfo;
+    }
 	
-	String configFileName = "belts_" + Config.currentCharName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
+    
+	public void loadBelts() {
+	String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 	try {
 	    synchronized (beltsConfig) {
 		beltsConfig.load(new FileInputStream(configFileName));
@@ -174,11 +187,11 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
 	}
     }
     
-    public static void saveBelts() {
+	public void saveBelts() {
 	synchronized (beltsConfig) {
-	    String configFileName = "belts_" + Config.currentCharName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
+	    String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 	    try {
-		beltsConfig.store(new FileOutputStream(configFileName), "Belts actions for " + Config.currentCharName);
+		beltsConfig.store(new FileOutputStream(configFileName), "Belts actions for " + MaidFrame.getCurrentSession().getUI().sess.charname);
 	    } catch (FileNotFoundException e) {
 	    } catch (IOException e) {
 	    }
@@ -541,7 +554,7 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
 	    defbelt[slot] = res;
 	}
 	if(res == null){
-	    MenuGrid mnu = UI.instance.mnu;
+	    MenuGrid mnu = MaidFrame.getCurrentSession().getUI().mnu;
 	    mnu.digitbar.removedef(slot);
 	    mnu.functionbar.removedef(slot);
 	    mnu.numpadbar.removedef(slot);
@@ -567,7 +580,7 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
 	return -1;
     }
     
-    private static void setbeltslot(int belt, int slot, String value){
+    private void setbeltslot(int belt, int slot, String value){
 	synchronized (beltsConfig) {
 	    beltsConfig.setProperty("belt_"+belt+"_"+slot, value);
 	}
