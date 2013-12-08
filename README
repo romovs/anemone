@@ -8,6 +8,9 @@ Anemone is a client for Haven & Hearth. It's based on Xcom's modification
 and Groovy Maid scripting engine and provides a number of new features as well 
 as some bug fixes and tweaks:
 
+- Multi-session support.
+- On-screen FEP bar.
+- Graphical bars showing amount or liquid in buckets.
 - Pathfinding framework.
 - Support for retrieving hunger/health meter values.
 - Item identification. Makes possible to retrieve all items of type 'food' from 
@@ -19,7 +22,7 @@ as some bug fixes and tweaks:
 - Methods for crafting.
 - Methods for doing area chat.
 - Blocking method for getting container/object inventory.
-- ...
+- And a lot more!
 
 
 References:
