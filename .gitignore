@@ -9,6 +9,5 @@
 *.iml
 /.idea
 compiled
-/scripts
 /resources/res_working
 *.zip
