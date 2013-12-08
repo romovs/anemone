@@ -54,6 +54,7 @@ public class CharWnd extends Window {
     SkillList psk, nsk;
     SkillInfo ski;
     FoodMeter foodm;
+    FoodMeterWidget fmw;
     Study study;
     Map<String, Attr> attrs = new TreeMap<String, Attr>();
     private static final BufferedImage ilockc = Resource.loadimg("gfx/hud/lockc");
@@ -89,14 +90,10 @@ public class CharWnd extends Window {
 	    });
     }*/
     
-	
 	public Widget create(Coord c, Widget parent, Object[] args) {
-	    System.out.print("blaaaa___________1");
 	    int studyid = -1;
 	    if(args.length > 0)
 		studyid = (Integer)args[0];
-	    System.out.print("blaaaa___________2");
-
 	    return(new CharWnd(c, parent, studyid));
 	}
 	
@@ -928,7 +925,8 @@ public class CharWnd extends Window {
 	    }
 	    psk.pop(skl);
 	} else if(msg == "food") {
-		MaidFrame.getCurrentSession().getFoodMeter().update(args);
+		if (fmw != null)
+			fmw.update(args);
 	    foodm.update(args);
 	} else if(msg == "btime") {
 	    btime = (Integer)args[0];

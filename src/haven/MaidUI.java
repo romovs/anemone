@@ -1,6 +1,7 @@
 package haven;
 
 import haven.event.*;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,9 +63,7 @@ public class MaidUI extends UI {
 				studyid = (Integer)args[0];
 			    wdg = new CharWnd(c, pwdg, studyid);
 			    MaidFrame.getCurrentSession().charWnd = (CharWnd)wdg;
-			    
-			    FoodMeterWidget fm = new FoodMeterWidget(Coord.z, pwdg);
-			    MaidFrame.getCurrentSession().setFoodMeter(fm);
+			    ((CharWnd)wdg).fmw = new FoodMeterWidget(Coord.z, pwdg);
 		    } else if (type.equals("buddy")) { 
 		    	wdg = new BuddyWnd(c, pwdg);
 		    	MaidFrame.getCurrentSession().buddyWnd = (BuddyWnd)wdg;

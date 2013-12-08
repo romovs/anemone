@@ -109,8 +109,8 @@ public class FoodMeterWidget extends Widget {
 	    this.c = this.c.add(c.add(doff.inv()));
 	    List<SessionData> sesList = MaidFrame.getSessionList();
 	    for (SessionData s : sesList) {
-	    	if (s != null && s.getFoodMeter() != null)
-	    		s.getFoodMeter().c = this.c;
+	    	if (s != null && s.charWnd != null && s.charWnd.fmw != null)
+	    		s.charWnd.fmw.c = this.c;
 	    }
 	} else {
 	    super.mousemove(c);
