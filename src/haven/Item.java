@@ -175,16 +175,17 @@ public class Item extends Widget implements DTarget {
 				Color clr;
 				if (ttres.name.lastIndexOf("water") > 0)
 					clr = clrWater;
-				else if (ttres.name.lastIndexOf("wine") > 0)
+				else if (ttres.name.lastIndexOf("wine") > 0 || ttres.name.lastIndexOf("vinegar") > 0)
 					clr = clrWine;
 				else if (ttres.name.lastIndexOf("honey") > 0)
 					clr = clrHoney;
 				else
-					clr = Color.GRAY;
+					clr = Color.LIGHT_GRAY;
 
 				int h = (int)(val/10*sz.y);
 				g.chcolor(clr);	
-				g.frect(new Coord(0, sz.y-h), new Coord(9, h-shoff.y));
+				int barH = h-shoff.y;
+				g.frect(new Coord(0, sz.y-h), new Coord(9, barH < 0 ? 0 : barH));
 				g.chcolor();
 			} catch (Exception e) {} // fail silently.
 		}
