@@ -928,6 +928,7 @@ public class CharWnd extends Window {
 	    }
 	    psk.pop(skl);
 	} else if(msg == "food") {
+		MaidFrame.getCurrentSession().getFoodMeter().update(args);
 	    foodm.update(args);
 	} else if(msg == "btime") {
 	    btime = (Integer)args[0];

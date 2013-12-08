@@ -62,6 +62,9 @@ public class MaidUI extends UI {
 				studyid = (Integer)args[0];
 			    wdg = new CharWnd(c, pwdg, studyid);
 			    MaidFrame.getCurrentSession().charWnd = (CharWnd)wdg;
+			    
+			    FoodMeterWidget fm = new FoodMeterWidget(Coord.z, pwdg);
+			    MaidFrame.getCurrentSession().setFoodMeter(fm);
 		    } else if (type.equals("buddy")) { 
 		    	wdg = new BuddyWnd(c, pwdg);
 		    	MaidFrame.getCurrentSession().buddyWnd = (BuddyWnd)wdg;

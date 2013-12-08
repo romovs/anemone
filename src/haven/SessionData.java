@@ -8,6 +8,7 @@ public class SessionData {
 	public BuddyWnd buddyWnd;
 	private Tex avatar = null;
 	public SessionBar sb;
+	private FoodMeterWidget fm;
 	
     public SessionData(Thread thread, UI ui) {
         this.thread = thread;
@@ -35,5 +36,13 @@ public class SessionData {
 		    if(av != null)
 		    	avatar = ava.rend;	
     	}
+    }
+    
+    public void setFoodMeter(FoodMeterWidget fm) {
+    	this.fm = fm;
+    }
+    
+    public FoodMeterWidget getFoodMeter() {
+    	return fm;
     }
 }

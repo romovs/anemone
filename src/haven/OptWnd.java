@@ -222,6 +222,13 @@ public class OptWnd extends Window {
 		}
 	    }).a = Config.highlightSkills;
 	    
+	    (new CheckBox(new Coord(220, (y+=35)), tab, "Show FEP bar") {
+		public void changed(boolean val) {
+		    Config.fepbar = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.fepbar;
+	    
 	    (new CheckBox(new Coord(220, 375), tab, "Show human gob path") {
 		public void changed(boolean val) {
 		    Config.showgobpath = val;

@@ -84,6 +84,7 @@ public class Config {
     public static boolean noborders;
     public static boolean new_minimap;
     public static boolean simple_plants = false;
+    public static boolean fepbar = false;
     public static Set<String> hideObjectList;
     public static Set<String> highlightItemList;
     public static Map<String, HLInfo> hlcfg = new HashMap<String, HLInfo>();
@@ -648,6 +649,7 @@ public class Config {
         edgedTiles = options.getProperty("edgedTiles", "false").equals("true"); // new
 		maxWindow = options.getProperty("maxWindow", "false").equals("true"); // new
 		broadleafTile = options.getProperty("broadleafTile", "false").equals("true"); // new
+		fepbar = options.getProperty(FoodMeterWidget.NAME, "false").equals("true");
 		
         if (!hideObjects.isEmpty()) {
             for (String objectName : hideObjects.split(",")) {
@@ -750,7 +752,7 @@ public class Config {
         options.setProperty("edgedTiles", edgedTiles?"true":"false"); // new
 		options.setProperty("maxWindow", maxWindow?"true":"false"); // new
 		options.setProperty("broadleafTile", broadleafTile?"true":"false"); // new
-		
+		options.setProperty(FoodMeterWidget.NAME, fepbar?"true":"false");
         options.setProperty("version", currentVersion);
         
         try {
