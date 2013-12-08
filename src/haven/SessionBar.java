@@ -132,4 +132,18 @@ public class SessionBar extends WindowTrans {
 		
 		return (true);
     }
+    
+    @Override
+    public void mousemove(Coord c) {
+	if(dm) {
+	    this.c = this.c.add(c.add(doff.inv()));
+	    List<SessionData> sesList = MaidFrame.getSessionList();
+	    for (SessionData s : sesList) {
+	    	if (s != null && s.sb != null)
+	    		s.sb.c = this.c;
+	    }
+	} else {
+	    super.mousemove(c);
+	}
+    }
 }
