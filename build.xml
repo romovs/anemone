@@ -134,6 +134,9 @@
     <delete dir="build/classes" />
     <delete dir="build/classes-lib" />
     <delete file="build/maid.jar" />
+    <delete>
+      <fileset dir="build" includes="*natives*.jar"/>
+    </delete>
   </target>
   
   <target name="rebuild" depends="clean, jars">   
@@ -155,11 +158,10 @@
   </target>
  
   <target name="dist" depends="rebuild">
-    <copy todir="build" file="README" />
     <mkdir dir="build/scripts" />
     <zip destfile="${basedir}/${name}-${built.date}-${arch}.zip" update="false">
-        <fileset dir="build" includes="*.jar, res/**, scripts" excludes="*natives*.jar, scripts/*"/>
-        <fileset dir="${basedir}" includes="*.conf"/>
+        <fileset dir="build" includes="*.jar, res/**, scripts, scripts/carrots.groovy, scripts/grind.groovy" excludes="*natives*.jar"/>
+        <fileset dir="${basedir}" includes="*.conf, README"/>
         <fileset dir="natives" includes="*${arch}.jar"/>
     </zip>
   </target>
