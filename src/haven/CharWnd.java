@@ -49,6 +49,13 @@ public class CharWnd extends Window {
     Worship ancw;
     Label cost, skcost;
     Label explbl;
+    Label lblPercExplr;
+    Label lblIntStealth;
+    Label lblSewingDex;
+    Label lblPercFarm;
+    Label lblSewDexPsy;
+
+    
     int exp;
     int btime = 0;
     SkillList psk, nsk;
@@ -200,6 +207,23 @@ public class CharWnd extends Window {
 	}
 	
 	public void update() {
+	    try {
+	    	Attr exp = attrs.get("explore");
+	    	Attr perc = attrs.get("perc");
+	    	Attr intel = attrs.get("intel");
+	    	Attr stl = attrs.get("stealth");
+	    	Attr sew = attrs.get("sewing");
+	    	Attr dex = attrs.get("dxt");
+	    	Attr farm = attrs.get("farming");
+	    	Attr psy = attrs.get("psy");
+	    	
+	    	lblPercExplr.settext((perc.attr.comp * exp.attr.comp) + "");
+	    	lblIntStealth.settext((intel.attr.comp * stl.attr.comp) + "");
+	    	lblSewingDex.settext((int)(Math.sqrt(sew.attr.comp * dex.attr.comp)) + "");
+	    	lblPercFarm.settext((int)(Math.sqrt(perc.attr.comp * farm.attr.comp)) + "");
+	    	lblSewDexPsy.settext((int)(Math.cbrt(sew.attr.comp * dex.attr.comp * psy.attr.comp)) + "");
+	    } catch(Exception e) {}
+
 	    lbl.settext(Integer.toString(attr.comp));
 	    if((nm == "intel") && study != null){
 		study.setattnlimit(attr.comp);
@@ -769,6 +793,24 @@ public class CharWnd extends Window {
 	new Label(new Coord(210, expbase + 15), cattr, "Learning Points:");
 	explbl = new Label(new Coord(300, expbase + 15), cattr, "0");
 	new Label(new Coord(210, expbase + 30), cattr, "Learning Ability:");
+
+	int b = 221;
+	
+	new Label(new Coord(10, b), cattr, "Perc \u00D7 Expl:");
+	lblPercExplr = new Label(new Coord(120, b), cattr, "?");
+	
+	new Label(new Coord(10, b += 17), cattr, "Int \u00D7 Stealth:");
+	lblIntStealth = new Label(new Coord(120, b), cattr, "?");
+	
+	new Label(new Coord(10, b += 17), cattr, "\u221A(Sew \u00D7 Dex):");
+	lblSewingDex = new Label(new Coord(120, b), cattr, "?");
+	
+	new Label(new Coord(10, b += 17), cattr, "\u221A(Perc \u00D7 Farm):");
+	lblPercFarm = new Label(new Coord(120, b), cattr, "?");
+	
+	new Label(new Coord(10, b += 17), cattr, "\u221B(Sew \u00D7 Dex \u00D7 Psy):");
+	lblSewDexPsy = new Label(new Coord(120, b), cattr, "?");
+
 	new NAttr("expmod", 300, expbase + 30) {
 	    public void update() {
 		lbl.settext(String.format("%d%%", attr.comp));
