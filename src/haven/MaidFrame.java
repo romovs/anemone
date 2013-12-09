@@ -245,7 +245,16 @@ public class MaidFrame extends MainFrame implements KeyListener {
         		addSession(loginThreadUi);
         	
 		    Widget pwdg = loginUi.widgets.get(0);
-	    	MaidFrame.getCurrentSession().sb = new SessionBar(SessionBar.initPos, pwdg);
+		    
+		    Coord sbc = SessionBar.initPos; 
+	    	// if there is already another sessionbar use its coord
+	    	if (MaidFrame.getSessionCount() > 1) {
+	    		try {
+	    			sbc = MaidFrame.getSessionList().get(0).sb.c;
+	    		} catch (Exception e) {}
+	    	}
+		    
+	    	MaidFrame.getCurrentSession().sb = new SessionBar(sbc, pwdg);
 	    	if (MaidFrame.getSessionCount() == 1)
 	    		MaidFrame.getCurrentSession().sb.visible = false;
         	
