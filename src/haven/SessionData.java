@@ -6,7 +6,7 @@ public class SessionData {
     private UI ui;
 	public CharWnd charWnd;
 	public BuddyWnd buddyWnd;
-	private Tex avatar = null;
+	private Avaview av;
 	public SessionBar sb;
 
     public SessionData(Thread thread, UI ui) {
@@ -23,17 +23,19 @@ public class SessionData {
     }
     
     public Tex getAvatar() {
-    	return avatar;
+    	if (av != null) {
+    	Gob avaGob = ui.sess.glob.oc.getgob(av.avagob);
+	    Avatar ava = null;
+	    if(avaGob != null)
+	    	ava = avaGob.getattr(Avatar.class);
+	    if(ava != null)
+	    	return ava.rend;	
+    	}
+    	
+    	return null;
     }
     
     public void setAvatar(Avaview av) {
-    	if (av != null) {
-		    Gob gob = ui.sess.glob.oc.getgob(av.avagob);
-		    Avatar ava = null;
-		    if(gob != null)
-		    	ava = gob.getattr(Avatar.class);
-		    if(av != null)
-		    	avatar = ava.rend;	
-    	}
+    	this.av = av;
     }
 }
