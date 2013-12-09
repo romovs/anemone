@@ -155,6 +155,13 @@
     <antcall target="dist">
       <param name="arch" value="windows-i586"/>
     </antcall>
+    <antcall target="dist">
+      <param name="arch" value="macosx-universal"/>
+    </antcall>
+    <zip destfile="${basedir}/${name}-update-${built.date}.zip" update="false">
+        <fileset dir="build" includes="maid.jar, scripts, scripts/carrots.groovy, scripts/grind.groovy"/>
+        <fileset dir="${basedir}" includes="*.conf"/>
+    </zip>
   </target>
  
   <target name="dist" depends="rebuild">
