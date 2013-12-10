@@ -24,7 +24,7 @@ public class AStar implements PathFinder
     }
 
     public List<Node> find(Map map, Coord destination, boolean isFast)
-    {
+    {	
     	Node.dstNode = map.nodes[destination.x][destination.y];
     	
     	mode = isFast?FAST_MODE_D:map.minWeight;
@@ -88,12 +88,57 @@ public class AStar implements PathFinder
                 cur.addToPathFromDst(cur.distFromDst());
                 cur = cur.parent;
                 cur.setPartOfPath(true);
-            }
-            Collections.reverse(path);
-            return path;
+            } 
+            return simplifyAndReverse(path);
         }
         
         return null;
+    }
+    
+   	private enum Dir {
+   		NONE,
+		H,
+		V,
+		NESW,
+		NWSE
+	}
+
+    private List<Node> simplifyAndReverse(List<Node> nodes) {	
+    	Dir curDir = Dir.NONE;
+    	List<Node> simplified = new ArrayList<Node>();
+    	
+    	Node prev = nodes.get(nodes.size() - 1);
+    	for (int i = nodes.size() - 1; i >= 0; i--) {
+    		Node n = nodes.get(i);
+    		
+    		if ((n.x == prev.x+1 || n.x == prev.x-1) && n.y == prev.y) { // horizontal
+    			if (curDir != Dir.H) {    				
+    				curDir = Dir.H;
+    				simplified.add(prev);
+    			}
+    			prev = n;			
+    		} else if ((n.y == prev.y+1 || n.y == prev.y-1) && n.x == prev.x) { // vertical
+    			if (curDir != Dir.V) {    				
+    				curDir = Dir.V;
+    				simplified.add(prev);
+    			}
+    			prev = n;			
+    		} else if ((n.y == prev.y-1 && n.x == prev.x + 1) || (n.y == prev.y+1 && n.x == prev.x-1)) { // NE-SW
+    			if (curDir != Dir.NESW) {    				
+    				curDir = Dir.NESW;
+    				simplified.add(prev);
+    			}
+    			prev = n;			
+    		} else if ((n.y == prev.y-1 && n.x == prev.x - 1) || (n.y == prev.y+1 && n.x == prev.x+1)) { // NW-SE
+    			if (curDir != Dir.NWSE) {    				
+    				curDir = Dir.NWSE;
+    				simplified.add(prev);
+    			}
+    			prev = n;			
+    		}   		
+    	}
+    	simplified.add(prev);
+    	return simplified;
     }
     
     public int distManhattan(int ax, int ay, int bx, int by, int d) {

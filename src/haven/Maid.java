@@ -1024,15 +1024,7 @@ public class Maid {
     
      
     public Map getScene() {
-    	
-        // FIXME: actually 1000x1000 should be enough. since blocking gobs are seen in 500 radius only. 
-        // need to fix this in tiles/gob init methods.
-        int width = 2000; 
-        int height = 2000;
-
-        Map scene = new Map(width, height); 
-    	
-        return scene;
+        return new Map(1000, 1000); 
     }
   
     public void pathfinderTest() {
@@ -1056,22 +1048,26 @@ public class Maid {
 
         app.setVisible(true);
         
-        start = DbgUtils.getCpuTime();            
-        List<Node> path = finder.find(scene, new Coord(1070,480), true);      
-        end = DbgUtils.getCpuTime();  
-        System.out.format("Finder Time: %s sec.\n", (double)(end-start)/1000000000.0d);
-        
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
 
-		/* for (Node n : path) {	
-        	doLeftClick(new Coord(n.x, n.y).sub(oc));
+        start = DbgUtils.getCpuTime();    
+        List<Node> path = finder.find(scene, player.getc().add(oc).add(200-Map.MAP_COFFSET_X, 100), true);      
+        end = DbgUtils.getCpuTime();  
+        System.out.format("Finder Time: %s sec.\n", (double)(end-start)/1000000000.0d);
+        
+        if (path == null) {
+        	System.out.println("No path!");
+        	return;
+        }
+		for (Node n : path) {	
+        	doLeftClick(new Coord(n.x+300, n.y).sub(oc));
         	try {
 				waitForMoveStop();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }*/
+        }
     }
 }

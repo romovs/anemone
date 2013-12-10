@@ -20,6 +20,8 @@ public class Map
     public Node nodes[][];
     private static final int PLAYER_SIZE = 4;
     public static final int NO_CLEARANCE = 1;
+    private static final int VRANGE = 500;
+    public static final int MAP_COFFSET_X = 300;
 
 	public Map(int w, int h)
 	{
@@ -59,22 +61,21 @@ public class Map
 		// setup player current location
         Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
 		Coord playerCoord = player.getc().add(oc);
+		playerCoord.x -= MAP_COFFSET_X;
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
-        initTiles(mv, player);
+        initTiles(mv);
         initGobes(mv, gobs);
         initClearances(PLAYER_SIZE);
     }
     
-    private void initTiles(MapView mv, Gob player) {
-    	MCache map = mv.map;
+    private void initTiles(MapView mv) {
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
-		Coord playerCoord = player.getc().add(oc);
-        Grid grid = map.last;
-		Coord requl = mv.mc.add(-500, -500).div(tilesz).div(cmaps);
-		Coord reqbr = mv.mc.add(500, 500).div(tilesz).div(cmaps);
+		
+		Coord requl = mv.mc.add(-VRANGE, -VRANGE).div(tilesz).div(cmaps);
+		Coord reqbr = mv.mc.add(VRANGE, VRANGE).div(tilesz).div(cmaps);
 				
 		Coord cgc = new Coord(0, 0);
 		for(cgc.y = requl.y; cgc.y <= reqbr.y; cgc.y++) {
@@ -84,34 +85,26 @@ public class Map
 		    }
 		}
 		
-		int stw = (tilesz.x * 4) - 2;
-		int sth = tilesz.y * 2;
-
 		Coord tc = mv.mc.div(tilesz);
-		tc.x += -(frameSz.x / (2 * stw)) - (frameSz.y / (2 * sth)) - 2;
-		tc.y += (frameSz.x / (2 * stw)) - (frameSz.y / (2 * sth));
+	
+		for(int y = -VRANGE/tilesz.y; y < VRANGE/tilesz.y; y++) {
+		    for(int x = -VRANGE/tilesz.x; x < VRANGE/tilesz.x; x++) {
+			    	
+			    Coord ctc = tc.add(new Coord(x, y));
+			    Coord sc = ctc.mul(tilesz).add(oc);
+			    
+			    sc.x -= MAP_COFFSET_X;
 
-		for(int y = 0; y < grid.tiles[0].length; y++) {
-		    for(int x = 0; x < grid.tiles.length; x++) {
-				for(int i = 0; i < 2; i++) {
-				    Coord ctc = tc.add(new Coord(x + y, -x + y + i));
-				    Coord sc = ctc.mul(tilesz).add(oc);
-	
-				    if (playerCoord.dist(sc) > 500)
-				    	continue;
-	
-				    Tile groundTile = mv.map.getground(ctc);
-				    
-				    Node.Type tileType = groundTile.resolveTileType();
-				    
-				    if (groundTile != null) {
-	
-					    if (sc.x+11 < w && sc.y+11 < h && sc.x >= 0 && sc.y >= 0) {
-							System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
-					    	createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
-					    }
-				    }
-				}
+			    if (sc.x+tilesz.x >= w || sc.y+tilesz.y >= h || sc.x < 0 || sc.y < 0 )
+			    	continue;
+
+			    Tile groundTile = mv.map.getground(ctc);
+			    Node.Type tileType = groundTile.resolveTileType();
+			    		    
+			    if (groundTile != null) {
+						System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
+						createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
+			    }
 		    }
 		}
     }
@@ -136,6 +129,9 @@ public class Map
 
         	System.out.format("[HB] a:%s   c:%s\n", a, c); 
 
+        	a.x -= MAP_COFFSET_X;
+        	c.x -= MAP_COFFSET_X;
+        	
         	if (a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
         			a.x >= 0 && a.y >= 0 && c.x >= 0 && c.y >= 0) {
         		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t);
