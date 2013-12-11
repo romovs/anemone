@@ -133,10 +133,15 @@ public class Config {
     public static boolean muteChat = false;
     public static boolean showgobpath;
     public static boolean showothergobpath = true;
-	
 	public static boolean edgedTiles = false; // new
     public static boolean maxWindow = true; // new
 	public static boolean broadleafTile = false; // new
+    public static boolean autoaggro = false;
+	public static boolean aggrored = false;
+	public static boolean aggrounknown = false;
+    public static boolean alarm = false;
+	public static boolean alarmred = false;
+	public static boolean alarmunknown = false;
 	
 	// script bools
 	public static boolean runFlaskRunning = false;
@@ -650,7 +655,14 @@ public class Config {
 		maxWindow = options.getProperty("maxWindow", "false").equals("true"); // new
 		broadleafTile = options.getProperty("broadleafTile", "false").equals("true"); // new
 		fepbar = options.getProperty(FoodMeterWidget.NAME, "false").equals("true");
-		
+        autoaggro = options.getProperty("autoaggro", "false").equals("true");
+        aggrored = options.getProperty("aggrored", "false").equals("true");
+        aggrounknown = options.getProperty("aggrounknown", "false").equals("true");
+        alarm = options.getProperty("alarm", "false").equals("true");
+        alarmred = options.getProperty("alarmred", "false").equals("true");
+        alarmunknown = options.getProperty("alarmunknown", "false").equals("true");
+        
+        
         if (!hideObjects.isEmpty()) {
             for (String objectName : hideObjects.split(",")) {
                 if (!objectName.isEmpty()) {
@@ -754,6 +766,13 @@ public class Config {
 		options.setProperty("broadleafTile", broadleafTile?"true":"false"); // new
 		options.setProperty(FoodMeterWidget.NAME, fepbar?"true":"false");
         options.setProperty("version", currentVersion);
+        options.setProperty("autoaggro", autoaggro?"true":"false");
+        options.setProperty("aggrored", aggrored?"true":"false");      
+        options.setProperty("aggrounknown", aggrounknown?"true":"false");
+        options.setProperty("alarm", alarm?"true":"false");
+        options.setProperty("alarmred", alarmred?"true":"false");      
+        options.setProperty("alarmunknown", alarmunknown?"true":"false");
+
         
         try {
             options.store(new FileOutputStream("haven.conf"), "Custom config options");

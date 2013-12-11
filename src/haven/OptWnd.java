@@ -543,6 +543,55 @@ public class OptWnd extends Window {
 	    };
 	    chkbox.a = Config.showViewDistance;
 	}
+	
+	
+	{ /* Misc. */
+	    tab = body.new Tab(new Coord(390, 0), 60, "Misc.");
+
+	    int y = 5;
+	    (new CheckBox(new Coord(10, y+=25), tab, "Sound alarm on") {
+		public void changed(boolean val) {
+		    Config.alarm = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.alarm;
+	    
+		(new CheckBox(new Coord(25, y+=30), tab, "Unknown") {
+			public void changed(boolean val) {
+			    Config.alarmunknown = val;
+			    Config.saveOptions();
+			}
+		    }).a = Config.alarmunknown;
+	    
+		(new CheckBox(new Coord(25, y+=30), tab, "Red") {
+			public void changed(boolean val) {
+			    Config.alarmred = val;
+			    Config.saveOptions();
+			}
+		    }).a = Config.alarmred;
+	    
+	    
+	    (new CheckBox(new Coord(10, y+=35), tab, "Auto-aggro (Criminal Acts must be ON)") {
+		public void changed(boolean val) {
+		    Config.autoaggro = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.autoaggro;
+		
+		(new CheckBox(new Coord(25, y+=30), tab, "Unknown") {
+			public void changed(boolean val) {
+			    Config.aggrounknown = val;
+			    Config.saveOptions();
+			}
+		    }).a = Config.aggrounknown;
+	    
+		(new CheckBox(new Coord(25, y+=30), tab, "Red") {
+			public void changed(boolean val) {
+			    Config.aggrored = val;
+			    Config.saveOptions();
+			}
+		    }).a = Config.aggrored;
+	}
 
 	new Frame(new Coord(-10, 20), new Coord(550, 430), this);
 	String last = Utils.getpref("optwndtab", "");

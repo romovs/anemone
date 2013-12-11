@@ -31,7 +31,6 @@ import static haven.MCache.tilesz;
 import haven.MCache.Grid;
 import haven.MCache.Overlay;
 import haven.Resource.Tile;
-
 import java.awt.Color;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -40,14 +39,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import ender.HLInfo;
 
 public class MapView extends Widget implements DTarget, Console.Directory {
+	private static final Resource rsrcAlarm = Resource.load("sfx/alarm", 1);
     static Color[] olc = new Color[31];
     static Map<String, Class<? extends Camera>> camtypes = new HashMap<String, Class<? extends Camera>>();
     public Coord mc, mousepos, pmousepos;
@@ -970,7 +970,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	}
 	g.chcolor();
     }
-    
+    boolean pl = true;
     private void drawobjradius(GOut g) {
 	synchronized (glob.oc) {
 	    for (Gob gob : glob.oc) {
@@ -989,6 +989,12 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 			if (Config.autohearth) {
 				autohearth(gob);
 			}
+			if (Config.alarm) {
+				alarm(gob);
+			}
+			if (Config.autoaggro) {
+				autoaggro(gob);
+			}
 		}
 		
 		if(gob.isHighlight() && Config.highlightItemList.contains(gob.resname())){
@@ -999,7 +1005,38 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	}
 	g.chcolor();
     }
+    
+	HashSet<Integer> playersSeenAlarm = new HashSet<Integer>();
+    private void alarm(Gob gob){
+    	if (!playersSeenAlarm.contains(gob.id)) {
+    		KinInfo kin = gob.getattr(KinInfo.class);
+    		if(kin == null && Config.alarmunknown || 
+    				kin != null && kin.group == 2 && Config.alarmred) {
+				Audio.play(rsrcAlarm);
+	    		playersSeenAlarm.add(gob.id);
+    		}
+    	}
+    }
 	
+	HashSet<Integer> playersSeenAggro = new HashSet<Integer>();
+	private void autoaggro(Gob gob) {
+    	if (!playersSeenAggro.contains(gob.id)) {
+    		KinInfo kin = gob.getattr(KinInfo.class);
+
+			if(kin == null && Config.aggrounknown || 
+					kin != null && kin.group == 2 && Config.aggrored) {
+	
+				if (ui.mnu != null) {
+					ui.mnu.wdgmsg("act", new Object[]{"atk", "pow"}); 
+					Coord pc = glob.oc.getgob(playergob).getc();
+					wdgmsg("click", gob.getc(), gob.getc(), 1, ui.modflags(), gob.id, gob.getc());
+					wdgmsg("click", pc, pc, 1, ui.modflags(), playergob, pc);
+		    		playersSeenAggro.add(gob.id);
+				}
+			}
+    	}
+	}
+    
 	private void autohearth(Gob gob) {
 		if (System.currentTimeMillis() > lastah) {
 			KinInfo kin = gob.getattr(KinInfo.class);
