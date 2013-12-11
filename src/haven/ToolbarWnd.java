@@ -150,25 +150,12 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
     
 	public static Properties getBelts() {
 		Properties loadInfo = new Properties();
-		String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 		try {
+			String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 			loadInfo.load(new FileInputStream(configFileName));
 		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		}
+		} catch (Exception e) {}
 		return loadInfo;
-    }
-	
-    
-	public void loadBelts() {
-	String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
-	try {
-	    synchronized (beltsConfig) {
-		beltsConfig.load(new FileInputStream(configFileName));
-	    }
-	} catch (FileNotFoundException e) {
-	} catch (IOException e) {
-	}
     }
     
     protected void loadBelt(int beltNr) {
