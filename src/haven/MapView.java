@@ -1027,7 +1027,7 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 					kin != null && kin.group == 2 && Config.aggrored) {
 	
 				if (ui.mnu != null) {
-					ui.mnu.wdgmsg("act", new Object[]{"atk", "pow"}); 
+					ui.mnu.wdgmsg("act", new Object[]{"atk", "thunder"}); 
 					Coord pc = glob.oc.getgob(playergob).getc();
 					wdgmsg("click", gob.getc(), gob.getc(), 1, ui.modflags(), gob.id, gob.getc());
 					wdgmsg("click", pc, pc, 1, ui.modflags(), playergob, pc);
