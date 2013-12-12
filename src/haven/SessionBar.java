@@ -13,6 +13,7 @@ public class SessionBar extends WindowTrans {
     private static final Coord avasz = new Coord(40,40);
     private static final int BORDER = 5;
     private static final int LEFT_OFFSET = 25;
+    private static final Text.Foundry nfnd = new Text.Foundry("SansSerif", 10);
     
     static {
 		Widget.addtype("sessionbar", new WidgetFactory() {
@@ -145,5 +146,25 @@ public class SessionBar extends WindowTrans {
 	} else {
 	    super.mousemove(c);
 	}
+    }
+    
+    @Override
+    public Object tooltip(Coord c, boolean again) {
+		Tex tooltip = null;
+		String name = null;
+
+		int i = getClickedAvatarIndex(c.x);
+		List<SessionData> sess = MaidFrame.getSessionList();
+
+		if (i >= 0)
+			name = sess.get(i).getUI().sess != null ? sess.get(i).getUI().sess.charname : null;
+
+		if (name != null)
+			tooltip = new TexI(Utils.outline2(nfnd.render(name, Color.GREEN).img, Color.BLACK));
+
+		if (tooltip != null)
+			return (tooltip);
+		else
+			return ("");
     }
 }
