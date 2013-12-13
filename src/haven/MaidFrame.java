@@ -214,6 +214,16 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 case KeyEvent.VK_END:
                     lastSession();
                     break;
+                case KeyEvent.VK_A:
+                	Config.autoaggro = !Config.autoaggro;
+                	Config.aggrored = true;
+                	Config.aggrounknown = true;
+                	Config.saveOptions();
+                    String str = "Auto-aggro: " + (Config.autoaggro?"ON":"OFF");
+                    UI curSessUI = getCurrentSession().getUI();
+                    curSessUI.cons.out.println(str);
+                    curSessUI.slen.error(str);
+                	break;
                 default:
                     return;
             }
