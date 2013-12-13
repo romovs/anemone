@@ -1417,7 +1417,18 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 		curf.fin();
 		curf = null;
 	    }
-	    //System.out.println(curf);
+
+		if (Config.gobHealth) {
+			for (Gob gob : glob.oc) {
+				GobHealth gh = gob.getattr(GobHealth.class);
+				if (gh != null) {
+					int percents = (int)(gh.asfloat() * 100);
+					if (percents < 100) {
+						g.atext(percents + "%", gob.sc.add(-5, 0), 0, 1);
+					}
+				}
+			}
+		}
 	}
     }
 	

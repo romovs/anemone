@@ -144,6 +144,7 @@ public class Config {
 	public static boolean alarmunknown = false;
 	public static boolean tracking = true;
 	public static boolean crime = false;
+	public static boolean gobHealth = false;
 
 	// script bools
 	public static boolean runFlaskRunning = false;
@@ -665,7 +666,8 @@ public class Config {
         alarmunknown = options.getProperty("alarmunknown", "true").equals("true");
         tracking = options.getProperty("tracking", "true").equals("true");
         crime = options.getProperty("crime", "false").equals("true");
-  
+        gobHealth = options.getProperty("gobHealth", "false").equals("true");
+
         if (!hideObjects.isEmpty()) {
             for (String objectName : hideObjects.split(",")) {
                 if (!objectName.isEmpty()) {
@@ -777,7 +779,8 @@ public class Config {
         options.setProperty("alarmunknown", alarmunknown?"true":"false");
         options.setProperty("tracking", tracking?"true":"false");
         options.setProperty("crime", crime?"true":"false");
-      
+        options.setProperty("gobHealth", gobHealth?"true":"false");
+
         try {
             options.store(new FileOutputStream("haven.conf"), "Custom config options");
         } catch (IOException e) {

@@ -605,6 +605,13 @@ public class OptWnd extends Window {
 		    Config.saveOptions();
 		}
 	    }).a = Config.crime;
+	    
+	    (new CheckBox(new Coord(10, y+=35), tab, "Show objects' health") {
+		public void changed(boolean val) {
+		    Config.gobHealth = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.gobHealth;
 	}
 
 	new Frame(new Coord(-10, 20), new Coord(550, 430), this);
