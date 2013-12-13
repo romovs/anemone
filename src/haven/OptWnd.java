@@ -591,6 +591,20 @@ public class OptWnd extends Window {
 			    Config.saveOptions();
 			}
 		    }).a = Config.aggrored;
+		
+	    (new CheckBox(new Coord(10, y+=35), tab, "Toggle Tracking on login") {
+		public void changed(boolean val) {
+		    Config.tracking = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.tracking;
+	    
+	    (new CheckBox(new Coord(10, y+=35), tab, "Toggle Criminal Acts on login") {
+		public void changed(boolean val) {
+		    Config.crime = val;
+		    Config.saveOptions();
+		}
+	    }).a = Config.crime;
 	}
 
 	new Frame(new Coord(-10, 20), new Coord(550, 430), this);

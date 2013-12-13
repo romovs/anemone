@@ -27,7 +27,6 @@
 package haven;
 
 import haven.Text.Foundry;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.font.TextAttribute;
@@ -943,7 +942,25 @@ public class CharWnd extends Window {
 	}.tooltip = "Personal Beliefs";
 	
 	hide();
+	if (Config.crime)
+		enableCrime();
     }
+    
+    private void enableTracking(){
+    	ui.mnu.wdgmsg("act", new Object[]{"tracking"}); 
+		int k = -2;
+		Buff buff = new Buff(k, Resource.load("paginae/act/tracking").indir());
+		buff.major = true;
+		ui.mainview.glob.buffs.put(k, buff);
+	}
+    
+    private void enableCrime(){
+    	ui.mnu.wdgmsg("act", new Object[]{"crime"}); 
+		int k = -1;
+		Buff buff = new Buff(k, Resource.load("paginae/act/crime").indir());
+		buff.major = true;
+		ui.mainview.glob.buffs.put(k, buff);
+	}
     
     public void uimsg(String msg, Object... args) {
 	if(msg == "exp") {
@@ -967,8 +984,10 @@ public class CharWnd extends Window {
 	} else if(msg == "psk") {
 	    Collection<Resource> skl = new LinkedList<Resource>();
 	    for(int i = 0; i < args.length; i++) {
-		Resource res = Resource.load("gfx/hud/skills/" + (String)args[i]);
-		skl.add(res);
+	    	if (Config.tracking && ((String)args[i]).equals("ranger"))
+	    		enableTracking();	
+	    	Resource res = Resource.load("gfx/hud/skills/" + (String)args[i]);
+	    	skl.add(res);
 	    }
 	    psk.pop(skl);
 	} else if(msg == "food") {

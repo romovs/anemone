@@ -142,7 +142,9 @@ public class Config {
     public static boolean alarm = false;
 	public static boolean alarmred = false;
 	public static boolean alarmunknown = false;
-	
+	public static boolean tracking = true;
+	public static boolean crime = false;
+
 	// script bools
 	public static boolean runFlaskRunning = false;
 	public static boolean runFlask = true;
@@ -658,11 +660,12 @@ public class Config {
         autoaggro = options.getProperty("autoaggro", "false").equals("true");
         aggrored = options.getProperty("aggrored", "false").equals("true");
         aggrounknown = options.getProperty("aggrounknown", "false").equals("true");
-        alarm = options.getProperty("alarm", "false").equals("true");
-        alarmred = options.getProperty("alarmred", "false").equals("true");
-        alarmunknown = options.getProperty("alarmunknown", "false").equals("true");
-        
-        
+        alarm = options.getProperty("alarm", "true").equals("true");
+        alarmred = options.getProperty("alarmred", "true").equals("true");
+        alarmunknown = options.getProperty("alarmunknown", "true").equals("true");
+        tracking = options.getProperty("tracking", "true").equals("true");
+        crime = options.getProperty("crime", "false").equals("true");
+  
         if (!hideObjects.isEmpty()) {
             for (String objectName : hideObjects.split(",")) {
                 if (!objectName.isEmpty()) {
@@ -772,8 +775,9 @@ public class Config {
         options.setProperty("alarm", alarm?"true":"false");
         options.setProperty("alarmred", alarmred?"true":"false");      
         options.setProperty("alarmunknown", alarmunknown?"true":"false");
-
-        
+        options.setProperty("tracking", tracking?"true":"false");
+        options.setProperty("crime", crime?"true":"false");
+      
         try {
             options.store(new FileOutputStream("haven.conf"), "Custom config options");
         } catch (IOException e) {
