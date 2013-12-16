@@ -535,7 +535,7 @@ public class MCache {
 	synchronized (MiniMap.caveTex) {
 	    MiniMap.caveTex.clear();
 	}
-	UI.instance.mainview.resetcam();
+	sess.ui.mainview.resetcam();
     }
 	
     public void trim(Coord ul, Coord lr) {

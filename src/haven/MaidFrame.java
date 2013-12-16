@@ -280,6 +280,7 @@ public class MaidFrame extends MainFrame implements KeyListener {
             Session sess = bill.run(p, loginUi);
             RemoteUI rui = new RemoteUI(sess);
             UI n = p.newui(sess);
+            sess.ui = n;
             ns = new SessionData(Thread.currentThread(), n);
             replaceSession(loginThreadUi, ns);
 

@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Session {
+	public UI ui;
     public static final int PVER = 2;
     
     public static final int MSG_SESS = 0;
