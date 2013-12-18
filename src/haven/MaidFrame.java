@@ -208,12 +208,6 @@ public class MaidFrame extends MainFrame implements KeyListener {
                 case KeyEvent.VK_PAGE_DOWN:
                     previousSession();
                     break;
-                case KeyEvent.VK_HOME:
-                    firstSession();
-                    break;
-                case KeyEvent.VK_END:
-                    lastSession();
-                    break;
                 case KeyEvent.VK_A:
                 	Config.autoaggro = !Config.autoaggro;
                 	Config.aggrored = true;
