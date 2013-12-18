@@ -167,7 +167,6 @@ public class Item extends Widget implements DTarget {
 	if(FEP == null){calcFEP();}
 	if(curioStr == null){calcCurio();}
 		
-	System.out.println("ttres.name: " + ttres.name);
 	if (ttres.name.lastIndexOf("waterflask") > 0) {
 		drawBar(g, 2, clrWater, 3);
 	} else if (ttres.name.lastIndexOf("glass-winef") > 0) {
