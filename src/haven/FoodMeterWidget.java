@@ -26,6 +26,8 @@ public class FoodMeterWidget extends Widget {
 	
 	public FoodMeterWidget(Coord c, Widget parent) {
 	    super(c, CharWnd.foodmimg.sz(), parent);
+	    if (!Config.fepbar)
+	    	visible = false;
 		loadpos();
 	}
     

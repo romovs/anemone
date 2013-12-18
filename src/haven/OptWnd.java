@@ -226,6 +226,9 @@ public class OptWnd extends Window {
 		public void changed(boolean val) {
 		    Config.fepbar = val;
 		    Config.saveOptions();
+		    for (SessionData sess : MaidFrame.getSessionList()) {	
+		    	sess.charWnd.fmw.visible = val;
+		    }
 		}
 	    }).a = Config.fepbar;
 	    
