@@ -532,8 +532,8 @@ public class MCache {
 		req.clear();
 	    }
 	}
-	synchronized (MiniMap.caveTex) {
-	    MiniMap.caveTex.clear();
+	synchronized (sess.ui.slen.mini.caveTex) {
+		  sess.ui.slen.mini.caveTex.clear();
 	}
 	sess.ui.mainview.resetcam();
     }

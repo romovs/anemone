@@ -68,6 +68,7 @@ public class SlenHud extends ConsoleHost implements DTarget, DropTarget, Console
     long errtime;
     OptWnd optwnd = null;
     static int dh;
+	public MiniMap mini;
 	
     static {
 	Widget.addtype("slen", new WidgetFactory() {
@@ -218,9 +219,10 @@ public class SlenHud extends ConsoleHost implements DTarget, DropTarget, Console
 		    }
 		};
 	    }
-	    new MiniMap(new Coord(5, 5), new Coord(125, 125), this, ui.mainview);
+	    mini = new MiniMap(new Coord(5, 5), new Coord(125, 125), this, ui.mainview);
 	} else {
-	    new MinimapPanel(Coord.z, Coord.z, ui.root);
+		MinimapPanel minip = new MinimapPanel(Coord.z, Coord.z, ui.root);
+	    mini = minip.mm;
 	}
 	vc = new VC(this, fb = new FoldButton(new Coord((MainFrame.innerSize.width - 40) / 2, MainFrame.innerSize.height), parent) {
 		public void click() {

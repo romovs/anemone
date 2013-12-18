@@ -65,7 +65,7 @@ public class MiniMap extends Widget {
     static long mappingSession = 0;
     static Map<String, Coord> gridsHashes = new TreeMap<String, Coord>();
     static Map<Coord, String> coordHashes = new TreeMap<Coord, String>();
-    static Map<Coord, Tex> caveTex = new TreeMap<Coord, Tex>();
+    public Map<Coord, Tex> caveTex = new TreeMap<Coord, Tex>();
     public static final Tex bg = Resource.loadtex("gfx/hud/mmap/ptex");
     public static final Tex nomap = Resource.loadtex("gfx/hud/mmap/nomap");
     public static final Resource plx = Resource.load("gfx/hud/mmap/x");
