@@ -523,7 +523,6 @@ public class Config {
 	    br.close();
 	    fstream.close();
 	} catch (Exception e) {
-		e.printStackTrace();
 	}
     }
     
@@ -533,7 +532,7 @@ public class Config {
 	    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fstream, "UTF-8"));
 	   
 	    for (LoginData ld : logins)
-	    	bw.write(ld.name + ":" + ld.pass);
+	    	bw.write(ld.name + ":" + ld.pass + "\n");
 	    
 		bw.close();
 	    fstream.close();
