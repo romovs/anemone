@@ -363,9 +363,15 @@ public class Session {
 	    } else if(msg.type == Message.RMSG_PARTY) {
 		glob.party.msg(msg);
 	    } else if(msg.type == Message.RMSG_SFX) {
-	    	if(!Config.isSoundOn)
-	    	    return;//	Sound effects disabled
 		Indir<Resource> res = getres(msg.uint16());
+    	
+		// FIXME: very ugly hack for no-borders camera reset when moving between floors within a house
+		if (Config.noborders && res != null && res.toString().contains("sfx/door")) 
+			ui.mainview.resetcam();
+
+    	if(!Config.isSoundOn)
+    	    return;//	Sound effects disabled
+
 		double vol = ((double)msg.uint16()) / 256.0;
 		double spd = ((double)msg.uint16()) / 256.0;
 		Audio.play(res);
