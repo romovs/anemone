@@ -26,6 +26,7 @@
 
 package haven;
 
+import haven.MapView.BorderCam;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -366,7 +367,7 @@ public class Session {
 		Indir<Resource> res = getres(msg.uint16());
     	
 		// FIXME: very ugly hack for no-borders camera reset when moving between floors within a house
-		if (Config.noborders && res != null && res.toString().contains("sfx/door")) 
+		if (Config.noborders && ui.mainview.cam instanceof BorderCam && res != null && res.toString().contains("sfx/door")) 
 			ui.mainview.resetcam();
 
     	if(!Config.isSoundOn)
