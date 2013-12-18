@@ -28,9 +28,9 @@ package haven;
 
 import static haven.Utils.getprop;
 import haven.pathfinder.Node;
-
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,21 +38,22 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import ender.CurioInfo;
 import ender.GoogleTranslator;
 import ender.HLInfo;
@@ -119,6 +120,8 @@ public class Config {
     public static Map<String, SkillAvailability> skills;
     public static Map<String, String> crafts = new HashMap<String, String>();
     public static Map<String, String> beasts = new HashMap<String, String>();
+    public static List<LoginData> logins = new ArrayList<LoginData>();
+
     //public static 
     public static boolean highlightSkills;
     public static boolean fps = false;
@@ -202,6 +205,7 @@ public class Config {
 	    loadHighlight();
 	    loadCurrentHighlight();
 	    loadBeasts();
+	    loadLogins();
 	} catch(java.net.MalformedURLException e) {
 	    throw(new RuntimeException(e));
 	}
@@ -507,6 +511,37 @@ public class Config {
 	}
     }
 
+    private static void loadLogins() {
+	try {
+	    FileInputStream fstream = new FileInputStream("passwd");
+	    BufferedReader br = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
+	    String strLine;
+	    while ((strLine = br.readLine()) != null)   {
+	    	String [] tmp = strLine.split(":");
+	    	logins.add(new LoginData(tmp[0], tmp[1]));
+	    }
+	    br.close();
+	    fstream.close();
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+    }
+    
+    public static void saveLogins() {
+	try {
+	    FileOutputStream fstream = new FileOutputStream("passwd");
+	    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fstream, "UTF-8"));
+	   
+	    for (LoginData ld : logins)
+	    	bw.write(ld.name + ":" + ld.pass);
+	    
+		bw.close();
+	    fstream.close();
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+    }
+    
     private static void usage(PrintStream out) {
 	out.println("usage: haven.jar [-hdPf] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");
     }

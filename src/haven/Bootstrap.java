@@ -76,6 +76,7 @@ public class Bootstrap implements UI.Receiver {
 	    token = Utils.hex2byte(Utils.getpref("savedtoken", null));
 	username = Utils.getpref("username", "");
 	String authserver = (Config.authserv == null)?address:Config.authserv;
+	String password = null;
 	retry: do {
 	    byte[] cookie;
 	    if(initcookie != null) {
@@ -123,7 +124,7 @@ public class Bootstrap implements UI.Receiver {
 		    } catch(java.io.IOException e) {}
 		}
 	    } else {
-		String password;
+
 		ui.uimsg(1, "passwd", username, savepw);
 		while(true) {
 		    Message msg;
@@ -215,6 +216,15 @@ public class Bootstrap implements UI.Receiver {
 	    }
 	} while(true);
 	haven.error.ErrorHandler.setprop("usr", sess.username);
+	
+	LoginData ld = new LoginData(username, password);
+	synchronized(Config.logins) {
+		if (!Config.logins.contains(ld)) {
+			Config.logins.add(new LoginData(username, password));
+			Config.saveLogins();
+		}
+	}
+
 	return(sess);
 	//(new RemoteUI(sess, ui)).start();
     }
