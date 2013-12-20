@@ -30,62 +30,62 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class KinInfo extends GAttrib {
-    public static final BufferedImage vlg = Resource.loadimg("gfx/hud/vilind");
-    public static final Text.Foundry nfnd = new Text.Foundry("SansSerif", 10);
-    public String name;
-    public int group, type;
-    public long seen = 0;
-    private Tex rnm = null;
-    
-    public KinInfo(Gob g, String name, int group, int type) {
-	super(g);
-	this.name = name;
-	this.group = group;
-	this.type = type;
-    }
-    
-    public void update(String name, int group, int type) {
-	this.name = name;
-	this.group = group;
-	this.type = type;
-	rnm = null;
-    }
-    
-    public Tex rendered() {
-	if(rnm == null) {
-	    boolean hv = (type & 2) != 0;
-	    BufferedImage nm = null;
-	    if(name.length() > 0)
-		nm = Utils.outline2(nfnd.render(name, BuddyWnd.gc[group]).img, Utils.contrast(BuddyWnd.gc[group]));
-	    int w = 0, h = 0;
-	    if(nm != null) {
-		w += nm.getWidth();
-		if(nm.getHeight() > h)
-		    h = nm.getHeight();
-	    }
-	    if(hv) {
-		w += vlg.getWidth() + 1;
-		if(vlg.getHeight() > h)
-		    h = vlg.getHeight();
-	    }
-	    if(w == 0) {
-		rnm = new TexIM(new Coord(1, 1));
-	    } else {
-		BufferedImage buf = TexI.mkbuf(new Coord(w, h));
-		Graphics g = buf.getGraphics();
-		int x = 0;
-		if(hv) {
-		    g.drawImage(vlg, x, (h / 2) - (vlg.getHeight() / 2), null);
-		    x += vlg.getWidth() + 1;
-		}
-		if(nm != null) {
-		    g.drawImage(nm, x, (h / 2) - (nm.getHeight() / 2), null);
-		    x += nm.getWidth();
-		}
-		g.dispose();
-		rnm = new TexI(buf);
-	    }
+	public static final BufferedImage vlg = Resource.loadimg("gfx/hud/vilind");
+	public static final Text.Foundry nfnd = new Text.Foundry("SansSerif", 10);
+	public String name;
+	public int group, type;
+	public long seen = 0;
+	private Tex rnm = null;
+
+	public KinInfo(Gob g, String name, int group, int type) {
+		super(g);
+		this.name = name;
+		this.group = group;
+		this.type = type;
 	}
-	return(rnm);
-    }
+
+	public void update(String name, int group, int type) {
+		this.name = name;
+		this.group = group;
+		this.type = type;
+		rnm = null;
+	}
+
+	public Tex rendered() {
+		if (rnm == null) {
+			boolean hv = (type & 2) != 0;
+			BufferedImage nm = null;
+			if (name.length() > 0)
+				nm = Utils.outline2(nfnd.render(name, BuddyWnd.gc[group]).img, Utils.contrast(BuddyWnd.gc[group]));
+			int w = 0, h = 0;
+			if (nm != null) {
+				w += nm.getWidth();
+				if (nm.getHeight() > h)
+					h = nm.getHeight();
+			}
+			if (hv) {
+				w += vlg.getWidth() + 1;
+				if (vlg.getHeight() > h)
+					h = vlg.getHeight();
+			}
+			if (w == 0) {
+				rnm = new TexIM(new Coord(1, 1));
+			} else {
+				BufferedImage buf = TexI.mkbuf(new Coord(w, h));
+				Graphics g = buf.getGraphics();
+				int x = 0;
+				if (hv) {
+					g.drawImage(vlg, x, (h / 2) - (vlg.getHeight() / 2), null);
+					x += vlg.getWidth() + 1;
+				}
+				if (nm != null) {
+					g.drawImage(nm, x, (h / 2) - (nm.getHeight() / 2), null);
+					x += nm.getWidth();
+				}
+				g.dispose();
+				rnm = new TexI(buf);
+			}
+		}
+		return (rnm);
+	}
 }

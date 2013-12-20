@@ -31,109 +31,109 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 
 public class Button extends Widget {
-    static Tex bl = Resource.loadtex("gfx/hud/buttons/tbtn/left");
-    static Tex br = Resource.loadtex("gfx/hud/buttons/tbtn/right");
-    static Tex bt = Resource.loadtex("gfx/hud/buttons/tbtn/top");
-    static Tex bb = Resource.loadtex("gfx/hud/buttons/tbtn/bottom");
-    static Tex dt = Resource.loadtex("gfx/hud/buttons/tbtn/dtex");
-    static Tex ut = Resource.loadtex("gfx/hud/buttons/tbtn/utex");
-    public Text text;
-    public BufferedImage cont;
-    static Text.Foundry tf = new Text.Foundry(new Font("Serif", Font.PLAIN, 12), Color.YELLOW);
-    boolean a = false;
-    public Color color = Color.YELLOW;
-	
-    static {
-	Widget.addtype("btn", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(new Button(c, (Integer)args[0], parent, (String)args[1]));
+	static Tex bl = Resource.loadtex("gfx/hud/buttons/tbtn/left");
+	static Tex br = Resource.loadtex("gfx/hud/buttons/tbtn/right");
+	static Tex bt = Resource.loadtex("gfx/hud/buttons/tbtn/top");
+	static Tex bb = Resource.loadtex("gfx/hud/buttons/tbtn/bottom");
+	static Tex dt = Resource.loadtex("gfx/hud/buttons/tbtn/dtex");
+	static Tex ut = Resource.loadtex("gfx/hud/buttons/tbtn/utex");
+	public Text text;
+	public BufferedImage cont;
+	static Text.Foundry tf = new Text.Foundry(new Font("Serif", Font.PLAIN, 12), Color.YELLOW);
+	boolean a = false;
+	public Color color = Color.YELLOW;
+
+	static {
+		Widget.addtype("btn", new WidgetFactory() {
+			public Widget create(Coord c, Widget parent, Object[] args) {
+				return (new Button(c, (Integer) args[0], parent, (String) args[1]));
+			}
+		});
+		Widget.addtype("ltbtn", new WidgetFactory() {
+			public Widget create(Coord c, Widget parent, Object[] args) {
+				return (wrapped(c, (Integer) args[0], parent, (String) args[1]));
+			}
+		});
+	}
+
+	public static Button wrapped(Coord c, int w, Widget parent, String text) {
+		Button ret = new Button(c, w, parent, tf.renderwrap(text, w - 10));
+		return (ret);
+	}
+
+	public Button(Coord c, Integer w, Widget parent, String text) {
+		super(c, new Coord(w, 19), parent);
+		this.text = tf.render(text);
+		this.cont = this.text.img;
+	}
+
+	public Button(Coord c, Integer w, Widget parent, Text text) {
+		super(c, new Coord(w, 19), parent);
+		this.text = text;
+		this.cont = text.img;
+	}
+
+	public Button(Coord c, Integer w, Widget parent, BufferedImage cont) {
+		super(c, new Coord(w, 19), parent);
+		this.cont = cont;
+	}
+
+	public void draw(GOut g) {
+		synchronized (this) {
+			// Graphics g = graphics();
+			g.image(a ? dt : ut, new Coord(3, 3), new Coord(sz.x - 6, 13));
+			g.image(bl, new Coord());
+			g.image(br, new Coord(sz.x - br.sz().x, 0));
+			g.image(bt, new Coord(3, 0), new Coord(sz.x - 6, bt.sz().y));
+			g.image(bb, new Coord(3, sz.y - bb.sz().y), new Coord(sz.x - 6, bb.sz().y));
+			Coord tc = sz.div(2).add(Utils.imgsz(cont).div(2).inv());
+			if (a)
+				tc = tc.add(1, 1);
+			g.image(cont, new Coord(tc.x, tc.y));
 		}
-	    });
-	Widget.addtype("ltbtn", new WidgetFactory() {
-		public Widget create(Coord c, Widget parent, Object[] args) {
-		    return(wrapped(c, (Integer)args[0], parent, (String)args[1]));
+	}
+
+	public void change(String text, Color col) {
+		if (col == null)
+			col = Color.YELLOW;
+		color = col;
+		this.text = tf.render(text, col);
+		this.cont = this.text.img;
+	}
+
+	public void change(String text) {
+		change(text, null);
+	}
+
+	public void click() {
+		wdgmsg("activate");
+	}
+
+	public void uimsg(String msg, Object... args) {
+		if (msg == "ch") {
+			if (args.length > 1)
+				change((String) args[0], (Color) args[1]);
+			else
+				change((String) args[0]);
 		}
-	    });
-    }
-	
-    public static Button wrapped(Coord c, int w, Widget parent, String text) {
-	Button ret = new Button(c, w, parent, tf.renderwrap(text, w - 10));
-	return(ret);
-    }
-        
-    public Button(Coord c, Integer w, Widget parent, String text) {
-	super(c, new Coord(w, 19), parent);
-	this.text = tf.render(text);
-	this.cont = this.text.img;
-    }
-        
-    public Button(Coord c, Integer w, Widget parent, Text text) {
-	super(c, new Coord(w, 19), parent);
-	this.text = text;
-	this.cont = text.img;
-    }
-	
-    public Button(Coord c, Integer w, Widget parent, BufferedImage cont) {
-	super(c, new Coord(w, 19), parent);
-	this.cont = cont;
-    }
-	
-    public void draw(GOut g) {
-	synchronized(this) {
-	    //Graphics g = graphics();
-	    g.image(a?dt:ut, new Coord(3, 3), new Coord(sz.x - 6, 13));
-	    g.image(bl, new Coord());
-	    g.image(br, new Coord(sz.x - br.sz().x, 0));
-	    g.image(bt, new Coord(3, 0), new Coord(sz.x - 6, bt.sz().y));
-	    g.image(bb, new Coord(3, sz.y - bb.sz().y), new Coord(sz.x - 6, bb.sz().y));
-	    Coord tc = sz.div(2).add(Utils.imgsz(cont).div(2).inv());
-	    if(a)
-		tc = tc.add(1, 1);
-	    g.image(cont, new Coord(tc.x, tc.y));
 	}
-    }
-	
-    public void change(String text, Color col) {
-	if(col == null)
-	    col = Color.YELLOW;
-	color = col;
-	this.text = tf.render(text, col);
-	this.cont = this.text.img;
-    }
-    
-    public void change(String text) {
-	change(text, null);
-    }
-    
-    public void click() {
-	wdgmsg("activate");
-    }
-    
-    public void uimsg(String msg, Object... args) {
-	if(msg == "ch") {
-	    if(args.length > 1)
-		change((String)args[0], (Color)args[1]);
-	    else
-		change((String)args[0]);
+
+	public boolean mousedown(Coord c, int button) {
+		if (button != 1)
+			return (false);
+		a = true;
+		ui.grabmouse(this);
+		return (true);
 	}
-    }
-    
-    public boolean mousedown(Coord c, int button) {
-	if(button != 1)
-	    return(false);
-	a = true;
-	ui.grabmouse(this);
-	return(true);
-    }
-	
-    public boolean mouseup(Coord c, int button) {
-	if(a && button == 1) {
-	    a = false;
-	    ui.grabmouse(null);
-	    if(c.isect(new Coord(0, 0), sz))
-		click();
-	    return(true);
+
+	public boolean mouseup(Coord c, int button) {
+		if (a && button == 1) {
+			a = false;
+			ui.grabmouse(null);
+			if (c.isect(new Coord(0, 0), sz))
+				click();
+			return (true);
+		}
+		return (false);
 	}
-	return(false);
-    }
 }

@@ -13,5 +13,5 @@ public class ItemAdapter implements ItemListener {
 
 	public void onItemDestroy(ItemEvent e) {
 	}
-	
+
 }

@@ -31,115 +31,116 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import ender.GoogleTranslator;
 
 public class ChatHW extends HWindow {
-    TextEntry in;
-    Textlog out;
-    static final Collection<Integer> todarken = new ArrayList<Integer>();
-    static final Pattern hlpatt = Pattern.compile("@\\$\\[(-?\\d+)\\]");
+	TextEntry in;
+	Textlog out;
+	static final Collection<Integer> todarken = new ArrayList<Integer>();
+	static final Pattern hlpatt = Pattern.compile("@\\$\\[(-?\\d+)\\]");
 
-    static {
-	Widget.addtype("slenchat", new WidgetFactory() {
-	    public Widget create(Coord c, Widget parent, Object[] args) {
-		String t = (String)args[0];
-		boolean cl = false;
-		if(args.length > 1)
-		    cl = (Integer)args[1] != 0;
-		return(new ChatHW(parent, parent.ui, t, cl));
-	    }
-	});
-	todarken.add(Color.GREEN.getRGB());
-	todarken.add(Color.CYAN.getRGB());
-	todarken.add(Color.YELLOW.getRGB());
-    }
-
-    public ChatHW(Widget parent, UI ui, String title, boolean closable) {
-	super(ui != null?(Widget)ui.chat:null, title, closable);
-	in = new TextEntry(new Coord(0, sz.y - 20), new Coord(sz.x, 20), this, "");
-	in.canactivate = true;
-	in.bgcolor = new Color(64, 64, 64, 192);
-	out = new Textlog(Coord.z, new Coord(sz.x, sz.y - 20), this);
-	out.drawbg = false;
-
-	if(cbtn != null) {
-	    cbtn.raise();
-	    if (title.equals("Area Chat"))
-		cbtn.hide();
+	static {
+		Widget.addtype("slenchat", new WidgetFactory() {
+			public Widget create(Coord c, Widget parent, Object[] args) {
+				String t = (String) args[0];
+				boolean cl = false;
+				if (args.length > 1)
+					cl = (Integer) args[1] != 0;
+				return (new ChatHW(parent, parent.ui, t, cl));
+			}
+		});
+		todarken.add(Color.GREEN.getRGB());
+		todarken.add(Color.CYAN.getRGB());
+		todarken.add(Color.YELLOW.getRGB());
 	}
-	setsz(sz);
-    }
 
-    public void setsz(Coord s) {
-	super.setsz(s);
-	in.c = new Coord(0, sz.y - 20);
-	in.sz = new Coord(sz.x, 20);
-	out.sz = new Coord(sz.x, sz.y - 20);
-    }
+	public ChatHW(Widget parent, UI ui, String title, boolean closable) {
+		super(ui != null ? (Widget) ui.chat : null, title, closable);
+		in = new TextEntry(new Coord(0, sz.y - 20), new Coord(sz.x, 20), this, "");
+		in.canactivate = true;
+		in.bgcolor = new Color(64, 64, 64, 192);
+		out = new Textlog(Coord.z, new Coord(sz.x, sz.y - 20), this);
+		out.drawbg = false;
 
-    @Override
-    public void setfocus(Widget w) {
-	if(w == this){
-	    w = in;
-	}
-	if(w == null)
-	    return;
-	super.setfocus(w);
-    }
-
-    public void uimsg(String msg, Object... args) {
-	if(msg == "log") {
-
-	    if(Config.muteChat){return;}
-
-	    Color col = null;
-	    if(args.length > 1)
-		col = (Color)args[1];
-	    if(args.length > 2)
-		makeurgent((Integer)args[2]);
-	    String str = (String)args[0];
-	    int id = 0;
-	    try{
-		Matcher m = hlpatt.matcher(str); 
-		if(m.find()){
-		    id = Integer.parseInt(m.group(1));
+		if (cbtn != null) {
+			cbtn.raise();
+			if (title.equals("Area Chat"))
+				cbtn.hide();
 		}
-	    } catch(Exception e){}
-	    Gob gob;
-	    if(id != 0) {
-		if ((gob = ui.sess.glob.oc.getgob(id)) != null){
-		    gob.highlight = new Gob.HlFx(System.currentTimeMillis());
+		setsz(sz);
+	}
+
+	public void setsz(Coord s) {
+		super.setsz(s);
+		in.c = new Coord(0, sz.y - 20);
+		in.sz = new Coord(sz.x, 20);
+		out.sz = new Coord(sz.x, sz.y - 20);
+	}
+
+	@Override
+	public void setfocus(Widget w) {
+		if (w == this) {
+			w = in;
 		}
-	    } else {
-		if((col != null)&&(todarken.contains(col.getRGB())))
-		    col = col.darker();
-		str = GoogleTranslator.translate(str);
-		if(Config.timestamp)
-		    str = Utils.timestamp() + str;
-		out.append(str, col);
-	    }
-	} else if(msg == "focusme") {
-	    shp.setawnd(this, true);
-	    setfocus(in);
-	} else {
-	    super.uimsg(msg, args);
+		if (w == null)
+			return;
+		super.setfocus(w);
 	}
-    }
 
-    public void wdgmsg(Widget sender, String msg, Object... args) {
-	if(sender == in) {
-	    if(msg == "activate") {
-		wdgmsg("msg", args[0]);
-		in.settext("");
-		return;
-	    }
+	public void uimsg(String msg, Object... args) {
+		if (msg == "log") {
+
+			if (Config.muteChat) {
+				return;
+			}
+
+			Color col = null;
+			if (args.length > 1)
+				col = (Color) args[1];
+			if (args.length > 2)
+				makeurgent((Integer) args[2]);
+			String str = (String) args[0];
+			int id = 0;
+			try {
+				Matcher m = hlpatt.matcher(str);
+				if (m.find()) {
+					id = Integer.parseInt(m.group(1));
+				}
+			} catch (Exception e) {
+			}
+			Gob gob;
+			if (id != 0) {
+				if ((gob = ui.sess.glob.oc.getgob(id)) != null) {
+					gob.highlight = new Gob.HlFx(System.currentTimeMillis());
+				}
+			} else {
+				if ((col != null) && (todarken.contains(col.getRGB())))
+					col = col.darker();
+				str = GoogleTranslator.translate(str);
+				if (Config.timestamp)
+					str = Utils.timestamp() + str;
+				out.append(str, col);
+			}
+		} else if (msg == "focusme") {
+			shp.setawnd(this, true);
+			setfocus(in);
+		} else {
+			super.uimsg(msg, args);
+		}
 	}
-	super.wdgmsg(sender, msg, args);
-    }
 
-    public boolean mousewheel(Coord c, int amount)
-    {
-	return(out.mousewheel(c, amount));
-    }
+	public void wdgmsg(Widget sender, String msg, Object... args) {
+		if (sender == in) {
+			if (msg == "activate") {
+				wdgmsg("msg", args[0]);
+				in.settext("");
+				return;
+			}
+		}
+		super.wdgmsg(sender, msg, args);
+	}
+
+	public boolean mousewheel(Coord c, int amount) {
+		return (out.mousewheel(c, amount));
+	}
 }

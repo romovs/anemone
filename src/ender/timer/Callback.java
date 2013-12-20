@@ -1,6 +1,6 @@
 package ender.timer;
 
 public interface Callback {
-    public void run(Timer timer);
+	public void run(Timer timer);
 
 }

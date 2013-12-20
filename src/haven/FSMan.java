@@ -27,7 +27,9 @@
 package haven;
 
 public interface FSMan {
-    public void setfs();
-    public void setwnd();
-    public boolean hasfs();
+	public void setfs();
+
+	public void setwnd();
+
+	public boolean hasfs();
 }

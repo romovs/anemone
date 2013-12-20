@@ -36,175 +36,176 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.io.InputStream;
-
 import addons.MainScript; // new
 
 @SuppressWarnings("serial")
 public class MainFrame extends Frame implements FSMan {
-    private static final String TITLE = String.format("Haven and Hearth (Anemone v%s)", Version.VERSION);
-    public static HavenPanel p;
-    ThreadGroup g;
-    DisplayMode fsmode = null, prefs = null;
-    Dimension insetsSize;
-    public static Dimension innerSize;
-    public static Point centerPoint;
-    public static Coord screenSZ;
-    public static MainFrame instance;
-	
-    static {
-	try {
-	    javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-	} catch(Exception e) {}
-    }
-	
-    DisplayMode findmode(int w, int h) {
-	GraphicsDevice dev = getGraphicsConfiguration().getDevice();
-	if(!dev.isFullScreenSupported())
-	    return(null);
-	DisplayMode b = null;
-	for(DisplayMode m : dev.getDisplayModes()) {
-	    int d = m.getBitDepth();
-	    if((m.getWidth() == w) && (m.getHeight() == h) && ((d == 24) || (d == 32) || (d == DisplayMode.BIT_DEPTH_MULTI))) {
-		if((b == null) || (d > b.getBitDepth()) || ((d == b.getBitDepth()) && (m.getRefreshRate() > b.getRefreshRate())))
-		    b = m;
-	    }
-	}
-	return(b);
-    }
-	
-    public void setfs() {
-	GraphicsDevice dev = getGraphicsConfiguration().getDevice();
-	if(prefs != null)
-	    return;
-	prefs = dev.getDisplayMode();
-	try {
-	    setVisible(false);
-	    dispose();
-	    setUndecorated(true);
-	    setVisible(true);
-	    dev.setFullScreenWindow(this);
-	    dev.setDisplayMode(fsmode);
-			
-	} catch(Exception e) {
-	    throw(new RuntimeException(e));
-	}
-    }
-	
-    public void setwnd() {
-	GraphicsDevice dev = getGraphicsConfiguration().getDevice();
-	if(prefs == null)
-	    return;
-	try {
-	    dev.setDisplayMode(prefs);
-	    dev.setFullScreenWindow(null);
-	    setVisible(false);
-	    dispose();
-	    setUndecorated(false);
-	    setVisible(true);
-	} catch(Exception e) {
-	    throw(new RuntimeException(e));
-	}
-	prefs = null;
-    }
+	private static final String TITLE = String.format("Haven and Hearth (Anemone v%s)", Version.VERSION);
+	public static HavenPanel p;
+	ThreadGroup g;
+	DisplayMode fsmode = null, prefs = null;
+	Dimension insetsSize;
+	public static Dimension innerSize;
+	public static Point centerPoint;
+	public static Coord screenSZ;
+	public static MainFrame instance;
 
-    public boolean hasfs() {
-	return(prefs != null);
-    }
-
-    public void togglefs() {
-	if(prefs == null)
-	    setfs();
-	else
-	    setwnd();
-    }
-
-    private void seticon() {
-	Image icon;
-	try {
-	    InputStream data = MainFrame.class.getResourceAsStream("icon.png");
-	    icon = javax.imageio.ImageIO.read(data);
-	    data.close();
-	} catch(IOException e) {
-	    throw(new Error(e));
+	static {
+		try {
+			javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		}
 	}
-	setIconImage(icon);
-    }
 
-    @Override
-    public void setTitle(String charname) {
-	String str = TITLE;
-	if(charname != null){
-	    str = charname+" - "+str;
+	DisplayMode findmode(int w, int h) {
+		GraphicsDevice dev = getGraphicsConfiguration().getDevice();
+		if (!dev.isFullScreenSupported())
+			return (null);
+		DisplayMode b = null;
+		for (DisplayMode m : dev.getDisplayModes()) {
+			int d = m.getBitDepth();
+			if ((m.getWidth() == w) && (m.getHeight() == h) && ((d == 24) || (d == 32) || (d == DisplayMode.BIT_DEPTH_MULTI))) {
+				if ((b == null) || (d > b.getBitDepth()) || ((d == b.getBitDepth()) && (m.getRefreshRate() > b.getRefreshRate())))
+					b = m;
+			}
+		}
+		return (b);
 	}
-	super.setTitle(str);
-    }
 
-    public MainFrame(int w, int h) {
-	super("");
-	setTitle(null);
-	instance = this;
-	innerSize = new Dimension(w, h);
-	centerPoint = new Point(innerSize.width / 2, innerSize.height / 2);
-	screenSZ = new Coord(Toolkit.getDefaultToolkit().getScreenSize());
-	p = new HavenPanel(w, h);
-	fsmode = findmode(w, h);
-	add(p);
-	pack();
-	Insets insets = getInsets();
-	insetsSize = new Dimension(insets.left + insets.right, insets.top + insets.bottom);
-	setResizable(true);
-	setMinimumSize(new Dimension(800 + insetsSize.width, 600 + insetsSize.height));
-	p.requestFocusInWindow();
-	seticon();
-	setVisible(true);
-	p.init();
-	
-	new MainScript(p); // new
-	
-	if(Config.maxWindow){ // new
-		setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
+	public void setfs() {
+		GraphicsDevice dev = getGraphicsConfiguration().getDevice();
+		if (prefs != null)
+			return;
+		prefs = dev.getDisplayMode();
+		try {
+			setVisible(false);
+			dispose();
+			setUndecorated(true);
+			setVisible(true);
+			dev.setFullScreenWindow(this);
+			dev.setDisplayMode(fsmode);
+
+		} catch (Exception e) {
+			throw (new RuntimeException(e));
+		}
 	}
-	
-    }
 
-    public static Coord getScreenSize() {
-        return screenSZ;
-    }
-
-    public static Coord getInnerSize() {
-        return new Coord(innerSize.width, innerSize.height);
-    }
-
-    public static Coord getCenterPoint() {
-        return new Coord(centerPoint.x, centerPoint.y);
-    }
-    
-    public static void setupres() {
-	if(ResCache.global != null)
-	    Resource.addcache(ResCache.global);
-	if(Config.resurl != null)
-	    Resource.addurl(Config.resurl);
-	if(ResCache.global != null) {
-	    try {
-		Resource.loadlist(ResCache.global.fetch("tmp/allused"), -10);
-	    } catch(IOException e) {}
+	public void setwnd() {
+		GraphicsDevice dev = getGraphicsConfiguration().getDevice();
+		if (prefs == null)
+			return;
+		try {
+			dev.setDisplayMode(prefs);
+			dev.setFullScreenWindow(null);
+			setVisible(false);
+			dispose();
+			setUndecorated(false);
+			setVisible(true);
+		} catch (Exception e) {
+			throw (new RuntimeException(e));
+		}
+		prefs = null;
 	}
-	if(!Config.nopreload) {
-	    try {
-		InputStream pls;
-		pls = Resource.class.getResourceAsStream("res-preload");
-		if(pls != null)
-		    Resource.loadlist(pls, -5);
-		pls = Resource.class.getResourceAsStream("res-bgload");
-		if(pls != null)
-		    Resource.loadlist(pls, -10);
-	    } catch(IOException e) {
-		throw(new Error(e));
-	    }
+
+	public boolean hasfs() {
+		return (prefs != null);
 	}
-    }
-    
-    static {
-	WebBrowser.self = JnlpBrowser.create();
-    }
+
+	public void togglefs() {
+		if (prefs == null)
+			setfs();
+		else
+			setwnd();
+	}
+
+	private void seticon() {
+		Image icon;
+		try {
+			InputStream data = MainFrame.class.getResourceAsStream("icon.png");
+			icon = javax.imageio.ImageIO.read(data);
+			data.close();
+		} catch (IOException e) {
+			throw (new Error(e));
+		}
+		setIconImage(icon);
+	}
+
+	@Override
+	public void setTitle(String charname) {
+		String str = TITLE;
+		if (charname != null) {
+			str = charname + " - " + str;
+		}
+		super.setTitle(str);
+	}
+
+	public MainFrame(int w, int h) {
+		super("");
+		setTitle(null);
+		instance = this;
+		innerSize = new Dimension(w, h);
+		centerPoint = new Point(innerSize.width / 2, innerSize.height / 2);
+		screenSZ = new Coord(Toolkit.getDefaultToolkit().getScreenSize());
+		p = new HavenPanel(w, h);
+		fsmode = findmode(w, h);
+		add(p);
+		pack();
+		Insets insets = getInsets();
+		insetsSize = new Dimension(insets.left + insets.right, insets.top + insets.bottom);
+		setResizable(true);
+		setMinimumSize(new Dimension(800 + insetsSize.width, 600 + insetsSize.height));
+		p.requestFocusInWindow();
+		seticon();
+		setVisible(true);
+		p.init();
+
+		new MainScript(p); // new
+
+		if (Config.maxWindow) { // new
+			setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
+		}
+
+	}
+
+	public static Coord getScreenSize() {
+		return screenSZ;
+	}
+
+	public static Coord getInnerSize() {
+		return new Coord(innerSize.width, innerSize.height);
+	}
+
+	public static Coord getCenterPoint() {
+		return new Coord(centerPoint.x, centerPoint.y);
+	}
+
+	public static void setupres() {
+		if (ResCache.global != null)
+			Resource.addcache(ResCache.global);
+		if (Config.resurl != null)
+			Resource.addurl(Config.resurl);
+		if (ResCache.global != null) {
+			try {
+				Resource.loadlist(ResCache.global.fetch("tmp/allused"), -10);
+			} catch (IOException e) {
+			}
+		}
+		if (!Config.nopreload) {
+			try {
+				InputStream pls;
+				pls = Resource.class.getResourceAsStream("res-preload");
+				if (pls != null)
+					Resource.loadlist(pls, -5);
+				pls = Resource.class.getResourceAsStream("res-bgload");
+				if (pls != null)
+					Resource.loadlist(pls, -10);
+			} catch (IOException e) {
+				throw (new Error(e));
+			}
+		}
+	}
+
+	static {
+		WebBrowser.self = JnlpBrowser.create();
+	}
 }

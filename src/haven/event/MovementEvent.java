@@ -2,7 +2,7 @@ package haven.event;
 
 public class MovementEvent extends MaidEvent {
 	private Object value;
-	
+
 	public MovementEvent() {
 	}
 

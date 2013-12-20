@@ -34,30 +34,30 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 public class TexIM extends TexI {
-    WritableRaster buf;
-    Graphics2D cg = null;
-    Throwable cgc;
-	
-    public TexIM(Coord sz) {
-	super(sz);
-	clear();
-    }
-	
-    public Graphics2D graphics() {
-	if(cg != null)
-	    throw(new RuntimeException("Multiple TexIM Graphics created (" + Thread.currentThread().getName() + ")", cgc));
-	cgc = new Throwable("Current Graphics created (on " + Thread.currentThread().getName() + ")");
-	return(cg = back.createGraphics());
-    }
-	
-    public void update() {
-	cg.dispose();
-	cg = null;
-	super.update(((DataBufferByte)buf.getDataBuffer()).getData());
-    }
-	
-    public void clear() {
-	buf = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, tdim.x, tdim.y, 4, null);
-	back = new BufferedImage(glcm, buf, false, null);
-    }
+	WritableRaster buf;
+	Graphics2D cg = null;
+	Throwable cgc;
+
+	public TexIM(Coord sz) {
+		super(sz);
+		clear();
+	}
+
+	public Graphics2D graphics() {
+		if (cg != null)
+			throw (new RuntimeException("Multiple TexIM Graphics created (" + Thread.currentThread().getName() + ")", cgc));
+		cgc = new Throwable("Current Graphics created (on " + Thread.currentThread().getName() + ")");
+		return (cg = back.createGraphics());
+	}
+
+	public void update() {
+		cg.dispose();
+		cg = null;
+		super.update(((DataBufferByte) buf.getDataBuffer()).getData());
+	}
+
+	public void clear() {
+		buf = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, tdim.x, tdim.y, 4, null);
+		back = new BufferedImage(glcm, buf, false, null);
+	}
 }

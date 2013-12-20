@@ -16,5 +16,5 @@ public class MeterAdapter implements MeterListener {
 
 	public void onAuthorityChange(MeterEvent meterEvent) {
 	}
-	
+
 }

@@ -6,7 +6,7 @@ public class WidgetEvent<E extends Widget> extends MaidEvent {
 	public enum Type {
 		CREATE, DESTROY
 	}
-	
+
 	private Type type;
 	private E widget;
 

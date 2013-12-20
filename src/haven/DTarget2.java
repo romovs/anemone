@@ -27,5 +27,5 @@
 package haven;
 
 public interface DTarget2 {
-    public boolean drop(Coord cc, Coord ul, Item item);
+	public boolean drop(Coord cc, Coord ul, Item item);
 }

@@ -32,198 +32,198 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginScreen extends Widget {
-    Login cur;
-    Text error;
-    IButton btn;
-    static Text.Foundry textf, textfs;
-    Tex bg = Resource.loadtex("gfx/loginscr");
-    Tex logo = Resource.loadtex("gfx/logo");
-    Text progress = null;
-	
-    static {
-	textf = new Text.Foundry(new java.awt.Font("Sans", java.awt.Font.PLAIN, 16));
-	textfs = new Text.Foundry(new java.awt.Font("Sans", java.awt.Font.PLAIN, 14));
-    }
-	
-    public LoginScreen(Widget parent) {
-	super(Coord.z, new Coord(800, 600), parent);
-	setfocustab(true);
-	parent.setfocus(this);
-	new Img(Coord.z, bg, this);
-	new Img(new Coord(420, 215).add(logo.sz().div(2).inv()), logo, this);
-	new LoginList(new Coord(10, 10), new Coord(200, parent.sz.y-20), this);
-    }
+	Login cur;
+	Text error;
+	IButton btn;
+	static Text.Foundry textf, textfs;
+	Tex bg = Resource.loadtex("gfx/loginscr");
+	Tex logo = Resource.loadtex("gfx/logo");
+	Text progress = null;
 
-    private static abstract class Login extends Widget {
-	private Login(Coord c, Coord sz, Widget parent) {
-	    super(c, sz, parent);
+	static {
+		textf = new Text.Foundry(new java.awt.Font("Sans", java.awt.Font.PLAIN, 16));
+		textfs = new Text.Foundry(new java.awt.Font("Sans", java.awt.Font.PLAIN, 14));
 	}
-		
-	abstract Object[] data();
-	abstract boolean enter();
-    }
 
-    private class Pwbox extends Login {
-	TextEntry user, pass;
-	CheckBox savepass;
-		
-	private Pwbox(String username, boolean save) {
-	    super(new Coord(345, 310), new Coord(150, 150), LoginScreen.this);
-	    setfocustab(true);
-	    new Label(new Coord(0, 0), this, "User name", textf);
-	    user = new TextEntry(new Coord(0, 20), new Coord(150, 20), this, username);
-	    new Label(new Coord(0, 60), this, "Password", textf);
-	    pass = new TextEntry(new Coord(0, 80), new Coord(150, 20), this, "");
-	    pass.pw = true;
-	    savepass = new CheckBox(new Coord(0, 110), this, "Remember me");
-	    savepass.a = save;
-	    if(user.text.equals(""))
-		setfocus(user);
-	    else
-		setfocus(pass);
+	public LoginScreen(Widget parent) {
+		super(Coord.z, new Coord(800, 600), parent);
+		setfocustab(true);
+		parent.setfocus(this);
+		new Img(Coord.z, bg, this);
+		new Img(new Coord(420, 215).add(logo.sz().div(2).inv()), logo, this);
+		new LoginList(new Coord(10, 10), new Coord(200, parent.sz.y - 20), this);
 	}
-		
-	public void wdgmsg(Widget sender, String name, Object... args) {
+
+	private static abstract class Login extends Widget {
+		private Login(Coord c, Coord sz, Widget parent) {
+			super(c, sz, parent);
+		}
+
+		abstract Object[] data();
+
+		abstract boolean enter();
 	}
-		
-	Object[] data() {
-	    return(new Object[] {user.text, pass.text, savepass.a});
+
+	private class Pwbox extends Login {
+		TextEntry user, pass;
+		CheckBox savepass;
+
+		private Pwbox(String username, boolean save) {
+			super(new Coord(345, 310), new Coord(150, 150), LoginScreen.this);
+			setfocustab(true);
+			new Label(new Coord(0, 0), this, "User name", textf);
+			user = new TextEntry(new Coord(0, 20), new Coord(150, 20), this, username);
+			new Label(new Coord(0, 60), this, "Password", textf);
+			pass = new TextEntry(new Coord(0, 80), new Coord(150, 20), this, "");
+			pass.pw = true;
+			savepass = new CheckBox(new Coord(0, 110), this, "Remember me");
+			savepass.a = save;
+			if (user.text.equals(""))
+				setfocus(user);
+			else
+				setfocus(pass);
+		}
+
+		public void wdgmsg(Widget sender, String name, Object... args) {
+		}
+
+		Object[] data() {
+			return (new Object[] { user.text, pass.text, savepass.a });
+		}
+
+		boolean enter() {
+			if (user.text.equals("")) {
+				setfocus(user);
+				return (false);
+			} else if (pass.text.equals("")) {
+				setfocus(pass);
+				return (false);
+			} else {
+				return (true);
+			}
+		}
 	}
-		
-	boolean enter() {
-	    if(user.text.equals("")) {
-		setfocus(user);
-		return(false);
-	    } else if(pass.text.equals("")) {
-		setfocus(pass);
-		return(false);
-	    } else {
-		return(true);
-	    }
+
+	private class Tokenbox extends Login {
+		Text label;
+		Button btn;
+
+		private Tokenbox(String username) {
+			super(new Coord(295, 310), new Coord(250, 100), LoginScreen.this);
+			label = textfs.render("Identity is saved for " + username, java.awt.Color.WHITE);
+			btn = new Button(new Coord(75, 30), 100, this, "Forget me");
+		}
+
+		Object[] data() {
+			return (new Object[0]);
+		}
+
+		boolean enter() {
+			return (true);
+		}
+
+		public void wdgmsg(Widget sender, String name, Object... args) {
+			if (sender == btn) {
+				LoginScreen.this.wdgmsg("forget");
+				return;
+			}
+			super.wdgmsg(sender, name, args);
+		}
+
+		public void draw(GOut g) {
+			g.image(label.tex(), new Coord((sz.x / 2) - (label.sz().x / 2), 0));
+			super.draw(g);
+		}
 	}
-    }
-	
-    private class Tokenbox extends Login {
-	Text label;
-	Button btn;
-		
-	private Tokenbox(String username) {
-	    super(new Coord(295, 310), new Coord(250, 100), LoginScreen.this);
-	    label = textfs.render("Identity is saved for " + username, java.awt.Color.WHITE);
-	    btn = new Button(new Coord(75, 30), 100, this, "Forget me");
+
+	private void mklogin() {
+		synchronized (ui) {
+			btn = new IButton(new Coord(373, 460), this, Resource.loadimg("gfx/hud/buttons/loginu"), Resource.loadimg("gfx/hud/buttons/logind"));
+			progress(null);
+		}
 	}
-		
-	Object[] data() {
-	    return(new Object[0]);
+
+	private void error(String error) {
+		synchronized (ui) {
+			if (this.error != null)
+				this.error = null;
+			if (error != null)
+				this.error = textf.render(error, java.awt.Color.RED);
+		}
 	}
-		
-	boolean enter() {
-	    return(true);
+
+	private void progress(String p) {
+		synchronized (ui) {
+			if (progress != null)
+				progress = null;
+			if (p != null)
+				progress = textf.render(p, java.awt.Color.WHITE);
+		}
 	}
-		
-	public void wdgmsg(Widget sender, String name, Object... args) {
-	    if(sender == btn) {
-		LoginScreen.this.wdgmsg("forget");
-		return;
-	    }
-	    super.wdgmsg(sender, name, args);
+
+	private void clear() {
+		if (cur != null) {
+			ui.destroy(cur);
+			cur = null;
+			ui.destroy(btn);
+			btn = null;
+		}
+		progress(null);
 	}
-		
+
+	public void wdgmsg(Widget sender, String msg, Object... args) {
+		if (sender == btn) {
+			if (cur.enter())
+				super.wdgmsg("login", cur.data());
+			return;
+		}
+		super.wdgmsg(sender, msg, args);
+	}
+
+	public void uimsg(String msg, Object... args) {
+		synchronized (ui) {
+			if (msg == "passwd") {
+				clear();
+				cur = new Pwbox((String) args[0], (Boolean) args[1]);
+				mklogin();
+			} else if (msg == "token") {
+				clear();
+				cur = new Tokenbox((String) args[0]);
+				mklogin();
+			} else if (msg == "error") {
+				error((String) args[0]);
+			} else if (msg == "prg") {
+				error(null);
+				clear();
+				progress((String) args[0]);
+			}
+		}
+	}
+
 	public void draw(GOut g) {
-	    g.image(label.tex(), new Coord((sz.x / 2) - (label.sz().x / 2), 0));
-	    super.draw(g);
+		c = MainFrame.getCenterPoint().sub(400, 300);
+		super.draw(g);
+		if (error != null)
+			g.image(error.tex(), new Coord(420 - (error.sz().x / 2), 500));
+		if (progress != null)
+			g.image(progress.tex(), new Coord(420 - (progress.sz().x / 2), 350));
 	}
-    }
 
-    private void mklogin() {
-	synchronized(ui) {
-	    btn = new IButton(new Coord(373, 460), this, Resource.loadimg("gfx/hud/buttons/loginu"), Resource.loadimg("gfx/hud/buttons/logind"));
-	    progress(null);
+	public boolean type(char k, java.awt.event.KeyEvent ev) {
+		if (k == 10) {
+			if ((cur != null) && cur.enter())
+				wdgmsg("login", cur.data());
+			return (true);
+		}
+		return (super.type(k, ev));
 	}
-    }
-	
-    private void error(String error) {
-	synchronized(ui) {
-	    if(this.error != null)
-		this.error = null;
-	    if(error != null)
-		this.error = textf.render(error, java.awt.Color.RED);
-	}
-    }
-    
-    private void progress(String p) {
-	synchronized(ui) {
-	    if(progress != null)
-		progress = null;
-	    if(p != null)
-		progress = textf.render(p, java.awt.Color.WHITE);
-	}
-    }
-    
-    private void clear() {
-	if(cur != null) {
-	    ui.destroy(cur);
-	    cur = null;
-	    ui.destroy(btn);
-	    btn = null;
-	}
-	progress(null);
-    }
-    
-    public void wdgmsg(Widget sender, String msg, Object... args) {
-	if(sender == btn) {
-	    if(cur.enter())
-		super.wdgmsg("login", cur.data());
-	    return;
-	}
-	super.wdgmsg(sender, msg, args);
-    }
-	
-    public void uimsg(String msg, Object... args) {
-	synchronized(ui) {
-	    if(msg == "passwd") {
-		clear();
-		cur = new Pwbox((String)args[0], (Boolean)args[1]);
-		mklogin();
-	    } else if(msg == "token") {
-		clear();
-		cur = new Tokenbox((String)args[0]);
-		mklogin();
-	    } else if(msg == "error") {
-		error((String)args[0]);
-	    } else if(msg == "prg") {
-		error(null);
-		clear();
-		progress((String)args[0]);
-	    }
-	}
-    }
-	
-    public void draw(GOut g) {
-        c = MainFrame.getCenterPoint().sub(400, 300);
-	super.draw(g);
-	if(error != null)
-	    g.image(error.tex(), new Coord(420 - (error.sz().x / 2), 500));
-	if(progress != null)
-	    g.image(progress.tex(), new Coord(420 - (progress.sz().x / 2), 350));
-    }
-	
-    public boolean type(char k, java.awt.event.KeyEvent ev) {
-	if(k == 10) {
-	    if((cur != null) && cur.enter())
-		wdgmsg("login", cur.data());
-	    return(true);
-	}
-	return(super.type(k, ev));
-    }
-    
-    
+
 	private class LoginList extends Widget {
 		private static final int ITEM_HEIGHT = 20;
-		private final Object[] textSize = new Object[] {TextAttribute.SIZE, 14};
+		private final Object[] textSize = new Object[] { TextAttribute.SIZE, 14 };
 		Scrollbar sb = null;
 		LoginData curLD;
-		
+
 		public LoginList(Coord c, Coord sz, Widget parent) {
 			super(c, sz, parent);
 			curLD = null;
@@ -234,61 +234,61 @@ public class LoginScreen extends Widget {
 			g.chcolor(0, 0, 0, 128);
 			g.frect(Coord.z, sz);
 			g.chcolor();
-			
-			synchronized(Config.logins) {
-			if(Config.logins.size() > 0) {
-				for(int i = 0; i < sz.y / ITEM_HEIGHT; i++) {
-					if(i + sb.val >= Config.logins.size())
-						continue;
 
-					LoginData ld = Config.logins.get(i + sb.val);
-					if(ld == curLD) {
-						g.chcolor(96, 96, 96, 255);
-						g.frect(new Coord(0, i * ITEM_HEIGHT), new Coord(sz.x-40, ITEM_HEIGHT));
+			synchronized (Config.logins) {
+				if (Config.logins.size() > 0) {
+					for (int i = 0; i < sz.y / ITEM_HEIGHT; i++) {
+						if (i + sb.val >= Config.logins.size())
+							continue;
+
+						LoginData ld = Config.logins.get(i + sb.val);
+						if (ld == curLD) {
+							g.chcolor(96, 96, 96, 255);
+							g.frect(new Coord(0, i * ITEM_HEIGHT), new Coord(sz.x - 40, ITEM_HEIGHT));
+							g.chcolor();
+						}
+
+						RichText r = RichText.render(ld.name, sz.x, textSize);
+						g.aimage(r.tex(), new Coord(10, i * ITEM_HEIGHT + 10), 0, 0.5);
+						g.chcolor(Color.RED);
+						r = RichText.render("\u2716", 20, textSize);
+						g.aimage(r.tex(), new Coord(sz.x - 30, i * ITEM_HEIGHT + 10), 0, 0.5);
 						g.chcolor();
 					}
-	
-					RichText r = RichText.render(ld.name, sz.x, textSize);
-					g.aimage(r.tex(), new Coord(10, i * ITEM_HEIGHT + 10), 0, 0.5);
-					g.chcolor(Color.RED);		
-					r = RichText.render("\u2716", 20, textSize);
-					g.aimage(r.tex(), new Coord(sz.x - 30, i * ITEM_HEIGHT + 10), 0, 0.5);
-					g.chcolor();
 				}
-			}
 			}
 			super.draw(g);
 		}
 
 		public boolean mousewheel(Coord c, int amount) {
 			sb.ch(amount);
-			return(true);
+			return (true);
 		}
 
 		public boolean mousedown(Coord c, int button) {
-			if(super.mousedown(c, button))
-			return(true);
-			if(button == 1) {
+			if (super.mousedown(c, button))
+				return (true);
+			if (button == 1) {
 				int sel = (c.y / ITEM_HEIGHT) + sb.val;
-				synchronized(Config.logins) {
-				if(sel < Config.logins.size() && sel >= 0) {
-					curLD = Config.logins.get(sel);
-					if (c.x >= sz.x - 35 && c.x <= sz.x - 35 + 20) {
-						synchronized(Config.logins) {
-							Config.logins.remove(curLD);
-							Config.saveLogins();
-							curLD = null;
+				synchronized (Config.logins) {
+					if (sel < Config.logins.size() && sel >= 0) {
+						curLD = Config.logins.get(sel);
+						if (c.x >= sz.x - 35 && c.x <= sz.x - 35 + 20) {
+							synchronized (Config.logins) {
+								Config.logins.remove(curLD);
+								Config.saveLogins();
+								curLD = null;
+							}
+						} else if (c.x < sz.x - 35) {
+							parent.wdgmsg("forget");
+							parent.wdgmsg("login", new Object[] { curLD.name, curLD.pass, false });
 						}
-					} else if (c.x < sz.x - 35) {
-						parent.wdgmsg("forget");
-						parent.wdgmsg("login", new Object[] {curLD.name, curLD.pass, false });
 					}
 				}
-				}
-				return(true);
+				return (true);
 			}
-			return(false);
+			return (false);
 		}
 	}
-	
+
 }

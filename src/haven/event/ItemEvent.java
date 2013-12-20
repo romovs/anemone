@@ -6,9 +6,10 @@ public class ItemEvent extends MaidEvent {
 	public enum Type {
 		GRAB, RELEASE, CREATE, DESTROY,
 	}
+
 	private Type type;
 	private Item item;
-	
+
 	public ItemEvent(Type type, Item item) {
 		this.type = type;
 		this.item = item;
@@ -21,5 +22,5 @@ public class ItemEvent extends MaidEvent {
 	public Item getItem() {
 		return item;
 	}
-	
+
 }

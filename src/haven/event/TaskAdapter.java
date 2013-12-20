@@ -7,5 +7,5 @@ public class TaskAdapter implements TaskListener {
 
 	public void onTaskProgress(TaskEvent taskEvent) {
 	}
-	
+
 }

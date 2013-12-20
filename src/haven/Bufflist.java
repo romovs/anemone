@@ -29,113 +29,115 @@ package haven;
 import java.awt.Color;
 
 public class Bufflist extends Widget {
-    static Tex frame = Resource.loadtex("gfx/hud/buffs/frame");
-    static Tex cframe = Resource.loadtex("gfx/hud/buffs/cframe");
-    static final Coord imgoff = new Coord(3, 3);
-    static final Coord ameteroff = new Coord(3, 36);
-    static final Coord ametersz = new Coord(30, 2);
-    static final int margin = 2;
-    static final int num = 5;
-    
-    static {
-        Widget.addtype("buffs", new WidgetFactory() {
-            public Widget create(Coord c, Widget parent, Object[] args) {
-                return(new Bufflist(c, parent));
-            }
-        });
-    }
-    
-    public Bufflist(Coord c, Widget parent) {
-	super(c, new Coord((num * frame.sz().x) + ((num - 1) * margin), cframe.sz().y), parent);
-    }
-    
-    public void draw(GOut g) {
-	int i = 0;
-	int w = frame.sz().x + margin;
-	long now = System.currentTimeMillis();
-	synchronized(ui.sess.glob.buffs) {
-	    for(Buff b : ui.sess.glob.buffs.values()) {
-		if(!b.major)
-		    continue;
-		Coord bc = new Coord(i * w, 0);
-		if(b.ameter >= 0) {
-		    g.image(cframe, bc);
-		    g.chcolor(Color.BLACK);
-		    g.frect(bc.add(ameteroff), ametersz);
-		    g.chcolor(Color.WHITE);
-		    g.frect(bc.add(ameteroff), new Coord((b.ameter * ametersz.x) / 100, ametersz.y));
-		    g.chcolor();
-		} else {
-		    g.image(frame, bc);
-		}
-		if(b.res.get() != null) {
-		    Tex img = b.res.get().layer(Resource.imgc).tex();
-		    g.image(img, bc.add(imgoff));
-		    if(b.nmeter >= 0) {
-			Tex ntext = b.nmeter();
-			g.image(ntext, bc.add(imgoff).add(img.sz()).add(ntext.sz().inv()).add(-1, -1));
-		    }
-		    if(b.cmeter >= 0) {
-			double m = b.cmeter / 100.0;
-			if(b.cticks >= 0) {
-			    double ot = b.cticks * 0.06;
-			    double pt = ((double)(now - b.gettime)) / 1000.0;
-			    m *= (ot - pt) / ot;
+	static Tex frame = Resource.loadtex("gfx/hud/buffs/frame");
+	static Tex cframe = Resource.loadtex("gfx/hud/buffs/cframe");
+	static final Coord imgoff = new Coord(3, 3);
+	static final Coord ameteroff = new Coord(3, 36);
+	static final Coord ametersz = new Coord(30, 2);
+	static final int margin = 2;
+	static final int num = 5;
+
+	static {
+		Widget.addtype("buffs", new WidgetFactory() {
+			public Widget create(Coord c, Widget parent, Object[] args) {
+				return (new Bufflist(c, parent));
 			}
-			g.chcolor(0, 0, 0, 128);
-			g.fellipse(bc.add(imgoff).add(img.sz().div(2)), img.sz().div(2), 90, (int)(90 + (360 * m)));
-			g.chcolor();
-		    }
-		}
-		if(++i >= 5)
-		    break;
-	    }
+		});
 	}
-    }
-    
-    public Object tooltip(Coord c, boolean again) {
-	int i = 0;
-	int w = frame.sz().x + margin;
-	synchronized(ui.sess.glob.buffs) {
-	    for(Buff b : ui.sess.glob.buffs.values()) {
-		if(!b.major)
-		    continue;
-		Coord bc = new Coord(i * w, 0);
-		if(c.isect(bc, frame.sz())) {
-		    Resource res;
-		    String p = "";
-		    if(b.ameter > 0){
-			p += " (" + b.ameter + "%)";
-		    }
-		    if(b.cmeter > 0){
-			if(b.cticks >= 0) {
-			    long now = System.currentTimeMillis();
-			    double t = (b.cticks * 0.06) - (((double)(now - b.gettime)) / 1000.0);
-			    int m = (int) (t/60);
-			    int s = (int) (t%60);
-			    p += " [";
-			    if(m>0){p += m + "m ";}
-			    p += s + "s]";
-			} else {
-			    p += " [" + b.cmeter + "%]";
-			}
-		    }
-		    if(b.tt != null)
-			return(b.tt + p);
-		    else if((res = b.res.get()) != null){
-			Resource.Tooltip tt;
-			Resource.AButton act;
-			if((tt = res.layer(Resource.tooltip)) != null){
-			    return tt.t + p;
-			} else if ((act = res.layer(Resource.action)) != null){
-			    return act.name + p;
-			}
-		    }
-		}
-		if(++i >= 5)
-		    break;
-	    }
+
+	public Bufflist(Coord c, Widget parent) {
+		super(c, new Coord((num * frame.sz().x) + ((num - 1) * margin), cframe.sz().y), parent);
 	}
-	return(null);
-    }
+
+	public void draw(GOut g) {
+		int i = 0;
+		int w = frame.sz().x + margin;
+		long now = System.currentTimeMillis();
+		synchronized (ui.sess.glob.buffs) {
+			for (Buff b : ui.sess.glob.buffs.values()) {
+				if (!b.major)
+					continue;
+				Coord bc = new Coord(i * w, 0);
+				if (b.ameter >= 0) {
+					g.image(cframe, bc);
+					g.chcolor(Color.BLACK);
+					g.frect(bc.add(ameteroff), ametersz);
+					g.chcolor(Color.WHITE);
+					g.frect(bc.add(ameteroff), new Coord((b.ameter * ametersz.x) / 100, ametersz.y));
+					g.chcolor();
+				} else {
+					g.image(frame, bc);
+				}
+				if (b.res.get() != null) {
+					Tex img = b.res.get().layer(Resource.imgc).tex();
+					g.image(img, bc.add(imgoff));
+					if (b.nmeter >= 0) {
+						Tex ntext = b.nmeter();
+						g.image(ntext, bc.add(imgoff).add(img.sz()).add(ntext.sz().inv()).add(-1, -1));
+					}
+					if (b.cmeter >= 0) {
+						double m = b.cmeter / 100.0;
+						if (b.cticks >= 0) {
+							double ot = b.cticks * 0.06;
+							double pt = ((double) (now - b.gettime)) / 1000.0;
+							m *= (ot - pt) / ot;
+						}
+						g.chcolor(0, 0, 0, 128);
+						g.fellipse(bc.add(imgoff).add(img.sz().div(2)), img.sz().div(2), 90, (int) (90 + (360 * m)));
+						g.chcolor();
+					}
+				}
+				if (++i >= 5)
+					break;
+			}
+		}
+	}
+
+	public Object tooltip(Coord c, boolean again) {
+		int i = 0;
+		int w = frame.sz().x + margin;
+		synchronized (ui.sess.glob.buffs) {
+			for (Buff b : ui.sess.glob.buffs.values()) {
+				if (!b.major)
+					continue;
+				Coord bc = new Coord(i * w, 0);
+				if (c.isect(bc, frame.sz())) {
+					Resource res;
+					String p = "";
+					if (b.ameter > 0) {
+						p += " (" + b.ameter + "%)";
+					}
+					if (b.cmeter > 0) {
+						if (b.cticks >= 0) {
+							long now = System.currentTimeMillis();
+							double t = (b.cticks * 0.06) - (((double) (now - b.gettime)) / 1000.0);
+							int m = (int) (t / 60);
+							int s = (int) (t % 60);
+							p += " [";
+							if (m > 0) {
+								p += m + "m ";
+							}
+							p += s + "s]";
+						} else {
+							p += " [" + b.cmeter + "%]";
+						}
+					}
+					if (b.tt != null)
+						return (b.tt + p);
+					else if ((res = b.res.get()) != null) {
+						Resource.Tooltip tt;
+						Resource.AButton act;
+						if ((tt = res.layer(Resource.tooltip)) != null) {
+							return tt.t + p;
+						} else if ((act = res.layer(Resource.action)) != null) {
+							return act.name + p;
+						}
+					}
+				}
+				if (++i >= 5)
+					break;
+			}
+		}
+		return (null);
+	}
 }

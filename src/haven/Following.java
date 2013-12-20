@@ -27,26 +27,26 @@
 package haven;
 
 public class Following extends Moving {
-    int tgt;
-    Coord doff;
-    int szo;
-	
-    public Following(Gob gob, int tgt, Coord doff, int szo) {
-	super(gob);
-	this.tgt = tgt;
-	this.doff = doff;
-	this.szo = szo;
-    }
-	
-    public Coord getc() {
-	Gob tgt = gob.glob.oc.getgob(this.tgt);
-	if(tgt == null)
-	    return(gob.rc);
-	Coord c = tgt.getc();
-	return(c);
-    }
-    
-    public Gob tgt() {
-	return(gob.glob.oc.getgob(this.tgt));
-    }
+	int tgt;
+	Coord doff;
+	int szo;
+
+	public Following(Gob gob, int tgt, Coord doff, int szo) {
+		super(gob);
+		this.tgt = tgt;
+		this.doff = doff;
+		this.szo = szo;
+	}
+
+	public Coord getc() {
+		Gob tgt = gob.glob.oc.getgob(this.tgt);
+		if (tgt == null)
+			return (gob.rc);
+		Coord c = tgt.getc();
+		return (c);
+	}
+
+	public Gob tgt() {
+		return (gob.glob.oc.getgob(this.tgt));
+	}
 }

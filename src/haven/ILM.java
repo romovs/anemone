@@ -29,82 +29,81 @@ package haven;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 public class ILM extends TexRT {
-    public final static BufferedImage ljusboll;
-    private double scale = 1;
-    OCache oc;
-    TexI lbtex;
-    Color amb;
-	
-    static {
-	int sz = 200, min = 50;
-	BufferedImage lb = new BufferedImage(sz, sz, BufferedImage.TYPE_INT_ARGB);
-	Graphics g = lb.createGraphics();
-	for(int y = 0; y < sz; y++) {
-	    for(int x = 0; x < sz; x++) {
-		double dx = sz / 2 - x;
-		double dy = sz / 2 - y;
-		double d = Math.sqrt(dx * dx + dy * dy);
-		int gs;
-		if(d > sz / 2)
-		    gs = 255;
-		else if(d < min)
-		    gs = 0;
-		else
-		    gs = (int)(((d - min) / ((sz / 2) - min)) * 255);
-		gs /= 2;
-		Color c = new Color(gs, gs, gs, 128 - gs);
-		g.setColor(c);
-		g.fillRect(x, y, 1, 1);
-	    }
-	}
-	ljusboll = lb;
-    }
-    
-    public void setScale(double value){
-	scale = value;
-    }
-    
-    public ILM(Coord sz, OCache oc) {
-	super(sz);
-	this.oc = oc;
-	amb = new Color(0, 0, 0, 0);
-	lbtex = new TexI(ljusboll);
-    }
-	
-    protected Color setenv(GL2 gl) {
-	gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
-	return(amb);
-    }
-	
-    protected boolean subrend(GOut g) {
-	if(Config.nightvision){
-	    return false;
-	}
-	GL gl = g.gl;
-	gl.glClearColor(255, 255, 255, 255);
-	gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-	synchronized(oc) {
-	    for(Gob gob : oc) {
-		if(gob.sc == null) {
-		    /* Might not have been set up by the MapView yet */
-		    continue;
+	public final static BufferedImage ljusboll;
+	private double scale = 1;
+	OCache oc;
+	TexI lbtex;
+	Color amb;
+
+	static {
+		int sz = 200, min = 50;
+		BufferedImage lb = new BufferedImage(sz, sz, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = lb.createGraphics();
+		for (int y = 0; y < sz; y++) {
+			for (int x = 0; x < sz; x++) {
+				double dx = sz / 2 - x;
+				double dy = sz / 2 - y;
+				double d = Math.sqrt(dx * dx + dy * dy);
+				int gs;
+				if (d > sz / 2)
+					gs = 255;
+				else if (d < min)
+					gs = 0;
+				else
+					gs = (int) (((d - min) / ((sz / 2) - min)) * 255);
+				gs /= 2;
+				Color c = new Color(gs, gs, gs, 128 - gs);
+				g.setColor(c);
+				g.fillRect(x, y, 1, 1);
+			}
 		}
-		Lumin lum = gob.getattr(Lumin.class);
-		if(lum == null)
-		    continue;
-		Coord sc = gob.sc.add(lum.off).add(-lum.sz, -lum.sz).mul(scale);
-		g.image(lbtex, sc, new Coord(lum.sz * 2, lum.sz * 2).mul(scale));
-	    }
+		ljusboll = lb;
 	}
-	return(true);
-    }
-    
-    protected byte[] initdata() {
-	return(null);
-    }
+
+	public void setScale(double value) {
+		scale = value;
+	}
+
+	public ILM(Coord sz, OCache oc) {
+		super(sz);
+		this.oc = oc;
+		amb = new Color(0, 0, 0, 0);
+		lbtex = new TexI(ljusboll);
+	}
+
+	protected Color setenv(GL2 gl) {
+		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
+		return (amb);
+	}
+
+	protected boolean subrend(GOut g) {
+		if (Config.nightvision) {
+			return false;
+		}
+		GL gl = g.gl;
+		gl.glClearColor(255, 255, 255, 255);
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+		synchronized (oc) {
+			for (Gob gob : oc) {
+				if (gob.sc == null) {
+					/* Might not have been set up by the MapView yet */
+					continue;
+				}
+				Lumin lum = gob.getattr(Lumin.class);
+				if (lum == null)
+					continue;
+				Coord sc = gob.sc.add(lum.off).add(-lum.sz, -lum.sz).mul(scale);
+				g.image(lbtex, sc, new Coord(lum.sz * 2, lum.sz * 2).mul(scale));
+			}
+		}
+		return (true);
+	}
+
+	protected byte[] initdata() {
+		return (null);
+	}
 }

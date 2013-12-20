@@ -30,89 +30,89 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 import javax.media.opengl.GL;
 
 public abstract class TexRT extends TexGL {
-    static Map<GL, Collection<TexRT>> current = new WeakHashMap<GL, Collection<TexRT>>();
-    private GL incurrent = null;
-    public Profile prof = new Profile(300);
-    private Profile.Frame curf;
-	
-    public TexRT(Coord sz) {
-	super(sz);
-    }
-	
-    protected abstract boolean subrend(GOut g);
-	
-    private void rerender(GL gl) {
-	if(incurrent != gl) {
-	    Collection<TexRT> tc;
-	    synchronized(current) {
-		tc = current.get(gl);
-		if(tc == null) {
-		    tc = new HashSet<TexRT>();
-		    current.put(gl, tc);
-		}
-	    }
-	    synchronized(tc) {
-		tc.add(this);
-	    }
-	    incurrent = gl;
-	}
-    }
+	static Map<GL, Collection<TexRT>> current = new WeakHashMap<GL, Collection<TexRT>>();
+	private GL incurrent = null;
+	public Profile prof = new Profile(300);
+	private Profile.Frame curf;
 
-    public void render(GOut g, Coord c, Coord ul, Coord br, Coord sz) {
-	super.render(g, c, ul, br, sz);
-	rerender(g.gl);
-    }
-    
-    protected byte[] initdata() {
-	return(new byte[tdim.x * tdim.y * 4]);
-    }
+	public TexRT(Coord sz) {
+		super(sz);
+	}
 
-    protected void fill(GOut g) {
-	rerender(g.gl);
-	byte[] idat = initdata();
-	g.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, tdim.x, tdim.y, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, (idat == null)?null:java.nio.ByteBuffer.wrap(idat));
-	GOut.checkerr(g.gl);
-    }
-	
-    private void subrend2(GOut g) {
-	if(id < 0)
-	    return;
-	GL gl = g.gl;
-	if(Config.profile)
-	    curf = prof.new Frame();
-	if(!subrend(g))
-	    return;
-	if(curf != null)
-	    curf.tick("render");
-	g.texsel(id);
-	GOut.checkerr(gl);
-	gl.glCopyTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 0, 0, dim.x, dim.y);
-	GOut.checkerr(gl);
-	if(curf != null) {
-	    curf.tick("copy");
-	    curf.fin();
-	    curf = null;
-	}
-    }
-    
-    public static void renderall(GOut g) {
-	GL gl = g.gl;
-	Collection<TexRT> tc;
-	synchronized(current) {
-	    tc = current.get(gl);
-	    current.put(gl, new HashSet<TexRT>());
-	}
-	if(tc != null) {
-	    synchronized(tc) {
-		for(TexRT t : tc) {
-		    t.incurrent = null;
-		    t.subrend2(g);
+	protected abstract boolean subrend(GOut g);
+
+	private void rerender(GL gl) {
+		if (incurrent != gl) {
+			Collection<TexRT> tc;
+			synchronized (current) {
+				tc = current.get(gl);
+				if (tc == null) {
+					tc = new HashSet<TexRT>();
+					current.put(gl, tc);
+				}
+			}
+			synchronized (tc) {
+				tc.add(this);
+			}
+			incurrent = gl;
 		}
-	    }
 	}
-    }
+
+	public void render(GOut g, Coord c, Coord ul, Coord br, Coord sz) {
+		super.render(g, c, ul, br, sz);
+		rerender(g.gl);
+	}
+
+	protected byte[] initdata() {
+		return (new byte[tdim.x * tdim.y * 4]);
+	}
+
+	protected void fill(GOut g) {
+		rerender(g.gl);
+		byte[] idat = initdata();
+		g.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, tdim.x, tdim.y, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, (idat == null) ? null
+				: java.nio.ByteBuffer.wrap(idat));
+		GOut.checkerr(g.gl);
+	}
+
+	private void subrend2(GOut g) {
+		if (id < 0)
+			return;
+		GL gl = g.gl;
+		if (Config.profile)
+			curf = prof.new Frame();
+		if (!subrend(g))
+			return;
+		if (curf != null)
+			curf.tick("render");
+		g.texsel(id);
+		GOut.checkerr(gl);
+		gl.glCopyTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 0, 0, dim.x, dim.y);
+		GOut.checkerr(gl);
+		if (curf != null) {
+			curf.tick("copy");
+			curf.fin();
+			curf = null;
+		}
+	}
+
+	public static void renderall(GOut g) {
+		GL gl = g.gl;
+		Collection<TexRT> tc;
+		synchronized (current) {
+			tc = current.get(gl);
+			current.put(gl, new HashSet<TexRT>());
+		}
+		if (tc != null) {
+			synchronized (tc) {
+				for (TexRT t : tc) {
+					t.incurrent = null;
+					t.subrend2(g);
+				}
+			}
+		}
+	}
 }

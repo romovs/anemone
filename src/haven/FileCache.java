@@ -35,59 +35,61 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class FileCache implements ResCache {
-    private final File base;
-    
-    public FileCache(File base) {
-	this.base = base;
-    }
-    
-    public static FileCache foruser() {
-	try {
-	    String path = System.getProperty("user.home", null);
-	    if(path == null)
-		return(null);
-	    File home = new File(path);
-	    if(!home.exists() || !home.isDirectory() || !home.canRead() || !home.canWrite())
-		return(null);
-	    File base = new File(new File(home, ".haven"), "cache");
-	    if(!base.exists() && !base.mkdirs())
-		return(null);
-	    return(new FileCache(base));
-	} catch(SecurityException e) {
-	    return(null);
-	}
-    }
-    
-    private File forres(String nm) {
-	File res = base;
-	String[] comp = nm.split("/");
-	for(int i = 0; i < comp.length - 1; i++) {
-	    res = new File(res, comp[i]);
-	}
-	return(new File(res, comp[comp.length - 1] + ".cached"));
-    }
+	private final File base;
 
-    public OutputStream store(String name) throws IOException {
-	final File nm = forres(name);
-	File dir = nm.getParentFile();
-	final File tmp = new File(dir, nm.getName() + ".new");
-	dir.mkdirs();
-	tmp.delete();
-	OutputStream ret = new FilterOutputStream(new FileOutputStream(tmp)) {
-		public void close() throws IOException {
-		    super.close();
-		    if(!tmp.renameTo(nm)) {
-			/* Apparently Java doesn't support atomic
-			 * renames on Windows... :-/ */
-			nm.delete();
-			tmp.renameTo(nm);
-		    }
+	public FileCache(File base) {
+		this.base = base;
+	}
+
+	public static FileCache foruser() {
+		try {
+			String path = System.getProperty("user.home", null);
+			if (path == null)
+				return (null);
+			File home = new File(path);
+			if (!home.exists() || !home.isDirectory() || !home.canRead() || !home.canWrite())
+				return (null);
+			File base = new File(new File(home, ".haven"), "cache");
+			if (!base.exists() && !base.mkdirs())
+				return (null);
+			return (new FileCache(base));
+		} catch (SecurityException e) {
+			return (null);
 		}
-	    };
-	return(ret);
-    }
-    
-    public InputStream fetch(String name) throws IOException {
-	return(new FileInputStream(forres(name)));
-    }
+	}
+
+	private File forres(String nm) {
+		File res = base;
+		String[] comp = nm.split("/");
+		for (int i = 0; i < comp.length - 1; i++) {
+			res = new File(res, comp[i]);
+		}
+		return (new File(res, comp[comp.length - 1] + ".cached"));
+	}
+
+	public OutputStream store(String name) throws IOException {
+		final File nm = forres(name);
+		File dir = nm.getParentFile();
+		final File tmp = new File(dir, nm.getName() + ".new");
+		dir.mkdirs();
+		tmp.delete();
+		OutputStream ret = new FilterOutputStream(new FileOutputStream(tmp)) {
+			public void close() throws IOException {
+				super.close();
+				if (!tmp.renameTo(nm)) {
+					/*
+					 * Apparently Java doesn't support atomic renames on
+					 * Windows... :-/
+					 */
+					nm.delete();
+					tmp.renameTo(nm);
+				}
+			}
+		};
+		return (ret);
+	}
+
+	public InputStream fetch(String name) throws IOException {
+		return (new FileInputStream(forres(name)));
+	}
 }

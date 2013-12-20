@@ -4,5 +4,5 @@ public class MaidEvent {
 
 	public MaidEvent() {
 	}
-	
+
 }

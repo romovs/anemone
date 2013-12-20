@@ -26,42 +26,35 @@
 
 package haven;
 
-
 public class Astronomy {
-    double dt, mp, yt;
-    int hh,mm,day;
-    boolean night;
-    public static final String[] phase ={"New Moon", 
-					"Waxing Crescent", 
-					"First Quarter",
-					"Waxing Gibbous",
-					"Full Moon",
-					"Waning Gibbous",
-					"Last Quarter",
-					"Waning Crescent"};
-	
-    public boolean equals(Object o) {
-	if(!(o instanceof Astronomy))
-	    return(false);
-	Astronomy a = (Astronomy)o;
-	if(a.dt != dt)
-	    return(false);
-	if(a.mp != mp)
-	    return(false);
-	if(a.yt != yt)
-	    return(false);
-	if(a.night != night)
-	    return(false);
-	return(true);
-    }
-    
-    public Astronomy(double dt, double mp, double yt, boolean night) {
-	this.dt = dt;
-	this.mp = mp;
-	this.yt = yt;
-	hh = (int)(24*dt);
-	mm = (int)(60*(24*dt - hh));
-	day = (int)(365*yt);
-	this.night = night;
-    }
+	double dt, mp, yt;
+	int hh, mm, day;
+	boolean night;
+	public static final String[] phase = { "New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous",
+			"Last Quarter", "Waning Crescent" };
+
+	public boolean equals(Object o) {
+		if (!(o instanceof Astronomy))
+			return (false);
+		Astronomy a = (Astronomy) o;
+		if (a.dt != dt)
+			return (false);
+		if (a.mp != mp)
+			return (false);
+		if (a.yt != yt)
+			return (false);
+		if (a.night != night)
+			return (false);
+		return (true);
+	}
+
+	public Astronomy(double dt, double mp, double yt, boolean night) {
+		this.dt = dt;
+		this.mp = mp;
+		this.yt = yt;
+		hh = (int) (24 * dt);
+		mm = (int) (60 * (24 * dt - hh));
+		day = (int) (365 * yt);
+		this.night = night;
+	}
 }

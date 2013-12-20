@@ -54,162 +54,165 @@ import java.nio.channels.ClosedByInterruptException;
  * in hack-land, of course; where else?
  */
 public class HackSocket extends Socket {
-    private InputStream in = null;
-    private OutputStream out = null;
-    private ThreadLocal<InterruptAction> ia = new ThreadLocal<InterruptAction>();
-    
-    private class InterruptAction implements Runnable {
-	private boolean interrupted;
+	private InputStream in = null;
+	private OutputStream out = null;
+	private ThreadLocal<InterruptAction> ia = new ThreadLocal<InterruptAction>();
 
-	public void run() {
-	    interrupted = true;
-	    try {
-		HackSocket.this.close();
-	    } catch(IOException e) {
-		/*
-		 * Emm, well... Yeah.
-		 *
-		 * If the close fails, there isn't really a
-		 * lot to do about it, I guess. It's probably
-		 * unreasonable to throw exceptions around on
-		 * the thread calling interrupt(), though, so
-		 * the best action is probably to discard this
-		 * exception.
-		 */
-	    }
-	}
-    }
+	private class InterruptAction implements Runnable {
+		private boolean interrupted;
 
-    private void hook() {
-	Thread ct = Thread.currentThread();
-	if(!(ct instanceof HackThread))
-	    throw(new RuntimeException("Tried to use an HackSocket on a non-hacked thread."));
-	final HackThread ut = (HackThread)ct;
-	InterruptAction ia = new InterruptAction();
-	ut.addil(ia);
-	this.ia.set(ia);
-    }
-    
-    private void release() throws ClosedByInterruptException {
-	HackThread ut = (HackThread)Thread.currentThread();
-	InterruptAction ia = this.ia.get();
-	if(ia == null)
-	    throw(new Error("Tried to release a hacked thread without an interrupt handler."));
-	ut.remil(ia);
-	if(ia.interrupted) {
-	    ut.interrupt();
-	    throw(new ClosedByInterruptException());
+		public void run() {
+			interrupted = true;
+			try {
+				HackSocket.this.close();
+			} catch (IOException e) {
+				/*
+				 * Emm, well... Yeah.
+				 * 
+				 * If the close fails, there isn't really a lot to do about it,
+				 * I guess. It's probably unreasonable to throw exceptions
+				 * around on the thread calling interrupt(), though, so the best
+				 * action is probably to discard this exception.
+				 */
+			}
+		}
 	}
-    }
 
-    public void connect(SocketAddress address, int timeout) throws IOException {
-	hook();
-	try {
-	    super.connect(address, timeout);
-	} finally {
-	    release();
+	private void hook() {
+		Thread ct = Thread.currentThread();
+		if (!(ct instanceof HackThread))
+			throw (new RuntimeException("Tried to use an HackSocket on a non-hacked thread."));
+		final HackThread ut = (HackThread) ct;
+		InterruptAction ia = new InterruptAction();
+		ut.addil(ia);
+		this.ia.set(ia);
 	}
-    }
-    
-    public void connect(SocketAddress address) throws IOException {
-	connect(address, 0);
-    }
-    
-    private class HackInputStream extends InputStream {
-	private InputStream bk;
-	
-	private HackInputStream(InputStream bk) {
-	    this.bk = bk;
-	}
-	
-	public void close() throws IOException {bk.close();}
-	
-	public int read() throws IOException {
-	    hook();
-	    try {
-		return(bk.read());
-	    } finally {
-		release();
-	    }
-	}
-	
-	public int read(byte[] buf) throws IOException {
-	    hook();
-	    try {
-		return(bk.read(buf));
-	    } finally {
-		release();
-	    }
-	}
-	
-	public int read(byte[] buf, int off, int len) throws IOException {
-	    hook();
-	    try {
-		return(bk.read(buf, off, len));
-	    } finally {
-		release();
-	    }
-	}
-    }
 
-    private class HackOutputStream extends OutputStream {
-	private OutputStream bk;
-	
-	private HackOutputStream(OutputStream bk) {
-	    this.bk = bk;
+	private void release() throws ClosedByInterruptException {
+		HackThread ut = (HackThread) Thread.currentThread();
+		InterruptAction ia = this.ia.get();
+		if (ia == null)
+			throw (new Error("Tried to release a hacked thread without an interrupt handler."));
+		ut.remil(ia);
+		if (ia.interrupted) {
+			ut.interrupt();
+			throw (new ClosedByInterruptException());
+		}
 	}
-	
-	public void close() throws IOException {bk.close();}
-	public void flush() throws IOException {
-	    hook();
-	    try {
-		bk.flush();
-	    } finally {
-		release();
-	    }
-	}
-	
-	public void write(int b) throws IOException {
-	    hook();
-	    try {
-		bk.write(b);
-	    } finally {
-		release();
-	    }
-	}
-	
-	public void write(byte[] buf) throws IOException {
-	    hook();
-	    try {
-		bk.write(buf);
-	    } finally {
-		release();
-	    }
-	}
-	
-	public void write(byte[] buf, int off, int len) throws IOException {
-	    hook();
-	    try {
-		bk.write(buf, off, len);
-	    } finally {
-		release();
-	    }
-	}
-    }
 
-    public InputStream getInputStream() throws IOException {
-	synchronized(this) {
-	    if(in == null)
-		in = new HackInputStream(super.getInputStream());
-	    return(in);
+	public void connect(SocketAddress address, int timeout) throws IOException {
+		hook();
+		try {
+			super.connect(address, timeout);
+		} finally {
+			release();
+		}
 	}
-    }
-    
-    public OutputStream getOutputStream() throws IOException {
-	synchronized(this) {
-	    if(out == null)
-		out = new HackOutputStream(super.getOutputStream());
-	    return(out);
+
+	public void connect(SocketAddress address) throws IOException {
+		connect(address, 0);
 	}
-    }
+
+	private class HackInputStream extends InputStream {
+		private InputStream bk;
+
+		private HackInputStream(InputStream bk) {
+			this.bk = bk;
+		}
+
+		public void close() throws IOException {
+			bk.close();
+		}
+
+		public int read() throws IOException {
+			hook();
+			try {
+				return (bk.read());
+			} finally {
+				release();
+			}
+		}
+
+		public int read(byte[] buf) throws IOException {
+			hook();
+			try {
+				return (bk.read(buf));
+			} finally {
+				release();
+			}
+		}
+
+		public int read(byte[] buf, int off, int len) throws IOException {
+			hook();
+			try {
+				return (bk.read(buf, off, len));
+			} finally {
+				release();
+			}
+		}
+	}
+
+	private class HackOutputStream extends OutputStream {
+		private OutputStream bk;
+
+		private HackOutputStream(OutputStream bk) {
+			this.bk = bk;
+		}
+
+		public void close() throws IOException {
+			bk.close();
+		}
+
+		public void flush() throws IOException {
+			hook();
+			try {
+				bk.flush();
+			} finally {
+				release();
+			}
+		}
+
+		public void write(int b) throws IOException {
+			hook();
+			try {
+				bk.write(b);
+			} finally {
+				release();
+			}
+		}
+
+		public void write(byte[] buf) throws IOException {
+			hook();
+			try {
+				bk.write(buf);
+			} finally {
+				release();
+			}
+		}
+
+		public void write(byte[] buf, int off, int len) throws IOException {
+			hook();
+			try {
+				bk.write(buf, off, len);
+			} finally {
+				release();
+			}
+		}
+	}
+
+	public InputStream getInputStream() throws IOException {
+		synchronized (this) {
+			if (in == null)
+				in = new HackInputStream(super.getInputStream());
+			return (in);
+		}
+	}
+
+	public OutputStream getOutputStream() throws IOException {
+		synchronized (this) {
+			if (out == null)
+				out = new HackOutputStream(super.getOutputStream());
+			return (out);
+		}
+	}
 }

@@ -30,75 +30,76 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RadioGroup {
-    private Widget parent;
-    private ArrayList<RadioButton> btns;
-    private HashMap<String, RadioButton> map;
-    private HashMap<RadioButton, String> rmap;
-    private RadioButton checked;
+	private Widget parent;
+	private ArrayList<RadioButton> btns;
+	private HashMap<String, RadioButton> map;
+	private HashMap<RadioButton, String> rmap;
+	private RadioButton checked;
 
-    public RadioGroup(Widget parent) {
-	this.parent = parent;
-	btns = new ArrayList<RadioButton>();
-	map  = new HashMap<String, RadioButton>();
-	rmap = new HashMap<RadioButton, String>();
-    }
-
-    public class RadioButton extends CheckBox {
-	RadioButton(Coord c, Widget parent, String lbl) {
-	    super(c, parent, lbl);
+	public RadioGroup(Widget parent) {
+		this.parent = parent;
+		btns = new ArrayList<RadioButton>();
+		map = new HashMap<String, RadioButton>();
+		rmap = new HashMap<RadioButton, String>();
 	}
 
-	public boolean mousedown(Coord c, int button) {
-	    if(a || button != 1 || c.y < 16 || c.y > sz.y - 10)
-		return(false);
-	    check(this);
-	    return(true);
+	public class RadioButton extends CheckBox {
+		RadioButton(Coord c, Widget parent, String lbl) {
+			super(c, parent, lbl);
+		}
+
+		public boolean mousedown(Coord c, int button) {
+			if (a || button != 1 || c.y < 16 || c.y > sz.y - 10)
+				return (false);
+			check(this);
+			return (true);
+		}
+
+		public void changed(boolean val) {
+			a = val;
+			super.changed(val);
+			lbl = Text.std.render(lbl.text, a ? java.awt.Color.YELLOW : java.awt.Color.WHITE);
+		}
 	}
 
-	public void changed(boolean val) {
-	    a = val;
-	    super.changed(val);
-	    lbl = Text.std.render(lbl.text, a ? java.awt.Color.YELLOW : java.awt.Color.WHITE);
+	public RadioButton add(String lbl, Coord c) {
+		RadioButton rb = new RadioButton(c, parent, lbl);
+		btns.add(rb);
+		map.put(lbl, rb);
+		rmap.put(rb, lbl);
+		if (checked == null)
+			checked = rb;
+		return (rb);
 	}
-    }
 
-    public RadioButton add(String lbl, Coord c) {
-	RadioButton rb = new RadioButton(c, parent, lbl);
-	btns.add(rb);
-	map.put(lbl, rb);
-	rmap.put(rb, lbl);
-	if(checked == null)
-	    checked = rb;
-	return(rb);
-    }
+	public void check(int index) {
+		if (index >= 0 && index < btns.size())
+			check(btns.get(index));
+	}
 
-    public void check(int index) {
-	if(index >= 0 && index < btns.size())
-	    check(btns.get(index));
-    }
+	public void check(String lbl) {
+		if (map.containsKey(lbl))
+			check(map.get(lbl));
+	}
 
-    public void check(String lbl) {
-	if(map.containsKey(lbl))
-	    check(map.get(lbl));
-    }
+	public void check(RadioButton rb) {
+		if (checked != null)
+			checked.changed(false);
+		checked = rb;
+		checked.changed(true);
+		changed(btns.indexOf(checked), rmap.get(checked));
+	}
 
-    public void check(RadioButton rb) {
-	if(checked != null)
-	    checked.changed(false);
-	checked = rb;
-	checked.changed(true);
-	changed(btns.indexOf(checked), rmap.get(checked));
-    }
+	public void hide() {
+		for (RadioButton rb : btns)
+			rb.hide();
+	}
 
-    public void hide() {
-	for(RadioButton rb : btns)
-	    rb.hide();
-    }
+	public void show() {
+		for (RadioButton rb : btns)
+			rb.show();
+	}
 
-    public void show() {
-	for(RadioButton rb : btns)
-	    rb.show();
-    }
-
-    public void changed(int btn, String lbl) {}
+	public void changed(int btn, String lbl) {
+	}
 }
