@@ -35,9 +35,9 @@
      <exec executable="java" failifexecutionfails="false">
       <arg line="-jar resources/LayerUtil.jar -re resources/src resources/compiled/res" />
      </exec>
-      <jar destfile="build/client-res.jar" update="true">
+     <!-- <jar destfile="build/client-res.jar" update="true">
          <fileset dir="resources/compiled" />
-      </jar>
+      </jar>-->
   </target>
 
   <target name="haven-client" depends="build-env, pre-src">
