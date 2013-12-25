@@ -73,6 +73,9 @@ public class Window extends Widget implements DTarget {
 		wbox = new IBox("gfx/hud", "tl", "tr", "bl", "br", "extvl", "extvr", "extht", "exthb");
 		storePosSet.add("Inventory");
 		storePosSet.add("Cupboard");
+		storePosSet.add("Crate");
+		storePosSet.add("Chest");
+		storePosSet.add("Coffer");
 		storePosSet.add("Equipment");
 		storePosSet.add("Character Sheet");
 		storePosSet.add("Kin");
