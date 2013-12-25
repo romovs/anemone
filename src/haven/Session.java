@@ -350,7 +350,7 @@ public class Session {
 					uimsgs.add(msg);
 				}
 			} else if (msg.type == Message.RMSG_MAPIV) {
-				glob.map.invalblob(msg);
+				glob.map.invalblob(msg, ui);
 			} else if (msg.type == Message.RMSG_GLOBLOB) {
 				glob.blob(msg);
 			} else if (msg.type == Message.RMSG_PAGINAE) {
@@ -366,12 +366,6 @@ public class Session {
 				glob.party.msg(msg);
 			} else if (msg.type == Message.RMSG_SFX) {
 				Indir<Resource> res = getres(msg.uint16());
-
-				// FIXME: very ugly hack for no-borders camera reset when moving
-				// between floors within a house
-				if (Config.noborders && ui.mainview.cam instanceof BorderCam && res != null && res.toString().contains("sfx/door"))
-					ui.mainview.resetcam();
-
 				if (!Config.isSoundOn)
 					return;// Sound effects disabled
 

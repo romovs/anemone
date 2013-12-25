@@ -26,6 +26,8 @@
 
 package haven;
 
+import static haven.MCache.tilesz;
+import haven.MapView.BorderCam;
 import haven.Resource.Tile;
 import haven.Resource.Tileset;
 import java.awt.Color;
@@ -260,11 +262,23 @@ public class MCache {
 		}
 	}
 
-	public void invalblob(Message msg) {
+	private Coord prevPos = null;
+	public void invalblob(Message msg, UI ui) {
 		int type = msg.uint8();
 		if (type == 0) {
 			invalidate(msg.coord());
 		} else if (type == 1) {
+			if (Config.noborders && ui.mainview.cam instanceof BorderCam) {
+				Gob p = ui.sess.glob.oc.getgob(ui.mainview.playergob);
+				Coord curPos = null;
+				if (p != null) {
+					curPos = p.getc();
+					if (curPos != null && prevPos != null && curPos.dist(prevPos) > 30 * tilesz.x)
+						ui.mainview.resetcam();
+				}
+				prevPos = curPos;
+				return;
+			}
 			Coord ul = msg.coord();
 			Coord lr = msg.coord();
 			trim(ul, lr);
