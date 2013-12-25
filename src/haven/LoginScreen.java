@@ -28,8 +28,6 @@ package haven;
 
 import java.awt.Color;
 import java.awt.font.TextAttribute;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LoginScreen extends Widget {
 	Login cur;
@@ -221,13 +219,11 @@ public class LoginScreen extends Widget {
 	private class LoginList extends Widget {
 		private static final int ITEM_HEIGHT = 20;
 		private final Object[] textSize = new Object[] { TextAttribute.SIZE, 14 };
-		Scrollbar sb = null;
 		LoginData curLD;
 
 		public LoginList(Coord c, Coord sz, Widget parent) {
 			super(c, sz, parent);
-			curLD = null;
-			sb = new Scrollbar(new Coord(sz.x, 0), sz.y, this, 0, 4);
+			curLD = null;			
 		}
 
 		public void draw(GOut g) {
@@ -237,14 +233,11 @@ public class LoginScreen extends Widget {
 
 			synchronized (Config.logins) {
 				if (Config.logins.size() > 0) {
-					for (int i = 0; i < sz.y / ITEM_HEIGHT; i++) {
-						if (i + sb.val >= Config.logins.size())
-							continue;
-
-						LoginData ld = Config.logins.get(i + sb.val);
+					for (int i = 0; i < Config.logins.size() && i*ITEM_HEIGHT < sz.y; i++) {						
+						LoginData ld = Config.logins.get(i);
 						if (ld == curLD) {
 							g.chcolor(96, 96, 96, 255);
-							g.frect(new Coord(0, i * ITEM_HEIGHT), new Coord(sz.x - 40, ITEM_HEIGHT));
+							g.frect(new Coord(0, i * ITEM_HEIGHT), new Coord(sz.x - 30, ITEM_HEIGHT));
 							g.chcolor();
 						}
 
@@ -252,7 +245,7 @@ public class LoginScreen extends Widget {
 						g.aimage(r.tex(), new Coord(10, i * ITEM_HEIGHT + 10), 0, 0.5);
 						g.chcolor(Color.RED);
 						r = RichText.render("\u2716", 20, textSize);
-						g.aimage(r.tex(), new Coord(sz.x - 30, i * ITEM_HEIGHT + 10), 0, 0.5);
+						g.aimage(r.tex(), new Coord(sz.x - 20, i * ITEM_HEIGHT + 10), 0, 0.5);
 						g.chcolor();
 					}
 				}
@@ -260,26 +253,21 @@ public class LoginScreen extends Widget {
 			super.draw(g);
 		}
 
-		public boolean mousewheel(Coord c, int amount) {
-			sb.ch(amount);
-			return (true);
-		}
-
 		public boolean mousedown(Coord c, int button) {
 			if (super.mousedown(c, button))
 				return (true);
 			if (button == 1) {
-				int sel = (c.y / ITEM_HEIGHT) + sb.val;
+				int sel = c.y / ITEM_HEIGHT;
 				synchronized (Config.logins) {
 					if (sel < Config.logins.size() && sel >= 0) {
 						curLD = Config.logins.get(sel);
-						if (c.x >= sz.x - 35 && c.x <= sz.x - 35 + 20) {
+						if (c.x >= sz.x - 25 && c.x <= sz.x - 25 + 20) {
 							synchronized (Config.logins) {
 								Config.logins.remove(curLD);
 								Config.saveLogins();
 								curLD = null;
 							}
-						} else if (c.x < sz.x - 35) {
+						} else if (c.x < sz.x - 25) {
 							parent.wdgmsg("forget");
 							parent.wdgmsg("login", new Object[] { curLD.name, curLD.pass, false });
 						}
