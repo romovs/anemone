@@ -183,12 +183,12 @@ public class OCache implements Iterable<Gob> {
 		LinMove lm = (LinMove) m;
 		if ((l < 0) || (l >= lm.c)) {
 			g.delattr(Moving.class);
+			
+			if (g.movementListener != null)
+				g.movementListener.onMovementStop(new MovementEvent());
+			
 			if (isplayer) {
 				ismoving = false;
-
-				if (g.movementListener != null)
-					g.movementListener.onMovementStop(new MovementEvent());
-
 				checkqueue();
 			}
 		} else {
