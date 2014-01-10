@@ -38,7 +38,7 @@ public class Fightview extends Widget {
 	static Coord cavac = new Coord(MainFrame.innerSize.width - 100, 10);
 	static Coord cgivec = new Coord(MainFrame.innerSize.width - 135, 10);
 	static Coord meterc = new Coord(MainFrame.centerPoint.x - 85, 10);
-	LinkedList<Relation> lsrel = new LinkedList<Relation>();
+	public LinkedList<Relation> lsrel = new LinkedList<Relation>();
 	public Relation current = null;
 	public Indir<Resource> blk, batk, iatk;
 	public long atkc = -1;
@@ -48,7 +48,6 @@ public class Fightview extends Widget {
 	private GiveButton curgive;
 	private Avaview curava;
 	private Widget comwdg, comwin;
-	public static Fightview instance;
 	public static long changed = 0;
 
 	public class Relation {
@@ -130,11 +129,11 @@ public class Fightview extends Widget {
 		curava.showname = true;
 		comwdg = new ComMeter(meterc, ui.root, this);
 		comwin = new ComWin(s, this);
-		instance = this;
+		ui.fview = this;
 	}
 
 	public void destroy() {
-		instance = null;
+		ui.fview = null;
 		ui.destroy(curgive);
 		ui.destroy(curava);
 		ui.destroy(comwdg);

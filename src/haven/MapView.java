@@ -28,6 +28,7 @@ package haven;
 
 import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
+import haven.Fightview.Relation;
 import haven.MCache.Grid;
 import haven.MCache.Overlay;
 import haven.Resource.Tile;
@@ -1025,6 +1026,30 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 
 	boolean pl = true;
 
+	
+	private void drawcombathighlight(GOut g) {
+		synchronized (glob.oc) {
+			for (Gob gob : glob.oc) {
+				if ((gob.isHuman() || gob.isBeast()) && gob.sc != null) {
+					UI u = MaidFrame.getCurrentSession().getUI();
+					if (u != null && u.fview != null) {
+						for (Relation rel : u.fview.lsrel) {
+							if (rel.gobid == gob.id) {
+								if (u.fview.current.gobid == gob.id)
+									g.chcolor(102, 0, 0, 200);
+								else 
+									g.chcolor(255, 102, 102, 200);
+
+								g.line(gob.sc.sub(20, 20), gob.sc.add(20, 20), 15);
+								g.line(gob.sc.sub(20, -20), gob.sc.add(20, -20), 15);
+							} 
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	private void drawobjradius(GOut g) {
 		synchronized (glob.oc) {
 			for (Gob gob : glob.oc) {
@@ -1316,6 +1341,9 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 		if (Config.radar) {
 			drawobjradius(g);
 		}
+		
+		drawcombathighlight(g);
+		
 		drawtracking(g);
 
 		if (curf != null)

@@ -1,6 +1,7 @@
 package ender;
 
 import haven.Fightview;
+import haven.MaidFrame;
 import haven.Fightview.Relation;
 
 public class SkillAvailability {
@@ -36,7 +37,7 @@ public class SkillAvailability {
 
 		@Override
 		public boolean isActive() {
-			return (Fightview.instance != null) && (Fightview.instance.current != null);
+			return (MaidFrame.getCurrentSession().getUI().fview != null) && (MaidFrame.getCurrentSession().getUI().fview.current != null);
 		}
 
 		@Override
@@ -44,7 +45,7 @@ public class SkillAvailability {
 			Fightview fv;
 			Relation rel;
 
-			if ((fv = Fightview.instance) == null) {
+			if ((fv = MaidFrame.getCurrentSession().getUI().fview) == null) {
 				return false;
 			}
 			if ((rel = fv.current) == null) {
