@@ -154,8 +154,10 @@ public class OCache implements Iterable<Gob> {
 	}
 
 	public boolean isplayerid(int id) {
-		if ((UI.instance != null) && (UI.instance.mainview != null) && (UI.instance.mainview.playergob == id)) {
-			return true;
+		for (SessionData sess : MaidFrame.getSessionList()) {
+			UI sessUi = sess.getUI();
+			if (sessUi != null && sessUi.mainview != null && sessUi.mainview.playergob == id)
+				return true;
 		}
 		return false;
 	}
@@ -181,14 +183,14 @@ public class OCache implements Iterable<Gob> {
 		if ((m == null) || !(m instanceof LinMove))
 			return;
 		LinMove lm = (LinMove) m;
+				
 		if ((l < 0) || (l >= lm.c)) {
 			g.delattr(Moving.class);
-			
-			if (g.movementListener != null)
-				g.movementListener.onMovementStop(new MovementEvent());
-			
+
 			if (isplayer) {
 				ismoving = false;
+				if (g.movementListener != null)
+					g.movementListener.onMovementStop(new MovementEvent());
 				checkqueue();
 			}
 		} else {
