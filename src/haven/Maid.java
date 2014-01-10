@@ -440,6 +440,40 @@ public class Maid {
 
 		return retval[0];
 	}
+	
+	public FlowerMenu waitForFlowerMenu(int timeout) throws InterruptedException {
+		final FlowerMenu retval[] = new FlowerMenu[1];
+
+		widgetListener = new WidgetListener<FlowerMenu>() {
+
+			public Class<FlowerMenu> getInterest() {
+				return FlowerMenu.class;
+			}
+
+			public void onCreate(WidgetEvent<FlowerMenu> e) {
+				retval[0] = e.getWidget();
+
+				wakeup();
+			}
+
+			public void onDestroy(WidgetEvent<FlowerMenu> e) {
+			}
+		};
+		
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			  @Override
+			  public void run() {
+				  wakeup();
+			  }
+			}, timeout);
+
+		sleep();
+
+		widgetListener = null;
+
+		return retval[0];
+	}
 
 	public Makewindow waitForMakeWindow(String name) throws InterruptedException {
 		final Makewindow retval[] = new Makewindow[1];
