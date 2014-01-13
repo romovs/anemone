@@ -15,6 +15,7 @@ import haven.HavenPanel;
 import haven.Coord;
 import haven.Gob;
 import haven.Glob;
+import haven.MaidFrame;
 import haven.Sprite;
 import haven.RemoteUI;
 import haven.Resource;
@@ -75,7 +76,7 @@ public class HavenUtil {
 	}
 
 	public Gob getPlayerGob() {
-		return m_hPanel.ui.mainview.glob.oc.getgob(m_hPanel.ui.mainview.playergob);
+		return MaidFrame.getCurrentSession().getUI().mainview.glob.oc.getgob(m_hPanel.ui.mainview.playergob);
 	}
 
 	public Coord getPlayerCoord() {
@@ -91,12 +92,12 @@ public class HavenUtil {
 		if (object == null)
 			return;
 
-		m_hPanel.ui.mainview.wdgmsg("click", new Coord(200, 150), object.getc(), button, 0, object.id, object.getc());
+		MaidFrame.getCurrentSession().getUI().mainview.wdgmsg("click", new Coord(200, 150), object.getc(), button, 0, object.id, object.getc());
 	}
 
 	public Inventory getInventory(String name) {
 
-		Widget root = m_hPanel.ui.root;
+		Widget root = MaidFrame.getCurrentSession().getUI().root;
 		Widget inv = null;
 
 		for (Widget w = root.child; w != null; w = w.next) {
@@ -241,23 +242,26 @@ public class HavenUtil {
 	}
 
 	public void useActionBar(int bar, int button) {
+		
+		UI u = MaidFrame.getCurrentSession().getUI();
+		
 		if (bar == 0) {
-			if (m_hPanel.ui.mnu.numpadbar.layout[button] == null) {
+			if (u.mnu.numpadbar.layout[button] == null) {
 				return;
 			}
-			m_hPanel.ui.mnu.numpadbar.layout[button].use();
+			u.mnu.numpadbar.layout[button].use();
 		}
 		if (bar == 1) {
-			if (m_hPanel.ui.mnu.functionbar.layout[button] == null) {
+			if (u.mnu.functionbar.layout[button] == null) {
 				return;
 			}
-			m_hPanel.ui.mnu.functionbar.layout[button].use();
+			u.mnu.functionbar.layout[button].use();
 		}
 		if (bar == 2) {
-			if (m_hPanel.ui.mnu.digitbar.layout[button] == null) {
+			if (u.mnu.digitbar.layout[button] == null) {
 				return;
 			}
-			m_hPanel.ui.mnu.digitbar.layout[button].use();
+			u.mnu.digitbar.layout[button].use();
 		}
 	}
 
@@ -277,9 +281,13 @@ public class HavenUtil {
 	boolean findFlaskToolbar() {
 		String quickname = "empty";
 
-		if (m_hPanel.ui.mnu.functionbar.layout[1] != null)
-			if (m_hPanel.ui.mnu.functionbar.layout[1].getres() != null)
-				quickname = m_hPanel.ui.mnu.functionbar.layout[1].getres().name;
+		UI u = MaidFrame.getCurrentSession().getUI();		
+		if (u == null || u.mnu == null || u.mnu.functionbar == null)
+			return false;
+		
+		if (u.mnu.functionbar.layout[11] != null)
+			if (u.mnu.functionbar.layout[11].getres() != null)
+				quickname = u.mnu.functionbar.layout[11].getres().name;
 
 		if (!quickname.contains("waterskin") && !quickname.contains("waterflask")) {
 			// setBeltSlot(2, 1, flask);
@@ -308,13 +316,13 @@ public class HavenUtil {
 		Coord slotCoord = new Coord(25, 22 + 30 * slot + jump);
 
 		if (bar == 0) {
-			m_hPanel.ui.mnu.digitbar.drop(slotCoord, new Coord(10, 10));
+			MaidFrame.getCurrentSession().getUI().mnu.digitbar.drop(slotCoord, new Coord(10, 10));
 		}
 		if (bar == 1) {
-			m_hPanel.ui.mnu.functionbar.drop(slotCoord, new Coord(10, 10));
+			MaidFrame.getCurrentSession().getUI().mnu.functionbar.drop(slotCoord, new Coord(10, 10));
 		}
 		if (bar == 2) {
-			m_hPanel.ui.mnu.numpadbar.drop(slotCoord, new Coord(10, 10));
+			MaidFrame.getCurrentSession().getUI().mnu.numpadbar.drop(slotCoord, new Coord(10, 10));
 		}
 
 		Inventory bag = getInventory("Inventory");
@@ -350,8 +358,8 @@ public class HavenUtil {
 
 		Rectangle rect = new Rectangle(smallestX, smallestY, largestX - smallestX, largestY - smallestY);
 
-		synchronized (m_hPanel.ui.mainview.glob.oc) {
-			for (Gob g : m_hPanel.ui.mainview.glob.oc) {
+		synchronized (MaidFrame.getCurrentSession().getUI().mainview.glob.oc) {
+			for (Gob g : MaidFrame.getCurrentSession().getUI().mainview.glob.oc) {
 				if (rect.contains(g.getc().x, g.getc().y))
 					list.add(g);
 			}
@@ -378,7 +386,7 @@ public class HavenUtil {
 	}
 
 	void togleInventory() {
-		m_hPanel.ui.root.wdgmsg("gk", 9);
+		MaidFrame.getCurrentSession().getUI().root.wdgmsg("gk", 9);
 	}
 
 	public boolean isInventoryOpen() {

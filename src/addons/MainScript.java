@@ -4,6 +4,7 @@ import haven.HavenPanel;
 import haven.Config;
 import haven.Coord;
 import haven.Gob;
+import haven.MaidFrame;
 
 public class MainScript {
 	public static HavenUtil m_util;
@@ -28,7 +29,7 @@ public class MainScript {
 
 	public static void cleanupItems(int areaSize, Gob object) {
 		if (!cleanupRunning && object != null) {
-			Coord pickupCoord = m_util.m_hPanel.ui.mainview.mousepos;
+			Coord pickupCoord = MaidFrame.getCurrentSession().getUI().mainview.mousepos;
 			Coord c1 = pickupCoord.add(-11 * areaSize, -11 * areaSize);
 			Coord c2 = pickupCoord.sub(-11 * areaSize, -11 * areaSize);
 

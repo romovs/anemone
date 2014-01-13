@@ -42,7 +42,7 @@ public class RunFlaskScript extends Thread {
 						flaskID = -1;
 						continue;
 					}
-					m_util.setBeltSlot(2, 1, flask);
+					m_util.setBeltSlot(12, HavenUtil.ACTIONBAR_F, flask);
 					cancelID = flask.id;
 					flaskID = flask.id;
 					flask = null;
@@ -57,7 +57,7 @@ public class RunFlaskScript extends Thread {
 				if (!m_util.hasHourglass() && m_util.getStamina() < 80 && count > 2) {
 					Config.forcemod = false;
 					// System.out.println("acction");
-					m_util.useActionBar(HavenUtil.ACTIONBAR_F, 1);
+					m_util.useActionBar(HavenUtil.ACTIONBAR_F, 11);
 					count = 0;
 				} else
 					count++;
@@ -128,6 +128,9 @@ public class RunFlaskScript extends Thread {
 	boolean findFlaskInBag(int id) {
 		ArrayList<Item> itemList = m_util.getItemsFromBag();
 
+		if (itemList == null)
+			return false;
+		
 		for (Item i : itemList) {
 			if (i.id == id) {
 				// String name = i.GetResName();
