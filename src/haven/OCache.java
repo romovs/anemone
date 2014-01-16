@@ -183,7 +183,6 @@ public class OCache implements Iterable<Gob> {
 		if ((m == null) || !(m instanceof LinMove))
 			return;
 		LinMove lm = (LinMove) m;
-				
 		if ((l < 0) || (l >= lm.c)) {
 			g.delattr(Moving.class);
 
@@ -192,6 +191,19 @@ public class OCache implements Iterable<Gob> {
 				if (g.movementListener != null)
 					g.movementListener.onMovementStop(new MovementEvent());
 				checkqueue();
+			}
+
+			if (g.resname().contains("boat")) {
+				for (SessionData sess : MaidFrame.getSessionList()) {
+					UI sessUi = sess.getUI();
+					if (sessUi != null && sessUi.mainview != null) {
+						Gob pl = getgob(sessUi.mainview.playergob);
+						if (pl != null && pl.getc() == g.getc()) {
+							if (pl.movementListener != null)
+								pl.movementListener.onMovementStop(new MovementEvent());
+						}
+					}
+				}
 			}
 		} else {
 			lm.setl(l);
