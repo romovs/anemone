@@ -29,6 +29,7 @@ package haven;
 public class Img extends Widget {
 	private Tex img;
 	public boolean hit = false;
+	public String resName; 
 
 	static {
 		Widget.addtype("img", new WidgetFactory() {
@@ -41,7 +42,7 @@ public class Img extends Widget {
 				} else {
 					tex = Resource.loadtex((String) args[0]);
 				}
-				Img ret = new Img(c, tex, parent);
+				Img ret = new Img(c, tex, parent, (String) args[0]);
 				if (args.length > 2)
 					ret.hit = (Integer) args[2] != 0;
 				return (ret);
@@ -55,9 +56,10 @@ public class Img extends Widget {
 		}
 	}
 
-	public Img(Coord c, Tex img, Widget parent) {
+	public Img(Coord c, Tex img, Widget parent, String resName) {
 		super(c, img.sz(), parent);
 		this.img = img;
+		this.resName = resName;
 	}
 
 	public void uimsg(String name, Object... args) {

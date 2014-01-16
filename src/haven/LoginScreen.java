@@ -47,8 +47,8 @@ public class LoginScreen extends Widget {
 		super(Coord.z, new Coord(800, 600), parent);
 		setfocustab(true);
 		parent.setfocus(this);
-		new Img(Coord.z, bg, this);
-		new Img(new Coord(420, 215).add(logo.sz().div(2).inv()), logo, this);
+		new Img(Coord.z, bg, this, null);
+		new Img(new Coord(420, 215).add(logo.sz().div(2).inv()), logo, this, null);
 		new LoginList(new Coord(10, 10), new Coord(200, parent.sz.y - 20), this);
 	}
 

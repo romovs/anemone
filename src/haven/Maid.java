@@ -747,6 +747,18 @@ public class Maid {
 
 		return items.toArray(new Item[items.size()]);
 	}
+	
+	public Widget[] getImgWidgets(Window win) {
+		List<Img> items = new ArrayList<Img>(24);
+		for (Widget i = win.child; i != null; i = i.next) {
+			if (i instanceof Img) {
+				items.add((Img) i);
+			}
+		}
+
+		return items.toArray(new Img[items.size()]);
+	}
+	
 	public void doLight(Window win) {
 		for (Widget i = win.child; i != null; i = i.next) {
 			if (i instanceof Button && ((Button)i).text.text.equals("Light")) {

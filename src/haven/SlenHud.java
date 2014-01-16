@@ -171,9 +171,9 @@ public class SlenHud extends ConsoleHost implements DTarget, DropTarget, Console
 			ui.chat = this;
 		dy = -sz.y;
 		// new Img(fc, flarps, this);
-		new Img(mc, mbg, this);
+		new Img(mc, mbg, this, null);
 		if (!Config.new_minimap)
-			new Img(dispc, dispbg, this);
+			new Img(dispc, dispbg, this, null);
 		hb = new IButton(mc, this, Resource.loadimg("gfx/hud/slen/hbu"), Resource.loadimg("gfx/hud/slen/hbd"));
 		invb = new IButton(mc, this, Resource.loadimg("gfx/hud/slen/invu"), Resource.loadimg("gfx/hud/slen/invd"));
 		equb = new IButton(mc, this, Resource.loadimg("gfx/hud/slen/equu"), Resource.loadimg("gfx/hud/slen/equd"));

@@ -143,20 +143,20 @@ public class CharWnd extends Window {
 			Label lbl = new Label(new Coord(x, y), belief, String.format("%s / %s", Utils.titlecase(left), Utils.titlecase(right)));
 			lbl.c = new Coord(72 + x - (lbl.sz.x / 2), y);
 			y += 15;
-			new Img(new Coord(x, y), Resource.loadtex("gfx/hud/charsh/" + left), belief);
+			new Img(new Coord(x, y), Resource.loadtex("gfx/hud/charsh/" + left), belief, "gfx/hud/charsh/" + left);
 			lb = new IButton(new Coord(x + 16, y), belief, lbu, lbd) {
 				public void click() {
 					buy(-1);
 				}
 			};
-			new Img(new Coord(x + 32, y + 4), slider, belief);
+			new Img(new Coord(x + 32, y + 4), slider, belief, null);
 			rb = new IButton(new Coord(x + 112, y), belief, rbu, rbd) {
 				public void click() {
 					buy(1);
 				}
 			};
-			new Img(new Coord(x + 128, y), Resource.loadtex("gfx/hud/charsh/" + right), belief);
-			flarper = new Img(new Coord(0, y + 2), flarp, belief);
+			new Img(new Coord(x + 128, y), Resource.loadtex("gfx/hud/charsh/" + right), belief, "gfx/hud/charsh/" + right);
+			flarper = new Img(new Coord(0, y + 2), flarp, belief, null);
 			update();
 		}
 
@@ -763,13 +763,13 @@ public class CharWnd extends Window {
 	}
 
 	private void baseval(int y, String id, String nm) {
-		new Img(new Coord(10, y), Resource.loadtex("gfx/hud/charsh/" + id), cattr);
+		new Img(new Coord(10, y), Resource.loadtex("gfx/hud/charsh/" + id), cattr, "gfx/hud/charsh/" + id);
 		new Label(new Coord(30, y), cattr, nm + ":");
 		new NAttr(id, 100, y);
 	}
 
 	private void skillval(int y, String id, String nm) {
-		new Img(new Coord(210, y), Resource.loadtex("gfx/hud/charsh/" + id), cattr);
+		new Img(new Coord(210, y), Resource.loadtex("gfx/hud/charsh/" + id), cattr, "gfx/hud/charsh/" + id);
 		new Label(new Coord(230, y), cattr, nm + ":");
 		new SAttr(id, 320, y);
 	}
