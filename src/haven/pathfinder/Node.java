@@ -12,6 +12,9 @@ public class Node
     	NORMAL(3),
     	SWAMP(6),
     	THICKET(6),
+    	WATER_DEEP(2),
+    	WATER_SHALLOW(2),
+    	SAND(3),
     	BLOCK(Integer.MAX_VALUE),
     	BLOCK_DYNAMIC(Integer.MAX_VALUE),
     	NOT_IMPLEMENTED(3);
