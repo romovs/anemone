@@ -429,10 +429,12 @@ public class Gob implements Sprite.Owner {
 		if (obType != null)
 			return obType;
 
-		String resname = getres().name;
+		Resource rsrc = getres();
+		if (rsrc == null)
+			return Node.Type.NOT_IMPLEMENTED;
 
 		// remove "gfx/" prefix
-		String resnameStripped = resname.substring(4);
+		String resnameStripped = rsrc.name.substring(4);
 
 		// strip trailing numbers
 		// /terobjs/trees/pine/06
@@ -444,7 +446,8 @@ public class Gob implements Sprite.Owner {
 		// terobjs/ridges/grass/e2n
 		// terobjs/ridges/grass/e
 		// terobjs/ridges/grass/es
-		resnameStripped = resnameStripped.replaceAll("\\/[a-z]?\\d?[a-z]{1}$", "");
+		if (!resnameStripped.equals("borka/s"))
+			resnameStripped = resnameStripped.replaceAll("\\/[a-z]?\\d?[a-z]{1}$", "");
 
 		// strip walls direction/type
 		// arch/walls/brick-cp
@@ -461,7 +464,6 @@ public class Gob implements Sprite.Owner {
 		else
 			obType = Config.obTypes.get(resnameStripped);
 
-		System.out.println("[OBTYPE] " + getres().name + " : " + resnameStripped + " : " + obType);
 		return obType;
 	}
 }
