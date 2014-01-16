@@ -502,15 +502,34 @@ public class Maid {
 
 	// Wait for player to stop moving
 	public void waitForMoveStop() throws InterruptedException {
-		Gob gob = getPlayer();
+		final Gob gob = getPlayer();
+		
+		// since event sometime is set out of order
+		// check position every once in a while
+		// and wakeup if too long in same position 
+		final Coord prevPos[] = new Coord[1];
+		final Timer timer = new Timer();
+	    prevPos[0] = gob.getc();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			  @Override
+			  public void run() {
+				  if (prevPos[0].equals(getCoord())) {
+					  wakeup();
+					  timer.cancel();
+				  }
+				  else
+					  prevPos[0] = gob.getc();
+			  }
+			}, 200, 200);
 
 		gob.movementListener = new MovementAdapter() {
 			@Override
 			public void onMovementStop(MovementEvent taskEvent) {
+				timer.cancel();
 				wakeup();
 			}
 		};
-
+		
 		sleep();
 
 		gob.movementListener = null;
