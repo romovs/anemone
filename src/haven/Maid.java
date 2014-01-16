@@ -39,7 +39,7 @@ public class Maid {
 	public MaidUI ui;
 	private final static float ITEM_WIDTH = 31;
 	private final static float ITEM_HEIGHT = 32;
-
+	
 	// helper objects for getting current meter values for situations when event
 	// based mechanism is not needed
 	public MeterEventObjectHunger meterHunger;
@@ -1131,52 +1131,237 @@ public class Maid {
 		mw.wdgmsg(mw.cbtn, "activate");
 	}
 
-	public Map getScene() {
-		return new Map(1000, 1000);
+	public Map getScene(int playerSize) {
+		return new Map(1000, 1000, playerSize);
 	}
+	
+	
+	private DbgWnd dbgWin = null;
 
-	public void pathfinderTest() {
+	
+	private Coord toSceneCoord(Coord c) {
+		MapView mv = getWidget(MapView.class);
+		Coord frameSz = MainFrame.getInnerSize();
+		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc);
+		return c.add(oc).add(-Map.MAP_COFFSET_X, 0);
+	}
+	
+	private Coord fromSceneCoord(Coord c) {
+		MapView mv = getWidget(MapView.class);
+		Coord frameSz = MainFrame.getInnerSize();
+		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc);
+		return c.sub(oc).add(Map.MAP_COFFSET_X, 0);
+	}
+	
+	
+	public void pathFindBoat(Coord dst, String surroundingObj) {
+		Gob player = getPlayer();
+		if (dst.equals(player.getc()))
+			return;
 
-		for (Widget w : ui.rwidgets.keySet()) {
-			doSay(w.toString());
-		}
-
-		Map scene = getScene();
-		DbgWnd app = new DbgWnd(scene, 1000, 1000);
+		Map scene = getScene(26*2);
 
 		MapView mv = getWidget(MapView.class);
-		Gob player = getPlayer();
 
 		long start = DbgUtils.getCpuTime();
-		scene.initScene(mv, player, doAreaList(50.0d));
+		scene.initSceneBoat(mv, player, dst, doAreaList(50.0d), surroundingObj);
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
 		PathFinder finder = new AStar();
 
-		app.setVisible(true);
+		if (dbgWin == null) {
+			dbgWin = new DbgWnd(scene, 1000, 1000);
+			dbgWin.setVisible(true);
+		} else {
+			dbgWin.setScene(scene);
+		}
 
-		Coord frameSz = MainFrame.getInnerSize();
-		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset
-																		// correction
-
+		Coord dstAdjusted = toSceneCoord(dst);
+		
+		System.out.println("SRC: " + toSceneCoord(player.getc()));
+		System.out.println("DST: " + dstAdjusted);
+		
+		if (dstAdjusted.x > scene.w || dstAdjusted.y > scene.h ||
+				dstAdjusted.x < 1 || dstAdjusted.y < 1) {
+			System.err.println("!!!Destination is out of bounds!!!");
+			return;
+		}
+		
 		start = DbgUtils.getCpuTime();
-		List<Node> path = finder.find(scene, player.getc().add(oc).add(200 - Map.MAP_COFFSET_X, 100), true);
+		List<Node> path = finder.find(scene, dstAdjusted, true);
 		end = DbgUtils.getCpuTime();
 		System.out.format("Finder Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
 		if (path == null) {
-			System.out.println("No path!");
+			System.out.println("!!!No path!!!");
 			return;
 		}
 		for (Node n : path) {
-			doLeftClick(new Coord(n.x + 300, n.y).sub(oc));
+			doLeftClick(fromSceneCoord(new Coord(n.x, n.y)));
 			try {
+				System.out.println("- pf waiting for stop");
 				waitForMoveStop();
+				System.out.println("- pf stopped");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void pathFind(Coord dst, int playerSize, String surroundingObj) {
+		Gob player = getPlayer();
+		if (dst.equals(player.getc()))
+			return;
+		
+		Map scene = getScene(playerSize);
+
+		MapView mv = getWidget(MapView.class);
+
+		long start = DbgUtils.getCpuTime();
+		scene.initScene(mv, player, dst, doAreaList(50.0d), surroundingObj);
+		long end = DbgUtils.getCpuTime();
+		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
+
+		PathFinder finder = new AStar();
+
+		if (dbgWin == null) {
+			dbgWin = new DbgWnd(scene, 1000, 1000);
+			dbgWin.setVisible(true);
+		} else {
+			dbgWin.setScene(scene);
+		}
+
+		Coord dstAdjusted = toSceneCoord(dst);
+		
+		System.out.println("SRC: " + toSceneCoord(player.getc()));
+		System.out.println("DST: " + dstAdjusted);
+		
+		if (dstAdjusted.x > scene.w || dstAdjusted.y > scene.h ||
+				dstAdjusted.x < 1 || dstAdjusted.y < 1) {
+			System.err.println("!!!Destination is out of bounds!!!");
+			return;
+		}
+
+		start = DbgUtils.getCpuTime();
+		List<Node> path = finder.find(scene, dstAdjusted, true);
+		end = DbgUtils.getCpuTime();
+		System.out.format("Finder Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
+
+		if (path == null) {
+			System.out.println("!!!No path!!!");
+			return;
+		}
+		for (Node n : path) {
+			doLeftClick(fromSceneCoord(new Coord(n.x, n.y)));
+			try {
+				System.out.println("- pf waiting for stop");
+				waitForMoveStop();
+				System.out.println("- pf stopped");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void pathFindRightClick(Coord dst, int playerSize, String surroundingObj) {
+		Gob player = getPlayer();
+		if (dst.equals(player.getc()))
+			return;
+		
+		Map scene = getScene(playerSize);
+
+		MapView mv = getWidget(MapView.class);
+
+		long start = DbgUtils.getCpuTime();
+		scene.initScene(mv, player, dst, doAreaList(50.0d), surroundingObj);
+		long end = DbgUtils.getCpuTime();
+		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
+
+		PathFinder finder = new AStar();
+
+		if (dbgWin == null) {
+			dbgWin = new DbgWnd(scene, 1000, 1000);
+			dbgWin.setVisible(true);
+		} else {
+			dbgWin.setScene(scene);
+		}
+
+		Coord dstAdjusted = toSceneCoord(dst);
+		
+		System.out.println("SRC: " +  toSceneCoord(player.getc()));
+		System.out.println("DST: " + dstAdjusted);
+		
+		if (dstAdjusted.x > scene.w || dstAdjusted.y > scene.h ||
+				dstAdjusted.x < 1 || dstAdjusted.y < 1)
+		{
+			System.err.println("!!!Destination is out of bounds!!!");
+			return;
+		}
+		
+		start = DbgUtils.getCpuTime();
+		List<Node> path = finder.find(scene, toSceneCoord(dst), true);
+		end = DbgUtils.getCpuTime();
+		System.out.format("Finder Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
+
+		if (path == null) {
+			System.err.println("!!!No path!!!");
+			return;
+		}
+		
+		for (int i = 0; i < path.size(); i++) {
+			Node n = path.get(i);
+			
+			if (i == path.size()-1) 
+				doRightClick(fromSceneCoord(new Coord(n.x, n.y)));
+			else 
+				doLeftClick(fromSceneCoord(new Coord(n.x, n.y)));
+			
+			try {
+				System.out.println("- pf waiting for stop");
+				waitForMoveStop();
+				System.out.println("- pf stopped");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public Coord findEmptyGroundTile(int objSize, String surroundingObj) {
+		Gob player = getPlayer();
+		Map scene = getScene(4);
+		MapView mv = getWidget(MapView.class);
+		scene.initScene(mv, player, null, doAreaList(50.0d), surroundingObj);
+		Coord tile = scene.findEmptyGroundTile(toSceneCoord(player.getc()), objSize);
+		return (tile != null) ? fromSceneCoord(tile) : null;
+	}
+	
+	
+	public Coord findRandomWaterTile() {
+		Gob player = getPlayer();
+		Map scene = getScene(26);
+		MapView mv = getWidget(MapView.class);
+		scene.initScene(mv, player, null, doAreaList(50.0d), null);
+		Coord wt = scene.findRandomWaterTile(toSceneCoord(player.getc()));
+		return (wt != null) ? fromSceneCoord(wt) : null;
+	}
+	
+	public Coord findNextShallowTile(Coord currentPos, Coord prevPos)  {
+		Gob player = getPlayer();
+		Map scene = getScene(26);
+		MapView mv = getWidget(MapView.class);
+		scene.initScene(mv, player, null, doAreaList(50.0d), null);
+		Coord st = scene.findNextShallowTile(toSceneCoord(currentPos), toSceneCoord(prevPos));
+		return (st != null) ? fromSceneCoord(st) : null;
+	}
+	
+	public Coord findShore(String surroundingObj) {
+		Gob player = getPlayer();
+		Map scene = getScene(26);
+		MapView mv = getWidget(MapView.class);
+		scene.initScene(mv, player, null, doAreaList(50.0d), surroundingObj);
+		Coord shore = scene.findClosestShoreTile(toSceneCoord(player.getc()));
+		return (shore != null) ? fromSceneCoord(shore) : null;
 	}
 }

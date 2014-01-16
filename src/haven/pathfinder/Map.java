@@ -2,14 +2,12 @@ package haven.pathfinder;
 
 import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
-
+import java.util.Random;
 import haven.Coord;
 import haven.Gob;
-import haven.MCache;
 import haven.MainFrame;
 import haven.MapView;
 import haven.Resource;
-import haven.MCache.Grid;
 import haven.Resource.Tile;
 
 public class Map
@@ -18,17 +16,20 @@ public class Map
     public int h;
     public int minWeight = Integer.MAX_VALUE;
     public Node nodes[][];
-    private static final int PLAYER_SIZE = 4;
+    private int PLAYER_SIZE = 4;  //boat 26, player 4
     public static final int NO_CLEARANCE = 1;
     private static final int VRANGE = 500;
     public static final int MAP_COFFSET_X = 300;
-
-	public Map(int w, int h)
+    private Coord playerPos;
+    private static Random rng = new Random();
+    
+	public Map(int w, int h, int playerSize)
 	{
 		super();
 
 		this.w = w;
 		this.h = h;
+		PLAYER_SIZE = playerSize;
 
 		nodes = new Node[w][h];
 
@@ -57,16 +58,52 @@ public class Map
     	}
     }
 	
-    public void initScene(MapView mv, Gob player, Gob[] gobs) {
+    public void initSceneBoat(MapView mv, Gob player, Coord dst, Gob[] gobs, String surroundingObj) {
 		// setup player current location
         Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
 		Coord playerCoord = player.getc().add(oc);
+		playerPos = player.getc();
+		
+		playerCoord.add(-12, 13); // boat fix
+
 		playerCoord.x -= MAP_COFFSET_X;
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
         initTiles(mv);
-        initGobes(mv, gobs);
+        initGobes(mv, gobs, surroundingObj, dst);
+        initClearances(PLAYER_SIZE);
+        
+        // mark all non water tiles as blocked. FIXME: not efficient!
+        for(int i=0;i<h;i++){
+            for(int j=0;j<w;j++){
+               if (nodes[j][i].type != Node.Type.WATER_DEEP &&
+            		   nodes[j][i].type != Node.Type.WATER_SHALLOW) {
+            	   
+            	   if (!(src.x-1 == j && src.y == i || 
+            			   src.x-1 == j && src.y+1 == i ||
+            			   src.x == j && src.y+1 == i ||
+            			   src.x == j && src.y == i ||
+            			   dst.x == j && dst.y == i)) {
+            		   nodes[j][i].type = Node.Type.BLOCK;
+            	   }
+               }
+            }
+        }
+    }
+    
+    public void initScene(MapView mv, Gob player, Coord dst, Gob[] gobs, String surroundingObj) {
+		// setup player current location
+        Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
+		Coord playerCoord = player.getc().add(oc);
+		playerPos = player.getc();
+		
+		playerCoord.x -= MAP_COFFSET_X;
+        Node src = nodes[playerCoord.x][playerCoord.y];
+        Node.srcNode = src;
+        
+        initTiles(mv);
+        initGobes(mv, gobs, surroundingObj, dst);
         initClearances(PLAYER_SIZE);
     }
     
@@ -102,14 +139,16 @@ public class Map
 			    Node.Type tileType = groundTile.resolveTileType();
 			    		    
 			    if (groundTile != null) {
-						System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
-						createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
+		        	if (tileType == Node.Type.NOT_IMPLEMENTED) {
+		        		System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
+		        	}
+					createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
 			    }
 		    }
 		}
     }
     
-    private void initGobes(MapView mv, Gob[] gobs) {
+    private void initGobes(MapView mv, Gob[] gobs, String surroundingObj, Coord dst) {
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
         
@@ -121,17 +160,28 @@ public class Map
         		continue;
         	
         	// NOTE: for objects with hitbox -  bs.x and bs.y > 0 but not for all. e.g. straw bed.        	
-        	System.out.format("[NEG] cc:%s   bs:%s   bc:%s   sz:%s\n", neg.cc.toString(), neg.bs.toString(), neg.bc.toString(), neg.sz.toString());
-        	System.out.format("[GOB] getc():%s   sc:%s\n", g.getc(), g.sc.toString());
 
             Coord a =  g.getc().add(neg.bc).add(oc);
             Coord c =  g.getc().add(neg.bc).add(neg.bs).add(oc);
-
-        	System.out.format("[HB] a:%s   c:%s\n", a, c); 
+            
+        	if (t == Node.Type.NOT_IMPLEMENTED) {
+        		System.out.format("[NEG] cc:%s   bs:%s   bc:%s   sz:%s\n", neg.cc.toString(), neg.bs.toString(), neg.bc.toString(), neg.sz.toString());
+        		System.out.format("[GOB] getc():%s   sc:%s     %s\n", g.getc(), g.sc.toString(), g.getres().name);
+        		System.out.format("[HB] a:%s   c:%s\n", a, c); 
+        	}
 
         	a.x -= MAP_COFFSET_X;
         	c.x -= MAP_COFFSET_X;
         	
+        	// so we don't block ourselfs with gear gobs, boats, etc.
+    		if (playerPos.equals(g.rc))
+    			continue;
+        	
+    		// make sure the destination is not blocked by gob hitbox
+    		if (dst != null && dst.equals(g.rc)) {
+    			continue;
+    		}
+    		
         	if (a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
         			a.x >= 0 && a.y >= 0 && c.x >= 0 && c.y >= 0) {
         		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t);
@@ -241,5 +291,256 @@ public class Map
         }
         
         return next;
+    }
+    
+    public Coord findLandMark(Coord currentPos, int distanceToIgnore) {
+    	
+    	int X = w-1;
+    	int Y = h-1;
+    	
+    	int x=currentPos.x, y=currentPos.y, dx = 0, dy = -1;
+	    int t = Math.max(X,Y);
+	    int maxI = t*t;
+
+	    for (int i=0; i < maxI; i++){
+	        if ((-X/2 <= x) && (x <= X/2) && (-Y/2 <= y) && (y <= Y/2)) {
+	            System.out.println(x+","+y);
+	            
+        		if (x+tilesz.x < w &&
+    					nodes[x][y].type == Node.Type.PAVEMENT &&
+    					nodes[x+tilesz.x][y].type == Node.Type.PAVEMENT) {
+        			return new Coord(x, y);
+        		}
+	        }
+
+	        if( (x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1-y))) {
+	            t=dx; dx=-dy; dy=t;
+	        }   
+	        x+=dx; y+=dy;
+	    }
+    	
+    	
+
+    	return null;
+    }
+    
+    public boolean isEnoughSpace(int xp, int yp, int objSize) {
+		for (int x = xp - objSize/2; x < xp+objSize/2; x++) {
+		    for (int y = yp - objSize/2; y < yp+objSize/2; y++) {
+        		if (x >= w || y >= h || x < 0 || y < 0 || 
+    					nodes[x][y].type == Node.Type.WATER_DEEP || 
+    					nodes[x][y].type == Node.Type.WATER_SHALLOW || 
+    					nodes[x][y].type == Node.Type.BLOCK ||  
+    					nodes[x][y].type == Node.Type.BLOCK_DYNAMIC) {
+        			return false;
+        		}
+		    }
+		}
+    	return true;
+    }
+    
+    //FIXME not efficient!
+    public Coord findEmptyGroundTile(Coord currentPos, int objSize) {
+    	Coord closest =  new Coord(0,0);
+    	
+    	for (int x = currentPos.x+PLAYER_SIZE+tilesz.x; x < currentPos.x+PLAYER_SIZE+50*tilesz.x; x+=tilesz.x) {
+        	for (int y = currentPos.y+PLAYER_SIZE+tilesz.y; y < currentPos.y+PLAYER_SIZE+50*tilesz.y; y+=tilesz.y) {
+        		
+        		if (x+1 < w && y+1 < h &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			
+        			if (isEnoughSpace(x, y, objSize) && new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+    	
+    	for (int x = currentPos.x+PLAYER_SIZE+tilesz.x; x < currentPos.x+PLAYER_SIZE+50*tilesz.x; x+=tilesz.x) {
+        	for (int y = currentPos.y-PLAYER_SIZE-+tilesz.y; y > currentPos.y-PLAYER_SIZE+50*tilesz.y; y-=tilesz.y) {
+        		
+        		if (x+1 < w && y >= 0 &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+
+        			if (isEnoughSpace(x, y, objSize) && new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+    	
+    	for (int x = currentPos.x-PLAYER_SIZE-tilesz.x; x > currentPos.x-PLAYER_SIZE-50*tilesz.x; x-=tilesz.x) {
+        	for (int y = currentPos.y+PLAYER_SIZE+tilesz.y; y < currentPos.y+PLAYER_SIZE+50*tilesz.y; y+=tilesz.y) {
+        		
+        		if (x >= 0 && y+1 < h &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			
+        			if (isEnoughSpace(x, y, objSize) && new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+
+    	for (int x = currentPos.x-PLAYER_SIZE-tilesz.x; x > currentPos.x-PLAYER_SIZE-50*tilesz.x; x-=tilesz.x) {
+        	for (int y = currentPos.y-PLAYER_SIZE-tilesz.y; y > currentPos.y-PLAYER_SIZE-50*tilesz.x; y-=tilesz.y) {
+
+        		if (x >= 0 && y >= 0 &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			
+        			if (isEnoughSpace(x, y, objSize) && new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+    	
+    	return closest;
+    }
+    
+    // find random water tile N tiles away from the given position
+    public Coord findRandomWaterTile(Coord currentPos) {
+
+    	int DIST_FROM_CUR = 33*tilesz.x;
+    	int BORDER_LIMIT = 3*tilesz.x;
+
+    	for (int i = 0; i < 5000; i++) {
+	    	int xlow, xhigh;
+	    	if (rng.nextBoolean()) {
+	        	xlow = BORDER_LIMIT;
+	            xhigh = currentPos.x-DIST_FROM_CUR;
+	    	} else {
+	        	xlow = currentPos.x+DIST_FROM_CUR;
+	            xhigh = w - BORDER_LIMIT;
+	    	}
+	    	
+	    	if (xhigh-xlow < 1) 
+	    		continue;
+	    	
+	    	int xr = rng.nextInt(xhigh-xlow)+xlow;
+	    	
+	    	int ylow, yhigh;
+	    	if (rng.nextBoolean()) {
+	        	ylow = currentPos.y+DIST_FROM_CUR; 
+	            yhigh = h - BORDER_LIMIT;
+	    	} else {
+	        	ylow = BORDER_LIMIT;
+	            yhigh = currentPos.y-DIST_FROM_CUR;
+	    	}
+	    	
+	    	if (yhigh-ylow < 1) 
+	    		continue;
+	    	
+	    	int yr = rng.nextInt(yhigh-ylow)+ylow;
+
+			if (nodes[xr][yr].type == Node.Type.WATER_DEEP) {
+				return new Coord(xr, yr);
+			}
+    	}
+
+    	return null;
+    }
+    
+    // find a shallow tile at the defined DISTANCE.
+    public Coord findNextShallowTile(Coord currentPos, Coord prevPos) {
+    	int DISTANCE = 15*tilesz.x;
+    	int THRESHOLD_PREV = DISTANCE/2;
+    	int RADIUS_THRES = 3;
+
+    	for (int x = currentPos.x - DISTANCE ; x < currentPos.x + DISTANCE; x++) {
+    	    for (int y = currentPos.y - DISTANCE ; y < currentPos.y + DISTANCE; y++) {
+    	    	
+    			Coord newPos = new Coord(x, y);
+    			
+    			if (x > 0 && y > 0 && x < w && y < h &&
+    					newPos.dist(currentPos) <= DISTANCE+RADIUS_THRES &&
+    					newPos.dist(currentPos) >= DISTANCE-RADIUS_THRES &&
+    					nodes[x][y].type == Node.Type.WATER_SHALLOW &&
+    					prevPos.dist(newPos) > THRESHOLD_PREV) {
+	    		
+    				// follow only outer shallow waters
+    				if (nodes[x+tilesz.x][y].type == Node.Type.WATER_DEEP ||
+    						nodes[x][y+tilesz.x].type == Node.Type.WATER_DEEP ||
+		    				nodes[x-tilesz.x][y].type == Node.Type.WATER_DEEP ||
+		    				nodes[x][y-tilesz.x].type == Node.Type.WATER_DEEP) {
+    					
+    					return newPos;
+    				} 
+    			}
+    	    }
+    	}
+
+		return null;
+    }
+    
+    public Coord findClosestShoreTile(Coord currentPos) {
+    	Coord closest =  new Coord(0,0);
+    	
+    	for (int x = currentPos.x+PLAYER_SIZE; x < currentPos.x+PLAYER_SIZE+50*tilesz.x; x+=tilesz.x) {
+        	for (int y = currentPos.y+PLAYER_SIZE; y < currentPos.y+PLAYER_SIZE+50*tilesz.y; y+=tilesz.y) {
+        		
+        		if (x+1 < w && y+1 < h &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			
+        			if (new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+
+    	for (int x = currentPos.x+PLAYER_SIZE; x < currentPos.x+PLAYER_SIZE+50*tilesz.x; x+=tilesz.x) {
+        	for (int y = currentPos.y-PLAYER_SIZE; y > currentPos.y-PLAYER_SIZE+50*tilesz.y; y-=tilesz.y) {
+        		
+        		if (x+1 < w && y >= 0 &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			if (new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+    	
+    	for (int x = currentPos.x-PLAYER_SIZE; x > currentPos.x-PLAYER_SIZE-50*tilesz.x; x-=tilesz.x) {
+        	for (int y = currentPos.y+PLAYER_SIZE; y < currentPos.y+PLAYER_SIZE+50*tilesz.y; y+=tilesz.y) {
+        		
+        		if (x >= 0 && y+1 < h &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			if (new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+
+    	for (int x = currentPos.x-PLAYER_SIZE; x > currentPos.x-PLAYER_SIZE-50*tilesz.x; x-=tilesz.x) {
+        	for (int y = currentPos.y-PLAYER_SIZE; y > currentPos.y-PLAYER_SIZE-50*tilesz.x; y-=tilesz.y) {
+
+        		if (x >= 0 && y >= 0 &&
+    					nodes[x][y].type != Node.Type.WATER_DEEP &&
+    					nodes[x][y].type != Node.Type.WATER_SHALLOW &&
+    					nodes[x][y].type != Node.Type.BLOCK && 
+    					nodes[x][y].type != Node.Type.BLOCK_DYNAMIC) {
+        			if (new Coord(x, y).dist(currentPos) < closest.dist(currentPos))
+        				closest = new Coord(x, y);
+        		}
+        	}
+    	}
+    	
+    	return closest;
     }
 }
