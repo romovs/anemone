@@ -103,6 +103,8 @@ public class MaidUI extends UI {
 					onWidgetCreate(maid.getWidgetListener(), (Inventory) widgets.get(id));
 				} else if (maid.getWidgetListener() != null && "make".equals(type)) {
 					onWidgetCreate(maid.getWidgetListener(), (Makewindow) widgets.get(id));
+				} else if (maid.getWidgetListener() != null && "wnd".equals(type)) {
+					onWidgetCreate(maid.getWidgetListener(), (Window) widgets.get(id));
 				}
 			} catch (Throwable t) {
 				errorInEventProcessing(t);
@@ -250,8 +252,6 @@ public class MaidUI extends UI {
 	}
 
 	private void onWidgetCreate(WidgetListener<?> l, Widget wdg) {
-		System.out.println(wdg);
-
 		Class<?> c = l.getInterest();
 		if (c.isInstance(wdg)) {
 			l.onCreate(new WidgetEvent(WidgetEvent.Type.CREATE, wdg));

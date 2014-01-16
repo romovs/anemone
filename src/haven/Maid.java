@@ -549,6 +549,41 @@ public class Maid {
 		widgetListener = null;
 		packListener = null;
 	}
+	
+	public Window waitForWindow(final String title) throws InterruptedException {
+		final Window[] retval = new Window[1];
+		widgetListener = new WidgetListener<Window>() {
+
+			public Class<Window> getInterest() {
+				return Window.class;
+			}
+
+			@Override
+			public void onCreate(final WidgetEvent<Window> ew) {
+				packListener = new PackListener() {
+					@Override
+					public void onPackExecute(PackEvent ep) {
+						Window win = ew.getWidget();
+						if (win.cap.text.equals(title)) {
+							retval[0] = win;
+							wakeup();
+						}
+					}
+				};
+			}
+
+			@Override
+			public void onDestroy(WidgetEvent<Window> e) {
+			}
+		};
+
+		sleep();
+
+		widgetListener = null;
+		packListener = null;
+		
+		return retval[0];
+	}
 
 	public void doLogout() {
 		ui.close();
@@ -711,6 +746,14 @@ public class Maid {
 		}
 
 		return items.toArray(new Item[items.size()]);
+	}
+	public void doLight(Window win) {
+		for (Widget i = win.child; i != null; i = i.next) {
+			if (i instanceof Button && ((Button)i).text.text.equals("Light")) {
+				((Button)i).click();
+				break;
+			}
+		}
 	}
 
 	public String getName(Item i) {
