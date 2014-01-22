@@ -1030,12 +1030,12 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 	private void drawcombathighlight(GOut g) {
 		synchronized (glob.oc) {
 			for (Gob gob : glob.oc) {
-				if ((gob.isHuman() || gob.isBeast()) && gob.sc != null) {
+				if ((gob.isHuman() || gob.isBeast()) && gob.sc != null) {	
 					UI u = MaidFrame.getCurrentSession().getUI();
 					if (u != null && u.fview != null) {
 						for (Relation rel : u.fview.lsrel) {
-							if (rel.gobid == gob.id) {
-								if (u.fview.current.gobid == gob.id)
+							if (rel != null && rel.gobid == gob.id) {
+								if (u.fview.current != null && u.fview.current.gobid == gob.id)
 									g.chcolor(102, 0, 0, 200);
 								else 
 									g.chcolor(255, 102, 102, 200);
