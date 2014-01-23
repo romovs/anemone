@@ -1,7 +1,6 @@
 package haven.pathfinder;
 
 import haven.Coord;
-
 import java.util.*;
 
 
@@ -76,6 +75,9 @@ public class AStar implements PathFinder
                     }
                 }
             }
+            
+            if (open.size() == 0)
+            	break;
         }
         
         // if path has been found mark all the nodes within it

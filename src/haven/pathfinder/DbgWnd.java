@@ -26,7 +26,7 @@ public class DbgWnd extends JFrame
 	public void paint(Graphics g) {
 	    super.paint(g);
 
-	    //((Graphics2D)g).scale(0.8, 0.8);
+	  //  ((Graphics2D)g).scale(0.85, 0.85);
 
 	    Node src = null;
 	    Node dst = null;
@@ -46,7 +46,6 @@ public class DbgWnd extends JFrame
             		dst = cell;
             		g.setColor(Color.RED);
             	} else {
-            		g.setColor(Color.WHITE);
 	            	switch (map.nodes[j][i].type) {
 	            		case BLOCK_DYNAMIC:
 	            		case BLOCK: g.setColor(Color.BLACK); break;

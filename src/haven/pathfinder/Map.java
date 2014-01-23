@@ -20,7 +20,6 @@ public class Map
     public static final int NO_CLEARANCE = 1;
     private static final int VRANGE = 500;
     public static final int MAP_COFFSET_X = 300;
-    private Coord playerPos;
     private static Random rng = new Random();
     
 	public Map(int w, int h, int playerSize)
@@ -58,22 +57,24 @@ public class Map
     	}
     }
 	
-    public void initSceneBoat(MapView mv, Gob player, Coord dst, Gob[] gobs, String surroundingObj) {
+    public void initSceneBoat(MapView mv, Gob player, Coord dst, Gob[] gobs) {
 		// setup player current location
         Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
 		Coord playerCoord = player.getc().add(oc);
-		playerPos = player.getc();
+		Coord playerPos = player.getc();
 		
-		playerCoord.add(-12, 13); // boat fix
+		//playerCoord.add(-12, 13); // boat fix
 
 		playerCoord.x -= MAP_COFFSET_X;
+		
+		Coord dstScene = dst.add(oc).sub(MAP_COFFSET_X, 0);
+		
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
         initTiles(mv);
-        initGobes(mv, gobs, surroundingObj, dst);
-        initClearances(PLAYER_SIZE);
-        
+        initGobes(mv, gobs, playerPos, dst);
+
         // mark all non water tiles as blocked. FIXME: not efficient!
         for(int i=0;i<h;i++){
             for(int j=0;j<w;j++){
@@ -84,26 +85,28 @@ public class Map
             			   src.x-1 == j && src.y+1 == i ||
             			   src.x == j && src.y+1 == i ||
             			   src.x == j && src.y == i ||
-            			   dst.x == j && dst.y == i)) {
+            			   dstScene.x == j && dstScene.y == i)) {
             		   nodes[j][i].type = Node.Type.BLOCK;
             	   }
                }
             }
         }
+        
+        initClearances(PLAYER_SIZE);
     }
     
-    public void initScene(MapView mv, Gob player, Coord dst, Gob[] gobs, String surroundingObj) {
+    public void initScene(MapView mv, Gob player, Coord dst, Gob[] gobs) {
 		// setup player current location
         Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
 		Coord playerCoord = player.getc().add(oc);
-		playerPos = player.getc();
+		Coord playerPos = player.getc();
 		
 		playerCoord.x -= MAP_COFFSET_X;
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
         initTiles(mv);
-        initGobes(mv, gobs, surroundingObj, dst);
+        initGobes(mv, gobs, playerPos, dst);
         initClearances(PLAYER_SIZE);
     }
     
@@ -148,10 +151,12 @@ public class Map
 		}
     }
     
-    private void initGobes(MapView mv, Gob[] gobs, String surroundingObj, Coord dst) {
+    private void initGobes(MapView mv, Gob[] gobs, Coord playerPos, Coord dst) {
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
         
+		Coord playerCoord = playerPos.add(oc).add(-MAP_COFFSET_X, 0);
+		
     	for (Gob g : gobs) {
     	    Node.Type t = g.resolveObType(mv);
     	    
@@ -166,22 +171,24 @@ public class Map
             
         	if (t == Node.Type.NOT_IMPLEMENTED) {
         		System.out.format("[NEG] cc:%s   bs:%s   bc:%s   sz:%s\n", neg.cc.toString(), neg.bs.toString(), neg.bc.toString(), neg.sz.toString());
-        		System.out.format("[GOB] getc():%s   sc:%s     %s\n", g.getc(), g.sc.toString(), g.getres().name);
+        		System.out.format("[GOB] getc():%s   sc:%s     %s\n", g.getc(), g.sc != null ? g.sc.toString() : "null", g.getres() != null? g.getres().name : "res is null");
         		System.out.format("[HB] a:%s   c:%s\n", a, c); 
         	}
 
         	a.x -= MAP_COFFSET_X;
         	c.x -= MAP_COFFSET_X;
         	
-        	// so we don't block ourselfs with gear gobs, boats, etc.
-    		if (playerPos.equals(g.rc))
+        	// so we don't block ourself with gear gobs, boats, etc.
+    		if (playerPos.equals(g.rc) ||
+    				playerCoord.x <= c.x && playerCoord.x >= a.x &&
+    				playerCoord.y <= c.y && playerCoord.y >= a.y) // sometimes obj pos lags behind so it's not exactly same coord
     			continue;
         	
     		// make sure the destination is not blocked by gob hitbox
     		if (dst != null && dst.equals(g.rc)) {
     			continue;
     		}
-    		
+
         	if (a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
         			a.x >= 0 && a.y >= 0 && c.x >= 0 && c.y >= 0) {
         		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t);
@@ -454,7 +461,7 @@ public class Map
     	int DISTANCE = 15*tilesz.x;
     	int THRESHOLD_PREV = DISTANCE/2;
     	int RADIUS_THRES = 3;
-
+    	
     	for (int x = currentPos.x - DISTANCE ; x < currentPos.x + DISTANCE; x++) {
     	    for (int y = currentPos.y - DISTANCE ; y < currentPos.y + DISTANCE; y++) {
     	    	

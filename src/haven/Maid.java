@@ -14,8 +14,6 @@ import haven.pathfinder.PathFinder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -503,10 +501,26 @@ public class Maid {
 	// Wait for player to stop moving
 	public void waitForMoveStop() throws InterruptedException {
 		final Gob gob = getPlayer();
+		gob.movementListener = new MovementAdapter() {
+			@Override
+			public void onMovementStop(MovementEvent taskEvent) {
+				wakeup();
+			}
+		};
+		
+		sleep();
+
+		gob.movementListener = null;
+	}
+	
+	
+	// Wait for player to stop moving
+	public void waitForMoveStop(int delay, int interval) throws InterruptedException {
+		final Gob gob = getPlayer();
 		
 		// since event sometime is set out of order
-		// check position every once in a while
-		// and wakeup if too long in same position 
+		// check position at the specified intervals
+		// and wakeup if too long in same position
 		final Coord prevPos[] = new Coord[1];
 		final Timer timer = new Timer();
 	    prevPos[0] = gob.getc();
@@ -520,7 +534,7 @@ public class Maid {
 				  else
 					  prevPos[0] = gob.getc();
 			  }
-			}, 200, 200);
+			}, delay, interval);
 
 		gob.movementListener = new MovementAdapter() {
 			@Override
@@ -613,8 +627,7 @@ public class Maid {
 	}
 
 	public Coord getScreenCenter() {
-		Coord sc = new Coord((int) Math.round(Math.random() * 200 + ui.mainview.sz.x / 2 - 100), (int) Math.round(Math.random() * 200
-				+ ui.mainview.sz.y / 2 - 100));
+		Coord sc = new Coord((int) Math.round(ui.mainview.sz.x / 2), (int) Math.round(ui.mainview.sz.y / 2));
 		return sc;
 	}
 
@@ -1143,7 +1156,7 @@ public class Maid {
 		MapView mv = getWidget(MapView.class);
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc);
-		return c.add(oc).add(-Map.MAP_COFFSET_X, 0);
+		return c.add(oc).sub(Map.MAP_COFFSET_X, 0);
 	}
 	
 	private Coord fromSceneCoord(Coord c) {
@@ -1153,28 +1166,29 @@ public class Maid {
 		return c.sub(oc).add(Map.MAP_COFFSET_X, 0);
 	}
 	
-	
-	public void pathFindBoat(Coord dst, String surroundingObj) {
+	public boolean pathFindBoat(Coord dst, boolean dbg) {
 		Gob player = getPlayer();
 		if (dst.equals(player.getc()))
-			return;
+			return false;
 
-		Map scene = getScene(26*2);
+		Map scene = getScene(26);
 
 		MapView mv = getWidget(MapView.class);
 
 		long start = DbgUtils.getCpuTime();
-		scene.initSceneBoat(mv, player, dst, doAreaList(50.0d), surroundingObj);
+		scene.initSceneBoat(mv, player, dst, doAreaList(50.0d));
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
 		PathFinder finder = new AStar();
 
-		if (dbgWin == null) {
-			dbgWin = new DbgWnd(scene, 1000, 1000);
-			dbgWin.setVisible(true);
-		} else {
-			dbgWin.setScene(scene);
+		if (dbg) {
+			if (dbgWin == null) {
+				dbgWin = new DbgWnd(scene, 1000, 1000);
+				dbgWin.setVisible(true);
+			} else {
+				dbgWin.setScene(scene);
+			}
 		}
 
 		Coord dstAdjusted = toSceneCoord(dst);
@@ -1185,53 +1199,68 @@ public class Maid {
 		if (dstAdjusted.x > scene.w || dstAdjusted.y > scene.h ||
 				dstAdjusted.x < 1 || dstAdjusted.y < 1) {
 			System.err.println("!!!Destination is out of bounds!!!");
-			return;
+			return false;
 		}
 		
 		start = DbgUtils.getCpuTime();
 		List<Node> path = finder.find(scene, dstAdjusted, true);
 		end = DbgUtils.getCpuTime();
 		System.out.format("Finder Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
-
+		
+		if (dbg)
+			dbgWin.repaint();
+		
 		if (path == null) {
 			System.out.println("!!!No path!!!");
-			return;
+			return false;
 		}
-		for (Node n : path) {
-			doLeftClick(fromSceneCoord(new Coord(n.x, n.y)));
+
+		// should be calculated before starting moving
+		List<Coord> realCoord = new ArrayList<Coord>();
+		for (int i = 1; i < path.size(); i++) {
+			Node n = path.get(i);
+			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
+		}
+
+		for (int i = 0; i < realCoord.size(); i++) {
+			System.out.println("- pfboat click coord: " + realCoord.get(i));
+			doLeftClick(realCoord.get(i));
 			try {
-				System.out.println("- pf waiting for stop");
 				waitForMoveStop();
-				System.out.println("- pf stopped");
+				System.out.println("- pf stopped at: " + getCoord());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		return true;
 	}
 	
-	public void pathFind(Coord dst, int playerSize, String surroundingObj) {
+	public boolean pathFind(Coord dst, int playerSize, boolean dbg) {
 		Gob player = getPlayer();
 		if (dst.equals(player.getc()))
-			return;
+			return false;
 		
 		Map scene = getScene(playerSize);
 
 		MapView mv = getWidget(MapView.class);
 
 		long start = DbgUtils.getCpuTime();
-		scene.initScene(mv, player, dst, doAreaList(50.0d), surroundingObj);
+		scene.initScene(mv, player, dst, doAreaList(50.0d));
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
 		PathFinder finder = new AStar();
 
-		if (dbgWin == null) {
-			dbgWin = new DbgWnd(scene, 1000, 1000);
-			dbgWin.setVisible(true);
-		} else {
-			dbgWin.setScene(scene);
+		if (dbg) {
+			if (dbgWin == null) {
+				dbgWin = new DbgWnd(scene, 1000, 1000);
+				dbgWin.setVisible(true);
+			} else {
+				dbgWin.setScene(scene);
+			}
 		}
-
+		
 		Coord dstAdjusted = toSceneCoord(dst);
 		
 		System.out.println("SRC: " + toSceneCoord(player.getc()));
@@ -1240,22 +1269,34 @@ public class Maid {
 		if (dstAdjusted.x > scene.w || dstAdjusted.y > scene.h ||
 				dstAdjusted.x < 1 || dstAdjusted.y < 1) {
 			System.err.println("!!!Destination is out of bounds!!!");
-			return;
+			return false;
 		}
 
 		start = DbgUtils.getCpuTime();
 		List<Node> path = finder.find(scene, dstAdjusted, true);
 		end = DbgUtils.getCpuTime();
 		System.out.format("Finder Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
-
+		
+		if (dbg)
+			dbgWin.repaint();
+		
 		if (path == null) {
 			System.out.println("!!!No path!!!");
-			return;
+			return false;
 		}
-		for (Node n : path) {
-			doLeftClick(fromSceneCoord(new Coord(n.x, n.y)));
+		
+		
+		// should be calculated before starting moving
+		List<Coord> realCoord = new ArrayList<Coord>();
+		for (int i = 1; i < path.size(); i++) {
+			Node n = path.get(i);
+			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
+		}
+
+		for (int i = 0; i < realCoord.size(); i++) {
+			System.out.println("- pf click coord: " + realCoord.get(i));
+			doLeftClick(realCoord.get(i));
 			try {
-				System.out.println("- pf waiting for stop");
 				waitForMoveStop();
 				System.out.println("- pf stopped");
 			} catch (InterruptedException e) {
@@ -1263,29 +1304,32 @@ public class Maid {
 				e.printStackTrace();
 			}
 		}
+		return true;
 	}
 	
-	public void pathFindRightClick(Coord dst, int playerSize, String surroundingObj) {
+	public boolean pathFindRightClick(Coord dst, int playerSize, boolean dbg) {
 		Gob player = getPlayer();
 		if (dst.equals(player.getc()))
-			return;
+			return false;
 		
 		Map scene = getScene(playerSize);
 
 		MapView mv = getWidget(MapView.class);
 
 		long start = DbgUtils.getCpuTime();
-		scene.initScene(mv, player, dst, doAreaList(50.0d), surroundingObj);
+		scene.initScene(mv, player, dst, doAreaList(50.0d));
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
 		PathFinder finder = new AStar();
 
-		if (dbgWin == null) {
-			dbgWin = new DbgWnd(scene, 1000, 1000);
-			dbgWin.setVisible(true);
-		} else {
-			dbgWin.setScene(scene);
+		if (dbg) {
+			if (dbgWin == null) {
+				dbgWin = new DbgWnd(scene, 1000, 1000);
+				dbgWin.setVisible(true);
+			} else {
+				dbgWin.setScene(scene);
+			}
 		}
 
 		Coord dstAdjusted = toSceneCoord(dst);
@@ -1297,7 +1341,7 @@ public class Maid {
 				dstAdjusted.x < 1 || dstAdjusted.y < 1)
 		{
 			System.err.println("!!!Destination is out of bounds!!!");
-			return;
+			return false;
 		}
 		
 		start = DbgUtils.getCpuTime();
@@ -1305,34 +1349,47 @@ public class Maid {
 		end = DbgUtils.getCpuTime();
 		System.out.format("Finder Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
+		if (dbg)
+			dbgWin.repaint();
+		
 		if (path == null) {
 			System.err.println("!!!No path!!!");
-			return;
+			return false;
 		}
 		
-		for (int i = 0; i < path.size(); i++) {
+		// should be calculated before starting moving
+		List<Coord> realCoord = new ArrayList<Coord>();
+		for (int i = 1; i < path.size(); i++) {
 			Node n = path.get(i);
-			
-			if (i == path.size()-1) 
-				doRightClick(fromSceneCoord(new Coord(n.x, n.y)));
-			else 
-				doLeftClick(fromSceneCoord(new Coord(n.x, n.y)));
+			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
+		}
+
+		for (int i = 0; i < realCoord.size(); i++) {
+			if (i == realCoord.size()-1) {
+				doRightClick(realCoord.get(i));
+				System.out.println("- pf right click coord: " + realCoord.get(i));
+			} else {
+				doLeftClick(realCoord.get(i));
+				System.out.println("- pf click coord: " + realCoord.get(i));
+			}
 			
 			try {
 				System.out.println("- pf waiting for stop");
-				waitForMoveStop();
+				waitForMoveStop(1000, 1000);
 				System.out.println("- pf stopped");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		return true;
 	}
 	
-	public Coord findEmptyGroundTile(int objSize, String surroundingObj) {
+	public Coord findEmptyGroundTile(int objSize) {
 		Gob player = getPlayer();
 		Map scene = getScene(4);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d), surroundingObj);
+		scene.initScene(mv, player, null, doAreaList(50.0d));
 		Coord tile = scene.findEmptyGroundTile(toSceneCoord(player.getc()), objSize);
 		return (tile != null) ? fromSceneCoord(tile) : null;
 	}
@@ -1342,7 +1399,7 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d), null);
+		scene.initScene(mv, player, null, doAreaList(50.0d));
 		Coord wt = scene.findRandomWaterTile(toSceneCoord(player.getc()));
 		return (wt != null) ? fromSceneCoord(wt) : null;
 	}
@@ -1351,16 +1408,16 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d), null);
+		scene.initScene(mv, player, null, doAreaList(50.0d));
 		Coord st = scene.findNextShallowTile(toSceneCoord(currentPos), toSceneCoord(prevPos));
 		return (st != null) ? fromSceneCoord(st) : null;
 	}
 	
-	public Coord findShore(String surroundingObj) {
+	public Coord findShore() {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d), surroundingObj);
+		scene.initScene(mv, player, null, doAreaList(50.0d));
 		Coord shore = scene.findClosestShoreTile(toSceneCoord(player.getc()));
 		return (shore != null) ? fromSceneCoord(shore) : null;
 	}
