@@ -138,7 +138,9 @@ public class Map
 		        	if (tileType == Node.Type.NOT_IMPLEMENTED) {
 		        		System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
 		        	}
-					createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
+		        	
+		        	if (tileType != Node.Type.IGNORE)
+		        		createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
 			    }
 		    }
 		}
@@ -178,8 +180,8 @@ public class Map
     		if (dst != null && dst.equals(g.getc())) {
     			continue;
     		}
-
-        	if (a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
+        	if (t != Node.Type.IGNORE &&
+        			a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
         			a.x >= 0 && a.y >= 0 && c.x >= 0 && c.y >= 0) {
         		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t);
         	}

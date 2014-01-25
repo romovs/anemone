@@ -17,8 +17,8 @@ public class Node
     	SAND(3),
     	BLOCK(Integer.MAX_VALUE),
     	BLOCK_DYNAMIC(Integer.MAX_VALUE),
-    	NOT_IMPLEMENTED(3);
-    	
+    	NOT_IMPLEMENTED(3),
+    	IGNORE(3);
     	private final int w;
 	    Type(int w) { this.w = w; }
 	    public int getValue() { return w; }
