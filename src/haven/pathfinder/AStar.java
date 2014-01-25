@@ -46,7 +46,7 @@ public class AStar implements PathFinder
                 now = (Node)open.get(i);
                 if(!closed.contains(now)) {
                 	double f = now.distFromSrc() + distChebyshev(now.x, now.y, dst.x, dst.y, mode);
-                    if(f < min) {
+                	if(f < min) {
                         min = f;
                         best = now;
                     }
@@ -91,7 +91,9 @@ public class AStar implements PathFinder
                 cur = cur.parent;
                 cur.setPartOfPath(true);
             } 
-            return simplifyAndReverse(path);
+            List<Node> simplified = simplifyAndReverse(path);
+            List<Node> smoothed = smooth(simplified, map);
+            return smoothed;
         }
         
         return null;
@@ -141,6 +143,79 @@ public class AStar implements PathFinder
     	}
     	simplified.add(prev);
     	return simplified;
+    }
+    
+    
+    private List<Node> smooth(List<Node> path, Map map) {
+    	List<Node> smoothed = new ArrayList<Node>(path);
+    	
+    	Node checkPoint = path.get(0);
+    	Node currentPoint = path.get(1);
+
+    	for (int i = 2; i < path.size(); i++) {
+    		Node nxt = path.get(i);
+        	if (isTraversable(map, checkPoint.x, checkPoint.y, nxt.x, nxt.y)) {
+        		smoothed.remove(currentPoint);
+        		currentPoint = nxt;
+        	} else {
+        		if (i+1 == path.size())
+        			break;
+        		
+        		checkPoint = currentPoint;
+        		currentPoint = path.get(i+1);
+        		i++;
+        	}
+    	}
+    	
+    	return smoothed;	
+    }
+    
+    private boolean isTraversable(Map map, int ax, int ay, int bx, int by) {
+    	List<Node> line = bresenhamLine(map, ax, ay, bx, by);
+
+    	for (Node n : line) {
+    		if (n.type == Node.Type.BLOCK || n.type == Node.Type.BLOCK_DYNAMIC ||
+    				n.clearance < map.playerSize)
+    			return false;
+    	}
+    	
+    	return true;
+    }
+    
+    public List<Node> bresenhamLine(Map map, int ax, int ay, int bx, int by) {
+        List<Node> line = new ArrayList<Node>();
+        
+        int dx = Math.abs(bx - ax);
+        int dy = Math.abs(by - ay);
+        
+        int sx = ax < bx ? 1 : -1;
+        int sy = ay < by ? 1 : -1;
+        
+        int err = dx-dy;
+        int e2;
+        int curX = ax;
+        int curY = ay;
+        
+        while(true) {
+                line.add(map.nodes[curX][curY]);
+                
+                if(curX == bx && curY == by) {
+                        break;
+                }
+                
+                e2 = 2*err;
+                if(e2 > -1 * dy) {
+                        err = err - dy;
+                        curX = curX + sx;
+                }
+                
+                if(e2 < dx) {
+                        err = err + dx;
+                        curY = curY + sy;
+                }
+        }
+                        
+        return line;
     }
     
     public int distManhattan(int ax, int ay, int bx, int by, int d) {
