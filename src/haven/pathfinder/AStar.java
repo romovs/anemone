@@ -151,6 +151,16 @@ public class AStar implements PathFinder
         return d * Math.max(Math.abs(ax - bx), Math.abs(ay - by));
     }
     
+    // should be added to H function
+    public int preferStraightLines(int sx, int sy, int curx, int cury, int dx, int dy) {
+    	int dx1 = curx - dx;
+    	int dy1 = cury - dy;
+    	int dx2 = sx - dx;
+    	int dy2 = sy - dy;
+    	int cross = Math.abs(dx1*dy2 - dx2*dy1);
+    	return (int) (cross*0.001);
+    }
+    
     // non-diagonal step is x2 over diagonal
     // http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
     public int distLowerDiagonal(int ax, int ay, int bx, int by, int d, int d2) {
