@@ -186,8 +186,8 @@ public class Map
         		
         		// NOTE: since we calculate clearances by expanding East-South
         		// we need to account for upper and left player hitbox bounds
-        		int width = c.x-a.x+playerBounds > w ? w : c.x-a.x+playerBounds;
-        		int height = c.y-a.y+playerBounds > h ? h : c.y-a.y+playerBounds;
+        		int width = c.x+playerBounds >= w ? w-a.x : c.x-a.x+playerBounds;
+        		int height = c.y+playerBounds >= h ? h-a.y : c.y-a.y+playerBounds;
         		createNodesFromHitbox(a.x, a.y, width, height, t);
         	}
     	}
