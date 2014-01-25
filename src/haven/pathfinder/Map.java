@@ -183,7 +183,12 @@ public class Map
         	if (t != Node.Type.IGNORE &&
         			a.x + (c.x-a.x) < w && a.y + (c.y-a.y) < h &&
         			a.x >= 0 && a.y >= 0 && c.x >= 0 && c.y >= 0) {
-        		createNodesFromHitbox(a.x, a.y, c.x-a.x, c.y-a.y, t);
+        		
+        		// NOTE: since we calculate clearances by expanding East-South
+        		// we need to account for upper and left player hitbox bounds
+        		int width = c.x-a.x+playerBounds > w ? w : c.x-a.x+playerBounds;
+        		int height = c.y-a.y+playerBounds > h ? h : c.y-a.y+playerBounds;
+        		createNodesFromHitbox(a.x, a.y, width, height, t);
         	}
     	}
     }  
