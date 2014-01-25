@@ -147,8 +147,11 @@ public class AStar implements PathFinder
     
     
     private List<Node> smooth(List<Node> path, Map map) {
+    	if (path.size() < 2) 
+    		return path;
+
     	List<Node> smoothed = new ArrayList<Node>(path);
-    	
+
     	Node checkPoint = path.get(0);
     	Node currentPoint = path.get(1);
 
