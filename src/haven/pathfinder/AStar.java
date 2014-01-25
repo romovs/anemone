@@ -178,7 +178,7 @@ public class AStar implements PathFinder
 
     	for (Node n : line) {
     		if (n.type == Node.Type.BLOCK || n.type == Node.Type.BLOCK_DYNAMIC ||
-    				n.clearance < map.playerSize)
+    				n.clearance < map.playerBounds)
     			return false;
     	}
     	
