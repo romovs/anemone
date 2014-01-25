@@ -16,7 +16,8 @@ public class Map
     public int h;
     public int minWeight = Integer.MAX_VALUE;
     public Node nodes[][];
-    public int playerSize = 4;  //boat 26, player 4
+    public int playerSize;  //boat 26, player 4
+    public int playerBounds; 
     public static final int NO_CLEARANCE = 1;
     private static final int VRANGE = 500;
     public static final int MAP_COFFSET_X = 300;
@@ -29,6 +30,7 @@ public class Map
 		this.w = w;
 		this.h = h;
 		this.playerSize = playerSize;
+		this.playerBounds = playerSize/2+1; // not precise...
 
 		nodes = new Node[w][h];
 
@@ -85,7 +87,7 @@ public class Map
             }
         }
         
-        initClearances(playerSize);
+        initClearances();
     }
     
     public void initScene(MapView mv, Gob player, Coord dst, Gob[] gobs) {
@@ -98,7 +100,7 @@ public class Map
         
         initTiles(mv);
         initGobes(mv, gobs, player, dst);
-        initClearances(playerSize);
+        initClearances();
     }
     
     private void initTiles(MapView mv) {
@@ -184,21 +186,21 @@ public class Map
     	}
     }  
     
-    // Initialize clearance values for an object of size 'size' (player = 4).
-    // Final node clearance will be either NO_CLEARANCE or 'size'. 
+    // Initialize clearance values for an object with bound playerBounds (player = 4/2+1, boat = 26/2+1).
+    // Final node clearance will be either NO_CLEARANCE or 'playerBounds'. 
     //
-    // NOTE: Nodes with clearance=NO_CLEARANCE could be actually traversed by objects of size < 'size'
+    // NOTE: Nodes with clearance=NO_CLEARANCE could be actually traversed by objects of size < 'playerBounds'
     //       hence, the clearance values need to be recomputed each time for objects of different size.
-    private void initClearances(int size) {
+    private void initClearances() {
     	for (int x = w - 1; x >= 0; x--) {
     		for (int y = h - 1; y >= 0; y--) {
-    			
-    			if (x+size >= w || y+size >= h) {
+
+    			if (x+playerBounds >= w || y+playerBounds >= h) {
     				nodes[x][y].clearance = 1;	
     			} else {    				
     				boolean allClear = true;
 
-    				for (int i = 0; i < size; i++) {
+    				for (int i = 0; i < playerBounds; i++) {
     	    			if (nodes[x+i][y].type == Node.Type.BLOCK || nodes[x+i][y].type == Node.Type.BLOCK_DYNAMIC ||
     	    	    			nodes[x][y+i].type == Node.Type.BLOCK || nodes[x][y+i].type == Node.Type.BLOCK_DYNAMIC ||
     	    	    			nodes[x+i][y+i].type == Node.Type.BLOCK || nodes[x+i][y+i].type == Node.Type.BLOCK_DYNAMIC) {
@@ -207,7 +209,7 @@ public class Map
     	    			}    					
     				}
     		
-    				nodes[x][y].clearance = allClear?size:NO_CLEARANCE;
+    				nodes[x][y].clearance = allClear ? playerBounds : NO_CLEARANCE;
     			}
     		}
     	}

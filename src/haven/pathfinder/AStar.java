@@ -63,7 +63,7 @@ public class AStar implements PathFinder
             	Node nxt = next[i];
                 if(nxt != null) {
                     if(nxt.type != Node.Type.BLOCK && nxt.type != Node.Type.BLOCK_DYNAMIC &&
-                    		nxt.clearance > Map.NO_CLEARANCE) {
+                    		nxt.clearance >= map.playerBounds) {
                         nxt.addToPathFromSrc(now.distFromSrc()); 
                         nxt.pathTraversed = true;
                         if(!open.contains(nxt) && !closed.contains(nxt))
