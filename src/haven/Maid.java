@@ -1217,10 +1217,13 @@ public class Maid {
 
 		// should be calculated before starting moving
 		List<Coord> realCoord = new ArrayList<Coord>();
-		for (int i = 1; i < path.size(); i++) {
+		for (int i = 0; i < path.size(); i++) {
 			Node n = path.get(i);
 			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
 		}
+		
+		if (realCoord.get(0).x == player.getc().x && realCoord.get(0).y == player.getc().y)
+			realCoord.remove(0);
 
 		for (int i = 0; i < realCoord.size(); i++) {
 			System.out.println("- pfboat click coord: " + realCoord.get(i));
@@ -1288,7 +1291,7 @@ public class Maid {
 		
 		// should be calculated before starting moving
 		List<Coord> realCoord = new ArrayList<Coord>();
-		for (int i = 1; i < path.size(); i++) {
+		for (int i = 0; i < path.size(); i++) {
 			Node n = path.get(i);
 			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
 		}
@@ -1359,7 +1362,7 @@ public class Maid {
 		
 		// should be calculated before starting moving
 		List<Coord> realCoord = new ArrayList<Coord>();
-		for (int i = 1; i < path.size(); i++) {
+		for (int i = 0; i < path.size(); i++) {
 			Node n = path.get(i);
 			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
 		}
