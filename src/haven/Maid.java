@@ -791,6 +791,17 @@ public class Maid {
 		return items.toArray(new Img[items.size()]);
 	}
 	
+	public List<VMeter> getVMeters(Window win) {
+		List<VMeter> vms = new ArrayList<VMeter>(2);
+		for (Widget i = win.child; i != null; i = i.next) {
+			if (i instanceof VMeter) {
+				vms.add((VMeter) i);
+			}
+		}
+
+		return vms;
+	}
+	
 	public void doLight(Window win) {
 		for (Widget i = win.child; i != null; i = i.next) {
 			if (i instanceof Button && ((Button)i).text.text.equals("Light")) {

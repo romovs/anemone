@@ -69,4 +69,8 @@ public class VMeter extends Widget {
 			super.uimsg(msg, args);
 		}
 	}
+	
+	public int getAmount() {
+		return amount;
+	}
 }
