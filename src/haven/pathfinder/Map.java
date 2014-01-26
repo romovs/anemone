@@ -463,7 +463,35 @@ public class Map
     // find a shallow tile at the defined DISTANCE.
     public Coord findNextShallowTile(Coord currentPos, Coord prevPos) {
     	int DISTANCE = 10*tilesz.x;
-    	int RADIUS_THRES = 4;
+
+    	// ugly fix for avoiding getting stuck at small islands inside a lake
+    	int range = (3 - 1) + 1;    // [1,3] 
+    	DISTANCE += ((int)(Math.random() * range) + 1)*tilesz.x;
+
+    	int cornerX = currentPos.x-DISTANCE;	
+    	int cornerY = currentPos.y-DISTANCE;
+
+    	for (int i = 0; i <= DISTANCE*2; i+=tilesz.x) {
+    		// x top
+    		Coord tilePos = nextShallowTileCheck(DISTANCE, currentPos, prevPos, cornerX+i, currentPos.y-DISTANCE);
+    		if (tilePos != null)
+    			return tilePos;
+    		// x bottom
+    		tilePos = nextShallowTileCheck(DISTANCE, currentPos, prevPos, cornerX+i, currentPos.y+DISTANCE);
+    		if (tilePos != null)
+    			return tilePos;
+    		// y left
+    		tilePos = nextShallowTileCheck(DISTANCE, currentPos, prevPos, currentPos.x-DISTANCE, cornerY+i);
+    		if (tilePos != null)
+    			return tilePos;
+    		// y right
+    		tilePos = nextShallowTileCheck(DISTANCE, currentPos, prevPos, currentPos.x+DISTANCE, cornerY+i);
+    		if (tilePos != null)
+    			return tilePos;
+    	}
+
+		return null;
+    }
     	
     	for (int x = currentPos.x - DISTANCE ; x < currentPos.x + DISTANCE; x++) {
     	    for (int y = currentPos.y - DISTANCE ; y < currentPos.y + DISTANCE; y++) {
@@ -487,7 +515,22 @@ public class Map
     			}
     	    }
     	}
+    private Coord nextShallowTileCheck(int distance, Coord currentPos, Coord prevPos, int x, int y) {
+		Coord newPos = new Coord(x, y);
 
+		if (x-tilesz.x > 0 && y-tilesz.x > 0 && x+tilesz.x < w && y+tilesz.x < h &&
+				nodes[x][y].type == Node.Type.WATER_SHALLOW &&
+				newPos.dist(prevPos) >= newPos.dist(currentPos)) {
+		
+			// follow only outer shallow waters
+			if (nodes[x+tilesz.x][y].type == Node.Type.WATER_DEEP ||
+					nodes[x][y+tilesz.x].type == Node.Type.WATER_DEEP ||
+    				nodes[x-tilesz.x][y].type == Node.Type.WATER_DEEP ||
+    				nodes[x][y-tilesz.x].type == Node.Type.WATER_DEEP) {
+				return newPos;
+			} 
+		}
+		
 		return null;
     }
     
