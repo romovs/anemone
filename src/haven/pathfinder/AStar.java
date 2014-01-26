@@ -62,8 +62,11 @@ public class AStar implements PathFinder
             for(int i = 0; i < 8; i++){
             	Node nxt = next[i];
                 if(nxt != null) {
+                	
+                	// NOTE: since when on boat actual clearance against tiles is lower
+                	// than against gobs, we just need to check char (4x4) clearance
                     if(nxt.type != Node.Type.BLOCK && nxt.type != Node.Type.BLOCK_DYNAMIC &&
-                    		nxt.clearance >= map.playerBounds) {
+                    		nxt.clearance >= (nxt.isTile ? 4/2 : map.playerBounds)) {
                         nxt.addToPathFromSrc(now.distFromSrc()); 
                         nxt.pathTraversed = true;
                         if(!open.contains(nxt) && !closed.contains(nxt))

@@ -36,6 +36,7 @@ public class Node
 
     private boolean partOfPath = false;
     public boolean pathTraversed = false;
+    public boolean isTile = true;
 
 
     public Node() {

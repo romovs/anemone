@@ -18,7 +18,6 @@ public class Map
     public Node nodes[][];
     public int playerSize;  //boat 26, player 4
     public int playerBounds; 
-    public static final int NO_CLEARANCE = 1;
     private static final int VRANGE = 500;
     public static final int MAP_COFFSET_X = 300;
     private static Random rng = new Random();
@@ -30,7 +29,7 @@ public class Map
 		this.w = w;
 		this.h = h;
 		this.playerSize = playerSize;
-		this.playerBounds = playerSize/2+1; // not precise...
+		this.playerBounds = playerSize/2; // not precise...
 
 		nodes = new Node[w][h];
 
@@ -41,20 +40,21 @@ public class Map
         }
     }
 	
-	private void setNode(int x, int y, Node.Type type) 
+	private void setNode(int x, int y, Node.Type type, boolean isTile) 
 	{
 		nodes[x][y].type = type;
+		nodes[x][y].isTile = isTile;
 
 		if (type.getValue() < minWeight)
 			minWeight = type.getValue();
 	}
     
 	// each pixel considered as a single node
-    public void createNodesFromHitbox(int x, int y, int width, int height, Node.Type type) {
+    public void createNodesFromHitbox(int x, int y, int width, int height, Node.Type type, boolean isTile) {
     	for (int i = x; i < x+width; i++) {
 	        for (int j = y; j < y+height; j++) {   	
 	        	if (nodes[i][j].type != Node.Type.BLOCK && nodes[i][j].type != Node.Type.BLOCK_DYNAMIC)
-	        		setNode(i, j, type);
+	        		setNode(i, j, type, isTile);
 	        }
     	}
     }
@@ -70,7 +70,7 @@ public class Map
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
-        initTiles(mv);
+        initTiles(mv, true);
         initGobes(mv, gobs, player, dst);
 
         // mark all non water tiles as blocked. FIXME: not efficient!
@@ -98,12 +98,12 @@ public class Map
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
-        initTiles(mv);
+        initTiles(mv, false);
         initGobes(mv, gobs, player, dst);
         initClearances();
     }
     
-    private void initTiles(MapView mv) {
+    private void initTiles(MapView mv, boolean waterFix) {
 		Coord frameSz = MainFrame.getInnerSize();
 		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
 		
@@ -139,8 +139,15 @@ public class Map
 		        		System.out.format("TILE: %s   %s  XxY:%sx%s   ctc:%s   sc:%s\n", groundTile.getOuter().name, tileType, x, y, ctc, sc);
 		        	}
 		        	
-		        	if (tileType != Node.Type.IGNORE)
-		        		createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, tileType);
+		        	if (tileType != Node.Type.IGNORE) {
+		        		int width = tilesz.x;
+		        		int height = tilesz.x;
+		        		if (waterFix) { //FIXME: probably can be removed now...
+		        			width += tilesz.x+2 > w ? 0 : 2;
+		        			height += tilesz.x+2 > h ? 0 : 2;
+		        		}
+		        		createNodesFromHitbox(sc.x, sc.y, width, height, tileType, true);
+		        	}
 			    }
 		    }
 		}
@@ -186,9 +193,9 @@ public class Map
         		
         		// NOTE: since we calculate clearances by expanding East-South
         		// we need to account for upper and left player hitbox bounds
-        		int width = c.x+playerBounds >= w ? w-a.x : c.x-a.x+playerBounds;
-        		int height = c.y+playerBounds >= h ? h-a.y : c.y-a.y+playerBounds;
-        		createNodesFromHitbox(a.x, a.y, width, height, t);
+        		int width = c.x+playerBounds+1 >= w ? w-a.x : c.x-a.x+playerBounds+1;
+        		int height = c.y+playerBounds+1 >= h ? h-a.y : c.y-a.y+playerBounds+1;
+        		createNodesFromHitbox(a.x, a.y, width, height, t, false);
         	}
     	}
     }  
@@ -206,8 +213,8 @@ public class Map
     				nodes[x][y].clearance = 1;	
     			} else {    				
     				boolean allClear = true;
-
-    				for (int i = 0; i < playerBounds; i++) {
+    				int i;
+    				for (i = 0; i < playerBounds; i++) {
     	    			if (nodes[x+i][y].type == Node.Type.BLOCK || nodes[x+i][y].type == Node.Type.BLOCK_DYNAMIC ||
     	    	    			nodes[x][y+i].type == Node.Type.BLOCK || nodes[x][y+i].type == Node.Type.BLOCK_DYNAMIC ||
     	    	    			nodes[x+i][y+i].type == Node.Type.BLOCK || nodes[x+i][y+i].type == Node.Type.BLOCK_DYNAMIC) {
@@ -216,7 +223,7 @@ public class Map
     	    			}    					
     				}
     		
-    				nodes[x][y].clearance = allClear ? playerBounds : NO_CLEARANCE;
+    				nodes[x][y].clearance = allClear ? playerBounds : i-1;
     			}
     		}
     	}
