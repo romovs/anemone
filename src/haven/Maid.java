@@ -1416,6 +1416,16 @@ public class Maid {
 		return (st != null) ? fromSceneCoord(st) : null;
 	}
 	
+	public Coord findClosesWaterFromShore(Coord currentPos)  {
+		Gob player = getPlayer();
+		Map scene = getScene(26);
+		MapView mv = getWidget(MapView.class);
+		scene.initScene(mv, player, null, doAreaList(50.0d));
+		Coord st = scene.findClosesWaterFromShore(toSceneCoord(currentPos));
+		return (st != null) ? fromSceneCoord(st) : null;
+	}
+	
+	
 	public Coord findShore() {
 		Gob player = getPlayer();
 		Map scene = getScene(26);

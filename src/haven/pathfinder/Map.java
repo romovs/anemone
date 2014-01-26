@@ -492,29 +492,52 @@ public class Map
 
 		return null;
     }
+    
+    
+    public Coord findClosesWaterFromShore(Coord currentPos) {
     	
-    	for (int x = currentPos.x - DISTANCE ; x < currentPos.x + DISTANCE; x++) {
-    	    for (int y = currentPos.y - DISTANCE ; y < currentPos.y + DISTANCE; y++) {
-    	    	
-    			Coord newPos = new Coord(x, y);
-    			double newPosDistFromCur = newPos.dist(currentPos);
-    			if (x-tilesz.x > 0 && y-tilesz.x > 0 && x+tilesz.x < w && y+tilesz.x < h &&
-    					newPosDistFromCur <= DISTANCE+RADIUS_THRES &&
-    					newPosDistFromCur >= DISTANCE-RADIUS_THRES &&
-    					nodes[x][y].type == Node.Type.WATER_SHALLOW &&
-    					newPos.dist(prevPos) >= newPosDistFromCur) {
-	    		
-    				// follow only outer shallow waters
-    				if (nodes[x+tilesz.x][y].type == Node.Type.WATER_DEEP ||
-    						nodes[x][y+tilesz.x].type == Node.Type.WATER_DEEP ||
-		    				nodes[x-tilesz.x][y].type == Node.Type.WATER_DEEP ||
-		    				nodes[x][y-tilesz.x].type == Node.Type.WATER_DEEP) {
-    					
-    					return newPos;
-    				} 
-    			}
-    	    }
+    	for (int DISTANCE = tilesz.x; DISTANCE < tilesz.x*10; DISTANCE+=tilesz.x) {
+    		
+        	int cornerX = currentPos.x-DISTANCE;	
+        	int cornerY = currentPos.y-DISTANCE;
+    		
+	    	for (int i = 0; i <= DISTANCE*2; i+=tilesz.x) {
+	    		// x top
+	    		if (isWaterTileCloseToShore(cornerX+i, currentPos.y-DISTANCE))
+	    			return new Coord(cornerX+i, currentPos.y-DISTANCE);
+	    		// x bottom
+	    		if (isWaterTileCloseToShore(cornerX+i, currentPos.y+DISTANCE))
+	    			return new Coord(cornerX+i, currentPos.y+DISTANCE);
+	    		// y left
+	    		if (isWaterTileCloseToShore(currentPos.x-DISTANCE, cornerY+i))
+	    			return new Coord(currentPos.x-DISTANCE, cornerY+i);
+	    		// y right
+	    			if (isWaterTileCloseToShore(currentPos.x+DISTANCE, cornerY+i))
+	    			return new Coord(currentPos.x+DISTANCE, cornerY+i);
+	    	}
     	}
+    	
+    	return null;
+    }
+    
+    private boolean isWaterTileCloseToShore(int x, int y) {
+
+		if (x-tilesz.x > 0 && y-tilesz.x > 0 && x+tilesz.x < w && y+tilesz.x < h &&
+				nodes[x][y].type == Node.Type.WATER_SHALLOW) {
+		
+			// follow only outer shallow waters
+			if (nodes[x+tilesz.x][y].type != Node.Type.WATER_DEEP && nodes[x+tilesz.x][y].type != Node.Type.WATER_SHALLOW ||
+					nodes[x][y+tilesz.x].type != Node.Type.WATER_DEEP && nodes[x][y+tilesz.x].type != Node.Type.WATER_SHALLOW ||
+    				nodes[x-tilesz.x][y].type != Node.Type.WATER_DEEP && nodes[x-tilesz.x][y].type != Node.Type.WATER_SHALLOW ||
+    				nodes[x][y-tilesz.x].type != Node.Type.WATER_DEEP && nodes[x][y-tilesz.x].type != Node.Type.WATER_SHALLOW) {
+				return true;
+			} 
+		}
+		
+		return false;
+    }
+    
+    
     private Coord nextShallowTileCheck(int distance, Coord currentPos, Coord prevPos, int x, int y) {
 		Coord newPos = new Coord(x, y);
 
