@@ -1,54 +1,18 @@
 package addons;
 
-//import javafx.scene.media.Media;
-//import javafx.scene.media.MediaPlayer;
-
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.text.SimpleDateFormat;
 import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.awt.Point;
-import java.awt.Graphics;
-import java.awt.Color;
 import haven.HavenPanel;
 import haven.Coord;
 import haven.Gob;
-import haven.Glob;
 import haven.MaidFrame;
-import haven.Sprite;
-import haven.RemoteUI;
-import haven.Resource;
-import haven.ResDrawable;
 import haven.Window;
 import haven.Widget;
 import haven.Inventory;
-import haven.Img;
-import haven.Button;
-import haven.ISBox;
 import haven.Item;
 import haven.IMeter;
 import haven.IMeter.Meter;
-import haven.Moving;
 import haven.UI;
-import haven.Label;
-import haven.IButton;
-import haven.Buff;
-import haven.Makewindow;
-import haven.LoginScreen;
-import haven.Charlist;
-import haven.MapView;
-import haven.VMeter;
-import haven.HackThread;
-import haven.Progress;
-import haven.Config;
-import haven.GOut;
-import haven.Utils;
-import haven.KinInfo;
-import haven.CharWnd;
-import haven.CharWnd.Study;
-import haven.Fightview;
-import haven.MCache;
 
 public class HavenUtil {
 
@@ -325,8 +289,6 @@ public class HavenUtil {
 			MaidFrame.getCurrentSession().getUI().mnu.numpadbar.drop(slotCoord, new Coord(10, 10));
 		}
 
-		Inventory bag = getInventory("Inventory");
-		// bag.drop(new Coord(0,0), c);
 		dropItemInBag(c);
 		// while(mouseHoldingAnItem() && !InfoWindow.stop) wait(100);
 	}

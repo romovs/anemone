@@ -1,7 +1,6 @@
 package addons;
 
 import java.util.ArrayList;
-import java.awt.Rectangle;
 import haven.Gob;
 import haven.Coord;
 import haven.Inventory;
@@ -131,8 +130,6 @@ public class CleanupScript extends Thread {
 		m_bagSpace = m_util.getPlayerBagSpace();
 
 		ArrayList<Gob> tempListBuffer = new ArrayList<Gob>();
-		Coord skipCoord = Coord.z;
-		Coord pickupCoord = Coord.z;
 
 		while (list.size() > 0 && m_cyckles < m_bagSpace && !MainScript.stop) {
 			m_util.clickWorldObject(3, g);
