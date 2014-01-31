@@ -501,7 +501,7 @@ public class Map
         	int cornerX = currentPos.x-DISTANCE;	
         	int cornerY = currentPos.y-DISTANCE;
     		
-	    	for (int i = 0; i <= DISTANCE*2; i+=tilesz.x) {
+	    	for (int i = tilesz.x/2; i <= DISTANCE*2; i+=tilesz.x) {
 	    		// x top
 	    		if (isWaterTileCloseToShore(cornerX+i, currentPos.y-DISTANCE))
 	    			return new Coord(cornerX+i, currentPos.y-DISTANCE);
