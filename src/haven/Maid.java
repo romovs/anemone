@@ -367,9 +367,13 @@ public class Maid {
 		itemListener = new ItemAdapter() {
 			@Override
 			public void onItemCreate(ItemEvent e) {
-				retval[counter[0]++] = e.getItem();
-				if (counter[0] == itemCount)
+				if (counter[0] >= retval.length)
 					wakeup();
+				else { 
+					retval[counter[0]++] = e.getItem();
+					if (counter[0] == itemCount)
+						wakeup();
+				}
 			}
 		};
 
