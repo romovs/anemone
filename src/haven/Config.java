@@ -276,15 +276,21 @@ public class Config {
 		beasts.put(pat, "Rabbit");
 		inf.show = false; // new
 		hlcfg.put(pat, inf);
-
-		// aurochs ////// new
+		// battering ram
+		pat = "kritter/bram";
+		inf = new HLInfo(pat, "paginae/build/bram");
+		inf.setColor(Color.PINK);
+		beasts.put(pat, "Ram");
+		inf.show = false;
+		hlcfg.put(pat, inf);
+		// auroch
 		pat = "kritter/aurochs";
 		inf = new HLInfo(pat, "mmap/aurochs");
 		inf.setColor(new Color(0x8E8E8E));
 		beasts.put(pat, "Aurochs");
 		inf.show = false;
 		hlcfg.put(pat, inf);
-		// mufflon
+		// mouflon
 		pat = "kritter/mufflon";
 		inf = new HLInfo(pat, "mmap/mufflon");
 		inf.setColor(new Color(0x8E8E8E));
