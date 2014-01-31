@@ -1,5 +1,6 @@
 package haven;
 
+import static haven.MCache.tilesz;
 import groovy.lang.Binding;
 import groovy.transform.ThreadInterrupt;
 import groovy.util.GroovyScriptEngine;
@@ -1311,6 +1312,9 @@ public class Maid {
 			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
 		}
 
+		if (realCoord.get(0).x == player.getc().x && realCoord.get(0).y == player.getc().y)
+			realCoord.remove(0);
+		
 		for (int i = 0; i < realCoord.size(); i++) {
 			System.out.println("- pf click coord: " + realCoord.get(i));
 			doLeftClick(realCoord.get(i));
@@ -1381,6 +1385,9 @@ public class Maid {
 			Node n = path.get(i);
 			realCoord.add(fromSceneCoord(new Coord(n.x, n.y)));
 		}
+		
+		if (realCoord.get(0).x == player.getc().x && realCoord.get(0).y == player.getc().y)
+			realCoord.remove(0);
 
 		for (int i = 0; i < realCoord.size(); i++) {
 			if (i == realCoord.size()-1) {
