@@ -94,6 +94,7 @@ public class AStar implements PathFinder
                 cur = cur.parent;
                 cur.setPartOfPath(true);
             } 
+            path.add(end);
             List<Node> simplified = simplifyAndReverse(path);
             List<Node> smoothed = smooth(simplified, map);
             return smoothed;
