@@ -1182,7 +1182,9 @@ public class Maid {
 		return c.sub(oc).add(Map.MAP_COFFSET_X, 0);
 	}
 	
-	public boolean pathFindBoat(Coord dst, boolean dbg) {
+	public boolean pathFindBoat(Coord dst, boolean dbg) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		Gob player = getPlayer();
 		if (dst.equals(player.getc()))
 			return false;
@@ -1244,18 +1246,16 @@ public class Maid {
 		for (int i = 0; i < realCoord.size(); i++) {
 			System.out.println("- pfboat click coord: " + realCoord.get(i));
 			doLeftClick(realCoord.get(i));
-			try {
-				waitForMoveStop();
-				System.out.println("- pf stopped at: " + getCoord());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitForMoveStop();
+			System.out.println("- pf stopped at: " + getCoord());
 		}
 		
 		return true;
 	}
 	
-	public boolean pathFind(Coord dst, int playerSize, boolean dbg) {
+	public boolean pathFind(Coord dst, int playerSize, boolean dbg) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		Gob player = getPlayer();
 		if (dst.equals(player.getc()))
 			return false;
@@ -1318,18 +1318,15 @@ public class Maid {
 		for (int i = 0; i < realCoord.size(); i++) {
 			System.out.println("- pf click coord: " + realCoord.get(i));
 			doLeftClick(realCoord.get(i));
-			try {
-				waitForMoveStop();
-				System.out.println("- pf stopped");
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			waitForMoveStop();
+			System.out.println("- pf stopped");
 		}
 		return true;
 	}
 	
-	public boolean pathFindRightClick(Coord dst, int playerSize, boolean dbg) {
+	public boolean pathFindRightClick(Coord dst, int playerSize, boolean dbg) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();	
 		Gob player = getPlayer();
 		if (dst.equals(player.getc()))
 			return false;
@@ -1398,19 +1395,16 @@ public class Maid {
 				System.out.println("- pf click coord: " + realCoord.get(i));
 			}
 			
-			try {
-				System.out.println("- pf waiting for stop");
-				waitForMoveStop(1000, 1000);
-				System.out.println("- pf stopped");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitForMoveStop(1000, 1000);
+			System.out.println("- pf stopped");
 		}
 		
 		return true;
 	}
 	
-	public Coord findEmptyGroundTile(int objSize) {
+	public Coord findEmptyGroundTile(int objSize) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();	
 		Gob player = getPlayer();
 		Map scene = getScene(4);
 		MapView mv = getWidget(MapView.class);
@@ -1420,7 +1414,9 @@ public class Maid {
 	}
 	
 	
-	public Coord findRandomWaterTile() {
+	public Coord findRandomWaterTile() throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
@@ -1429,7 +1425,9 @@ public class Maid {
 		return (wt != null) ? fromSceneCoord(wt) : null;
 	}
 	
-	public Coord findNextShallowTile(Coord currentPos, Coord prevPos)  {
+	public Coord findNextShallowTile(Coord currentPos, Coord prevPos) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
@@ -1438,7 +1436,9 @@ public class Maid {
 		return (st != null) ? fromSceneCoord(st) : null;
 	}
 	
-	public Coord findClosesWaterFromShore(Coord currentPos)  {
+	public Coord findClosesWaterFromShore(Coord currentPos) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();	
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
@@ -1448,7 +1448,9 @@ public class Maid {
 	}
 	
 	
-	public Coord findShore() {
+	public Coord findShore() throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
