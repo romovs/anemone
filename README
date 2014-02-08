@@ -1,19 +1,25 @@
                                 Anemone
                                 
-
+                                
 Introduction:
 -------------
 
-Anemone is a client for Haven & Hearth. It's based on Xcom's modification 
-and Groovy Maid scripting engine and provides a number of new features as well 
-as some bug fixes and tweaks:
+Anemone is a client for Haven & Hearth. It's based on Xcom's modification of
+Ender's client and Groovy Maid scripting engine and provides a number of new 
+features as well as some bug fixes and tweaks:
 
 - Multi-session support.
 - On-screen FEP bar.
-- Graphical bars showing amount or liquid in buckets.
+- Targeting.
+- Alarms.
+- Object's health statuses.
+- Graphical bars showing amount or liquid in containers.
 - Pathfinding framework.
 - Vastly expanded scripting API.
 - And a lot more!
+
+Latest version can always be found at https://github.com/romovs/Haven-and-Hearth-Client
+
 
 
 References:
@@ -21,3 +27,6 @@ References:
 
 Xcom's client: https://github.com/X-com/Haven-and-Hearth-client-modified-by-Ender/tree/Ender-Edited
 Groovy Maid: http://code.google.com/p/hnh-groovy-maid
+
+
+
