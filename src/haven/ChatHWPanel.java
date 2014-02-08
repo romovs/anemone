@@ -245,8 +245,10 @@ public class ChatHWPanel extends Widget implements IHWindowParent {
 		if (focus) {
 			setfold(false);
 		}
-		awnd = wnd;
-		awnd.setfocus(awnd);
+		if (wnd != null) {
+			awnd = wnd;
+			awnd.setfocus(awnd);
+		}
 		for (HWindow w : wnds)
 			w.visible = false;
 		if (wnd != null) {
