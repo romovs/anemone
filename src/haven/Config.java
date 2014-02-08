@@ -93,7 +93,6 @@ public class Config {
 	public static Map<String, Set<String>> hlcgroups = new HashMap<String, Set<String>>();
 	public static HashMap<Pattern, String> smileys;
 	public static boolean nightvision;
-	public static String currentCharName;
 	public static String currentVersion;
 	public static Properties options, window_props;
 	public static int sfxVol;
@@ -188,7 +187,6 @@ public class Config {
 			new_minimap = true;
 			GoogleTranslator.lang = "en";
 			GoogleTranslator.turnedon = false;
-			currentCharName = "";
 			options = new Properties();
 			window_props = new Properties();
 			hideObjectList = Collections.synchronizedSet(new HashSet<String>());

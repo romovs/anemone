@@ -112,8 +112,22 @@ public class TextEntry extends Widget {
 	}
 
 	public void activate(String text) {
-		if (canactivate)
+		if (canactivate) {
 			wdgmsg("activate", text);
+			// ugly fix for setting up session charname for freshly created chars
+			try {
+				if (parent instanceof Window && ((Window)parent).cap.text.equals("Change Name")) {
+					MaidFrame.getCurrentSession().getUI().sess.charname = text;
+					MainFrame.instance.setTitle(text);
+				}
+			} catch (Exception e) {
+				try {
+					MaidFrame.getCurrentSession().getUI().sess.charname = "";
+					MainFrame.instance.setTitle("");
+				} catch (Exception e2) {
+				}
+			}
+		}
 	}
 
 	public boolean type(char c, KeyEvent ev) {

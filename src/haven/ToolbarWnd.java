@@ -175,7 +175,11 @@ public class ToolbarWnd extends Window implements DTarget, DropTarget {
 
 	public void saveBelts() {
 		synchronized (beltsConfig) {
-			String configFileName = "belts_" + MaidFrame.getCurrentSession().getUI().sess.charname.replaceAll("[^a-zA-Z()]", "_") + ".conf";
+			String charName = MaidFrame.getCurrentSession().getUI().sess.charname;
+			if (charName == null)
+				return;
+			
+			String configFileName = "belts_" + charName.replaceAll("[^a-zA-Z()]", "_") + ".conf";
 			try {
 				beltsConfig.store(new FileOutputStream(configFileName), "Belts actions for " + MaidFrame.getCurrentSession().getUI().sess.charname);
 			} catch (FileNotFoundException e) {
