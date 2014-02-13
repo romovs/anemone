@@ -1,6 +1,5 @@
 package haven;
 
-import static haven.MCache.tilesz;
 import groovy.lang.Binding;
 import groovy.transform.ThreadInterrupt;
 import groovy.util.GroovyScriptEngine;
@@ -1160,8 +1159,8 @@ public class Maid {
 		mw.wdgmsg(mw.cbtn, "activate");
 	}
 
-	public Map getScene(int playerSize) {
-		return new Map(1000, 1000, playerSize);
+	private Map getScene(int playerSize) {
+		return new Map(playerSize);
 	}
 	
 	
@@ -1170,16 +1169,12 @@ public class Maid {
 	
 	private Coord toSceneCoord(Coord c) {
 		MapView mv = getWidget(MapView.class);
-		Coord frameSz = MainFrame.getInnerSize();
-		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc);
-		return c.add(oc).sub(Map.MAP_COFFSET_X, 0);
+		return c.sub(mv.mc).add(Map.VRANGE, Map.VRANGE);
 	}
 	
 	private Coord fromSceneCoord(Coord c) {
 		MapView mv = getWidget(MapView.class);
-		Coord frameSz = MainFrame.getInnerSize();
-		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc);
-		return c.sub(oc).add(Map.MAP_COFFSET_X, 0);
+		return c.add(mv.mc).sub(Map.VRANGE, Map.VRANGE);
 	}
 	
 	public boolean pathFindBoat(Coord dst, boolean dbg) throws InterruptedException {
@@ -1194,7 +1189,7 @@ public class Maid {
 		MapView mv = getWidget(MapView.class);
 
 		long start = DbgUtils.getCpuTime();
-		scene.initSceneBoat(mv, player, dst, doAreaList(50.0d));
+		scene.initScene(mv, player, dst, doAreaList(50.0d), Map.SceneType.BOAT);
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
@@ -1202,7 +1197,7 @@ public class Maid {
 
 		if (dbg) {
 			if (dbgWin == null) {
-				dbgWin = new DbgWnd(scene, 1000, 1000);
+				dbgWin = new DbgWnd(scene, 1100, 1100);
 				dbgWin.setVisible(true);
 			} else {
 				dbgWin.setScene(scene);
@@ -1265,7 +1260,7 @@ public class Maid {
 		MapView mv = getWidget(MapView.class);
 
 		long start = DbgUtils.getCpuTime();
-		scene.initScene(mv, player, dst, doAreaList(50.0d));
+		scene.initScene(mv, player, dst, doAreaList(50.0d), Map.SceneType.ONFOOT);
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
@@ -1273,7 +1268,7 @@ public class Maid {
 
 		if (dbg) {
 			if (dbgWin == null) {
-				dbgWin = new DbgWnd(scene, 1000, 1000);
+				dbgWin = new DbgWnd(scene, 1100, 1100);
 				dbgWin.setVisible(true);
 			} else {
 				dbgWin.setScene(scene);
@@ -1318,7 +1313,7 @@ public class Maid {
 		for (int i = 0; i < realCoord.size(); i++) {
 			System.out.println("- pf click coord: " + realCoord.get(i));
 			doLeftClick(realCoord.get(i));
-			waitForMoveStop();
+			waitForMoveStop(1000, 1000);
 			System.out.println("- pf stopped");
 		}
 		return true;
@@ -1336,7 +1331,7 @@ public class Maid {
 		MapView mv = getWidget(MapView.class);
 
 		long start = DbgUtils.getCpuTime();
-		scene.initScene(mv, player, dst, doAreaList(50.0d));
+		scene.initScene(mv, player, dst, doAreaList(50.0d), Map.SceneType.ONFOOT);
 		long end = DbgUtils.getCpuTime();
 		System.out.format("Scene Init Time: %s sec.\n", (double) (end - start) / 1000000000.0d);
 
@@ -1344,7 +1339,7 @@ public class Maid {
 
 		if (dbg) {
 			if (dbgWin == null) {
-				dbgWin = new DbgWnd(scene, 1000, 1000);
+				dbgWin = new DbgWnd(scene, 1100, 1100);
 				dbgWin.setVisible(true);
 			} else {
 				dbgWin.setScene(scene);
@@ -1408,7 +1403,7 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(4);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d));
+		scene.initScene(mv, player, null, doAreaList(50.0d), Map.SceneType.GENERIC);
 		Coord tile = scene.findEmptyGroundTile(toSceneCoord(player.getc()), objSize);
 		return (tile != null) ? fromSceneCoord(tile) : null;
 	}
@@ -1420,7 +1415,7 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d));
+		scene.initScene(mv, player, null, doAreaList(50.0d), Map.SceneType.GENERIC);
 		Coord wt = scene.findRandomWaterTile(toSceneCoord(player.getc()));
 		return (wt != null) ? fromSceneCoord(wt) : null;
 	}
@@ -1431,7 +1426,7 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d));
+		scene.initScene(mv, player, null, doAreaList(50.0d), Map.SceneType.GENERIC);
 		Coord st = scene.findNextShallowTile(toSceneCoord(currentPos), toSceneCoord(prevPos));
 		return (st != null) ? fromSceneCoord(st) : null;
 	}
@@ -1442,7 +1437,7 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d));
+		scene.initScene(mv, player, null, doAreaList(50.0d), Map.SceneType.GENERIC);
 		Coord st = scene.findClosesWaterFromShore(toSceneCoord(currentPos));
 		return (st != null) ? fromSceneCoord(st) : null;
 	}
@@ -1454,7 +1449,7 @@ public class Maid {
 		Gob player = getPlayer();
 		Map scene = getScene(26);
 		MapView mv = getWidget(MapView.class);
-		scene.initScene(mv, player, null, doAreaList(50.0d));
+		scene.initScene(mv, player, null, doAreaList(50.0d), Map.SceneType.GENERIC);
 		Coord shore = scene.findClosestShoreTile(toSceneCoord(player.getc()));
 		return (shore != null) ? fromSceneCoord(shore) : null;
 	}

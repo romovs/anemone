@@ -5,29 +5,27 @@ import static haven.MCache.tilesz;
 import java.util.Random;
 import haven.Coord;
 import haven.Gob;
-import haven.MainFrame;
 import haven.MapView;
 import haven.Resource;
 import haven.Resource.Tile;
 
 public class Map
 {
-    public int w;
-    public int h;
+    public int w = VRANGE*2;
+    public int h = VRANGE*2;
     public int minWeight = Integer.MAX_VALUE;
     public Node nodes[][];
     public int playerSize;  //boat 26, player 4
     public int playerBounds; 
-    private static final int VRANGE = 500;
-    public static final int MAP_COFFSET_X = 300;
+    public static final int VRANGE = 50*tilesz.x; 
     private static Random rng = new Random();
+    public enum SceneType {
+    	ONFOOT, BOAT, GENERIC
+    }
     
-	public Map(int w, int h, int playerSize)
-	{
+	public Map(int playerSize) {
 		super();
 
-		this.w = w;
-		this.h = h;
 		this.playerSize = playerSize;
 		this.playerBounds = playerSize/2; // not precise...
 
@@ -40,8 +38,7 @@ public class Map
         }
     }
 	
-	private void setNode(int x, int y, Node.Type type, boolean isTile) 
-	{
+	private void setNode(int x, int y, Node.Type type, boolean isTile) {
 		nodes[x][y].type = type;
 		nodes[x][y].isTile = isTile;
 
@@ -59,55 +56,19 @@ public class Map
     	}
     }
 	
-    public void initSceneBoat(MapView mv, Gob player, Coord dst, Gob[] gobs) {
-        Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
-		Coord playerCoord = player.getc().add(oc).sub(MAP_COFFSET_X, 0);
-		
-		//playerCoord.add(-12, 13); // boat fix
-		
-		Coord dstScene = dst.add(oc).sub(MAP_COFFSET_X, 0);
+    public void initScene(MapView mv, Gob player, Coord dst, Gob[] gobs, SceneType sceneType) {
+		Coord playerCoord = player.getc().sub(mv.mc).add(VRANGE, VRANGE);
 		
         Node src = nodes[playerCoord.x][playerCoord.y];
         Node.srcNode = src;
         
-        initTiles(mv, true);
-        initGobes(mv, gobs, player, dst);
-
-        // mark all non water tiles as blocked. FIXME: not efficient!
-        for(int i=0;i<h;i++){
-            for(int j=0;j<w;j++){
-               if (nodes[j][i].type != Node.Type.WATER_DEEP &&
-            		   nodes[j][i].type != Node.Type.WATER_SHALLOW) {
-            	   
-            	   if (!(j == src.x && i == src.y ||
-            			   dstScene.x == j && dstScene.y == i)) {
-            		   nodes[j][i].type = Node.Type.BLOCK;
-            	   }
-               }
-            }
-        }
-        
-        initClearances();
-    }
-    
-    public void initScene(MapView mv, Gob player, Coord dst, Gob[] gobs) {
-		// setup player current location
-        Coord oc = MapView.viewoffsetFloorProjection(MainFrame.getInnerSize(), mv.mc); // offset correction
-		Coord playerCoord = player.getc().add(oc).sub(MAP_COFFSET_X, 0);
-		
-        Node src = nodes[playerCoord.x][playerCoord.y];
-        Node.srcNode = src;
-        
-        initTiles(mv, false);
+        initTiles(mv, sceneType);
         initGobes(mv, gobs, player, dst);
         initClearances();
     }
     
-    private void initTiles(MapView mv, boolean waterFix) {
-		Coord frameSz = MainFrame.getInnerSize();
-		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
-		
-		Coord requl = mv.mc.add(-VRANGE, -VRANGE).div(tilesz).div(cmaps);
+    private void initTiles(MapView mv, SceneType sceneType) {
+		Coord requl = mv.mc.sub(VRANGE, VRANGE).div(tilesz).div(cmaps);
 		Coord reqbr = mv.mc.add(VRANGE, VRANGE).div(tilesz).div(cmaps);
 				
 		Coord cgc = new Coord(0, 0);
@@ -118,18 +79,22 @@ public class Map
 		    }
 		}
 		
+		Coord center = new Coord(Node.srcNode.x, Node.srcNode.y);
 		Coord tc = mv.mc.div(tilesz);
 	
 		for(int y = -VRANGE/tilesz.y; y < VRANGE/tilesz.y; y++) {
 		    for(int x = -VRANGE/tilesz.x; x < VRANGE/tilesz.x; x++) {
 			    	
 			    Coord ctc = tc.add(new Coord(x, y));
-			    Coord sc = ctc.mul(tilesz).add(oc);
-			    
-			    sc.x -= MAP_COFFSET_X;
+			    Coord sc = ctc.mul(tilesz).sub(mv.mc).add(VRANGE, VRANGE);
 
 			    if (sc.x+tilesz.x >= w || sc.y+tilesz.y >= h || sc.x < 0 || sc.y < 0 )
 			    	continue;
+			    
+			    if ((new Coord(sc.x, sc.y)).dist(center) >= VRANGE) {
+	        		createNodesFromHitbox(sc.x, sc.y, tilesz.x, tilesz.y, Node.Type.BLOCK, true);
+			    	continue;  	
+			    }
 
 			    Tile groundTile = mv.map.getground(ctc);
 			    Node.Type tileType = groundTile.resolveTileType();
@@ -142,10 +107,20 @@ public class Map
 		        	if (tileType != Node.Type.IGNORE) {
 		        		int width = tilesz.x;
 		        		int height = tilesz.x;
-		        		if (waterFix) { //FIXME: probably can be removed now...
-		        			width += tilesz.x+2 > w ? 0 : 2;
-		        			height += tilesz.x+2 > h ? 0 : 2;
+
+		        		if (sceneType == SceneType.ONFOOT) {
+		                    if (tileType == Node.Type.WATER_DEEP) {
+		                    	tileType = Node.Type.BLOCK;
+		                    }
+		        		} else if (sceneType == SceneType.BOAT) {
+		                    if (tileType != Node.Type.WATER_DEEP && tileType != Node.Type.WATER_SHALLOW) {
+		                 		  tileType = Node.Type.BLOCK;
+		                    }
+		                    //FIXME: probably can be removed now...
+		        			width += sc.x+width+2 >= w ? 0 : 2;
+		        			height += sc.y+height+2 >= h ? 0 : 2;
 		        		}
+		        		
 		        		createNodesFromHitbox(sc.x, sc.y, width, height, tileType, true);
 		        	}
 			    }
@@ -154,10 +129,7 @@ public class Map
     }
     
     private void initGobes(MapView mv, Gob[] gobs, Gob player, Coord dst) {
-		Coord frameSz = MainFrame.getInnerSize();
-		Coord oc = MapView.viewoffsetFloorProjection(frameSz, mv.mc); // offset correction
-        
-		Coord playerCoord = player.getc().add(oc).add(-MAP_COFFSET_X, 0);
+		Coord playerCoord = player.getc().sub(mv.mc).add(VRANGE, VRANGE);
 		
     	for (Gob g : gobs) {
     	    Node.Type t = g.resolveObType(mv);
@@ -168,8 +140,8 @@ public class Map
         	
         	// NOTE: for objects with hitbox -  bs.x and bs.y > 0 but not for all. e.g. straw bed.        	
 
-            Coord a =  g.getc().add(neg.bc).add(oc).add(-MAP_COFFSET_X, 0);
-            Coord c =  g.getc().add(neg.bc).add(neg.bs).add(oc).add(-MAP_COFFSET_X, 0);
+            Coord a =  g.getc().add(neg.bc).sub(mv.mc).add(VRANGE, VRANGE);
+            Coord c =  g.getc().add(neg.bc).add(neg.bs).sub(mv.mc).add(VRANGE, VRANGE);
             
         	if (t == Node.Type.NOT_IMPLEMENTED) {
         		System.out.format("[NEG] cc:%s   bs:%s   bc:%s   sz:%s\n", neg.cc.toString(), neg.bs.toString(), neg.bc.toString(), neg.sz.toString());
