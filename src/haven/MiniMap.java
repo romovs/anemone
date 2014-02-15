@@ -30,7 +30,6 @@ import static haven.MCache.cmaps;
 import static haven.MCache.tilesz;
 import haven.MCache.Grid;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -269,6 +268,40 @@ public class MiniMap extends Widget {
 		}
 	}
 
+	public BufferedImage getCurrentMapTile() {
+		double scale = getScale();
+		Coord hsz = sz.div(scale);
+
+		Coord tc = mv.mc.div(tilesz);
+		Coord ulg = tc.div(cmaps);
+		while ((ulg.x * cmaps.x) - tc.x + (hsz.x / 2) > 0)
+			ulg.x--;
+		while ((ulg.y * cmaps.y) - tc.y + (hsz.y / 2) > 0)
+			ulg.y--;
+		
+		for (int y = ulg.y; (y * cmaps.y) - tc.y + (hsz.y / 2) < hsz.y; y++) {
+			for (int x = ulg.x; (x * cmaps.x) - tc.x + (hsz.x / 2) < hsz.x; x++) {
+				Coord cg = new Coord(x, y);
+				Coord gwc = cg.mul(cmaps).add(tc.inv()).add(hsz.div(2));
+				Gob player = ui.sess.glob.oc.getgob(ui.mainview.playergob);
+				Coord ptc = hsz.div(2).sub(tc).add(player.getc().div(tilesz));
+
+				if (ptc.x >= gwc.x && ptc.x <= gwc.x+cmaps.x && ptc.y >= gwc.y && ptc.y <= gwc.y+cmaps.y) {
+					Grid grid;
+					synchronized (ui.sess.glob.map.grids) {
+						grid = ui.sess.glob.map.grids.get(cg);
+					}
+					String mnm = (grid == null) ? coordHashes.get(cg) : grid.mnm;;
+					Tex tex = getsimple(mnm);
+					return ((TexI)tex).back;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	
 	public void draw(GOut og) {
 		double scale = getScale();
 		Coord hsz = sz.div(scale);

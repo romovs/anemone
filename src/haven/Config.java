@@ -27,10 +27,12 @@
 package haven;
 
 import static haven.Utils.getprop;
+import haven.geoloc.MapTileData;
 import haven.pathfinder.Node;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -116,6 +118,7 @@ public class Config {
 	public static Map<String, CurioInfo> curios = new HashMap<String, CurioInfo>();
 	public static Map<String, ItemType> itemTypes = new HashMap<String, ItemType>();
 	public static Map<String, Node.Type> obTypes = new HashMap<String, Node.Type>();
+	public static Map<Short, List<MapTileData>> geoLocs = new HashMap<Short, List<MapTileData>>();
 	public static Map<String, SkillAvailability> skills;
 	public static Map<String, String> crafts = new HashMap<String, String>();
 	public static Map<String, String> beasts = new HashMap<String, String>();
@@ -200,6 +203,7 @@ public class Config {
 			loadObTypes();
 			loadSkills();
 			loadCraft();
+			loadGeoloc();
 			loadHighlight();
 			loadCurrentHighlight();
 			loadBeasts();
@@ -545,7 +549,34 @@ public class Config {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void loadGeoloc() {
+		DataInputStream is = null;
+		try {
+			is = new DataInputStream(new FileInputStream("geoloc.dat"));
+	
+		    while (is.available() > 0) {
+		    	short weight = is.readShort();
+		    	long hash = is.readLong();
+	    		short c1 = is.readShort();
+	    		short c2 = is.readShort();
 
+	    		List<MapTileData> geodatas;
+	    		if (geoLocs.containsKey(weight)) {
+	    			geodatas = geoLocs.get(weight);
+	    		} else {
+	    			geodatas = new ArrayList<MapTileData>();
+	    			geoLocs.put(weight, geodatas);
+	    		}
+
+    			geodatas.add(new MapTileData(weight, hash, c1, c2));
+		    }
+			
+		    is.close();
+		} catch (Exception e) {
+		} 
+	}
+	
 	private static void usage(PrintStream out) {
 		out.println("usage: haven.jar [-hdPf] [-u USER] [-C HEXCOOKIE] [-r RESDIR] [-U RESURL] [-A AUTHSERV] [SERVER]");
 	}

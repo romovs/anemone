@@ -81,7 +81,7 @@
 
   <target name="jar" depends="haven-client,buildinfo,lib-classes,resources">
     <jar destfile="build/maid.jar" update="true">
-      <fileset dir="build/classes" />
+      <fileset dir="build/classes" excludes="**/haven/geoloc/GeolocGen*"/>
       <fileset dir="build/classes-lib" />
       <manifest>
 		<attribute name="Main-Class" value="haven.MaidFrame" />
@@ -91,12 +91,21 @@
     <chmod file="build/maid.jar" perm="a+x" />
   </target>
   
+  <target name="geolocgen-jar" depends="haven-client">
+    <jar destfile="build/geolocgen.jar" update="true">
+      <fileset dir="build/classes" includes="**/haven/geoloc/**"/>
+      <manifest>
+		<attribute name="Main-Class" value="haven.geoloc.GeolocGen" />
+      </manifest>
+    </jar>
+  </target>
+  
   <target name="res-jar" depends="build-env" unless="has-res-jar">
     <get src="http://www.havenandhearth.com/java/haven-res.jar" dest="lib/haven-res.jar"
 	 usetimestamp="true" />
   </target>
   
-  <target name="jars" depends="build-env, jar, res-jar">
+  <target name="jars" depends="build-env, jar, geolocgen-jar, res-jar">
     <copy todir="build">
       <fileset dir="lib">
         <include name="haven.jar" />
@@ -159,15 +168,16 @@
       <param name="arch" value="macosx-universal"/>
     </antcall>
     <zip destfile="${basedir}/${name}-update-${built.date}.zip" update="false">
-        <fileset dir="build" includes="maid.jar, scripts, scripts/carrots.groovy, scripts/grind.groovy"/>
+        <fileset dir="build" includes="maid.jar, scripts, scripts/carrots.groovy, scripts/grind.groovy, geoloc.dat"/>
         <fileset dir="${basedir}" includes="*.conf"/>
+        <fileset dir="build" includes="res/gfx/hud/buttons/geoloc.res, res/sfx/alarm.res"/>
     </zip>
   </target>
  
   <target name="dist" depends="rebuild">
     <mkdir dir="build/scripts" />
     <zip destfile="${basedir}/${name}-${built.date}-${arch}.zip" update="false">
-        <fileset dir="build" includes="*.jar, res/**, scripts, scripts/carrots.groovy, scripts/grind.groovy" excludes="*natives*.jar"/>
+        <fileset dir="build" includes="*.jar, res/**, scripts, scripts/carrots.groovy, scripts/grind.groovy, geoloc.dat" excludes="*natives*.jar, geolocgen.jar"/>
         <fileset dir="${basedir}" includes="*.conf, README"/>
         <fileset dir="natives" includes="*${arch}.jar"/>
     </zip>

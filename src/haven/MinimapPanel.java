@@ -1,6 +1,13 @@
 package haven;
 
+import haven.geoloc.Geoloc;
+import haven.geoloc.GeolocException;
+import haven.geoloc.MapTileData;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinimapPanel extends Window {
 
@@ -165,9 +172,104 @@ public class MinimapPanel extends Window {
 				return checkhit(c) ? tooltip : null;
 			}
 		};
+		
+		new IButton(new Coord(146, 8), this, Resource.loadimg("gfx/hud/buttons/geoloc"), Resource.loadimg("gfx/hud/buttons/geoloc")) {
+			public void click() {
+				BufferedImage tmp = down;
+				down = up;
+				up = tmp;
+				hover = tmp;
+				
+				Window wnd = new Window(new Coord(250, 100), Coord.z, UI.instance.root, "Current Location");
+						
+			    BufferedImage img;
+				try {
+					img = mm.getCurrentMapTile();
+				} catch (Exception e) {
+					String error = "Something went wrong... Check console for any errors.";
+					new Label(new Coord(0, 5), wnd, error);
+					e.printStackTrace();
+					wnd.justclose = true;
+					wnd.pack();
+					return;
+				}
+			    
+			    final MapTileData geodata;
+				try {
+					geodata = findMapTileMatch(img);
+				} catch (GeolocException e) {
+					new Label(new Coord(0, 5), wnd, e.getMessage());
+					wnd.justclose = true;
+					wnd.pack();
+					return;
+				}
+				
+				String loc = String.format("X: %s    Y: %s", geodata.c1, geodata.c2);
+				new Label(new Coord(0, 5), wnd, loc);
+
+				new Button(new Coord(105, 2), 130, wnd, "Open in Browser") {
+					public void click() {
+					    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+					    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+					        try {
+					            desktop.browse(new URI(String.format("http://sabinati.com/HavenMap/?x=%s&y=%s&zoom=9", geodata.c1, geodata.c2)));
+					        } catch (Exception e) {
+					            e.printStackTrace();
+					        }
+					    }
+					}
+				};
+
+				wnd.justclose = true;
+				wnd.pack();
+			}
+
+			private Text tooltip = Text.render("Show my location on the world map");
+
+			@Override
+			public Object tooltip(Coord c, boolean again) {
+				return checkhit(c) ? tooltip : null;
+			}
+		};
+		
 		pack();
 		this.c = new Coord(MainFrame.getInnerSize().x - this.sz.x, 7);
 		loadpos();
+	}
+	
+	
+	private MapTileData findMapTileMatch(BufferedImage img) throws GeolocException {
+		int THRESHOLD = 300;
+		
+		img = Geoloc.preprocessMapTile(img);
+		MapTileData curMtd = Geoloc.getHash(img);
+		 
+		if (curMtd.weight == 0)
+			throw new GeolocException("Stand next to a river and try again!");
+		
+		List<MapTileData> mtds = new ArrayList<MapTileData>();
+
+		for (int i = 0; i < THRESHOLD; i++) {
+			if (Config.geoLocs.containsKey((short)(curMtd.weight+i)))
+				mtds.addAll(Config.geoLocs.get((short)(curMtd.weight+i)));
+			if (Config.geoLocs.containsKey((short)(curMtd.weight-i)))
+				mtds.addAll(Config.geoLocs.get((short)(curMtd.weight-i)));
+		}
+		
+		if (mtds.size() == 0)
+			throw new GeolocException("This location doesn't seem to have been mapped yet.");
+		
+		MapTileData bestMatch = null;
+		int best = Integer.MAX_VALUE;
+		for (MapTileData mtd : mtds) {
+			int dist = Geoloc.hammingDistance(mtd.hash, curMtd.hash);
+			if (dist < best) {
+				best = dist;
+				bestMatch = mtd;
+			}
+		}
+
+		return bestMatch;
 	}
 
 	private void loadpos() {
