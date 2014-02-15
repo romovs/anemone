@@ -11,8 +11,10 @@ features as well as some bug fixes and tweaks:
 - Multi-session support.
 - On-screen FEP bar.
 - Targeting.
+- Geolocation.
 - Alarms.
 - Object's health statuses.
+- Improved login screen.
 - Graphical bars showing amount or liquid in containers.
 - Pathfinding framework.
 - Vastly expanded scripting API.
