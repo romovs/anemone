@@ -95,7 +95,6 @@ public class Config {
 	public static Map<String, Set<String>> hlcgroups = new HashMap<String, Set<String>>();
 	public static HashMap<Pattern, String> smileys;
 	public static boolean nightvision;
-	public static String currentVersion;
 	public static Properties options, window_props;
 	public static int sfxVol;
 	public static int musicVol;
@@ -714,7 +713,6 @@ public class Config {
 		showViewDistance = options.getProperty("showViewDistance", "false").equals("true");
 		sfxVol = Integer.parseInt(options.getProperty("sfx_vol", "100"));
 		musicVol = Integer.parseInt(options.getProperty("music_vol", "100"));
-		currentVersion = options.getProperty("version", "");
 		autohearth = options.getProperty("autohearth", "false").equals("true");
 		hearthunknown = options.getProperty("hearthunknown", "false").equals("true");
 		hearthred = options.getProperty("hearthred", "false").equals("true");
@@ -836,7 +834,6 @@ public class Config {
 		options.setProperty("maxWindow", maxWindow ? "true" : "false"); // new
 		options.setProperty("broadleafTile", broadleafTile ? "true" : "false"); // new
 		options.setProperty(FoodMeterWidget.NAME, fepbar ? "true" : "false");
-		options.setProperty("version", currentVersion);
 		options.setProperty("autoaggro", autoaggro ? "true" : "false");
 		options.setProperty("aggrored", aggrored ? "true" : "false");
 		options.setProperty("aggrounknown", aggrounknown ? "true" : "false");
