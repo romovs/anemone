@@ -312,6 +312,11 @@ public class Fightview extends Widget {
 
 	public void currentUp() { // new
 		if (lsrel.size() > 1) {
+			
+			int playergob = MaidFrame.getCurrentSession().getUI().mainview.playergob;
+			Coord pc = MaidFrame.getCurrentSession().getUI().mainview.glob.oc.getgob(playergob).getc();
+			MaidFrame.getCurrentSession().getUI().mainview.wdgmsg("click", pc, pc, 1, ui.modflags(), playergob, pc);
+
 			Relation relFirst = lsrel.get(0);
 			Relation relSecond = lsrel.get(1);
 
@@ -326,6 +331,11 @@ public class Fightview extends Widget {
 
 	public void currentDown() { // new
 		if (lsrel.size() > 1) {
+			
+			int playergob = MaidFrame.getCurrentSession().getUI().mainview.playergob;
+			Coord pc = MaidFrame.getCurrentSession().getUI().mainview.glob.oc.getgob(playergob).getc();
+			MaidFrame.getCurrentSession().getUI().mainview.wdgmsg("click", pc, pc, 1, ui.modflags(), playergob, pc);
+			
 			Relation relLast = lsrel.get(lsrel.size() - 1);
 
 			lsrel.remove(relLast);
