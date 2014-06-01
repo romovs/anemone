@@ -18,6 +18,10 @@ public class LoginData {
 		if (!(other instanceof LoginData))
 			return false;
 		LoginData ol = (LoginData) other;
-		return ol.name.equals(name) && ol.pass.equals(pass);
+		
+		if (ol.name != null && ol.pass != null)
+			return ol.name.equals(name) && ol.pass.equals(pass);
+		
+		return false;
 	}
 }
