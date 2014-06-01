@@ -5,6 +5,7 @@ import haven.Coord;
 import haven.Inventory;
 import haven.Item;
 import haven.Config;
+import haven.MaidFrame;
 
 public class RunFlaskScript extends Thread {
 	HavenUtil m_util;
@@ -97,6 +98,10 @@ public class RunFlaskScript extends Thread {
 	}
 
 	void fillFlaskList(ArrayList<Item> flaskList) {
+		
+		if (m_util.mouseHoldingAnItem() || MaidFrame.getCurrentSession().getUI().isgrabbingmouse())
+			return;
+		
 		boolean holding = false;
 
 		Inventory bag = m_util.getInventory("Inventory");

@@ -201,6 +201,10 @@ public class UI {
 			mousegrab = wdg;
 		}
 	}
+	
+	public boolean isgrabbingmouse() { // new
+		return mousegrab != null;
+	}
 
 	public void grabkeys(Widget wdg) {
 		keygrab = wdg;
