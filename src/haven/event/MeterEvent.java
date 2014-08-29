@@ -28,6 +28,9 @@ public class MeterEvent extends MaidEvent {
 		if (type == Type.STAMINA || type == Type.AUTHORITY) {
 			return new MeterEventObjectStamina((Integer) values[1]);
 		} else if (type == Type.HUNGER) {
+			if (values.length < 3)
+				return null;
+			
 			if (((Color) values[0]).equals(new Color(96, 0, 0)) && ((Color) values[2]).equals(new Color(255, 64, 0))) {
 				return new MeterEventObjectHunger(MeterEventObjectHunger.HungerType.VERY_HUNGRY, (Integer) values[3]);
 			} else if (((Color) values[0]).equals(new Color(255, 64, 0)) && ((Color) values[2]).equals(new Color(255, 192, 0))) {
