@@ -127,7 +127,11 @@ public class Item extends Widget implements DTarget {
 				g.image(tex, Coord.z);
 				g.chcolor();
 			} else {
+				if(res.get().basename().equals("silkmoth") && tooltip != null && tooltip.contains("Female"))
+					g.chcolor(255, 124, 195, 255);
+
 				g.image(tex, Coord.z);
+				g.chcolor();
 			}
 			if (num >= 0) {
 				// g.chcolor(Color.WHITE);
