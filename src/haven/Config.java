@@ -149,6 +149,7 @@ public class Config {
 	public static boolean tracking = true;
 	public static boolean crime = false;
 	public static boolean gobHealth = false;
+	public static boolean boatHitbox = false;
 
 	// script bools
 	public static boolean runFlaskRunning = false;
@@ -731,6 +732,7 @@ public class Config {
 		tracking = options.getProperty("tracking", "true").equals("true");
 		crime = options.getProperty("crime", "false").equals("true");
 		gobHealth = options.getProperty("gobHealth", "false").equals("true");
+		boatHitbox = options.getProperty("boatHitbox", "false").equals("true");
 
 		if (!hideObjects.isEmpty()) {
 			for (String objectName : hideObjects.split(",")) {
@@ -843,7 +845,7 @@ public class Config {
 		options.setProperty("tracking", tracking ? "true" : "false");
 		options.setProperty("crime", crime ? "true" : "false");
 		options.setProperty("gobHealth", gobHealth ? "true" : "false");
-
+		options.setProperty("boatHitbox", boatHitbox ? "true" : "false");
 		try {
 			options.store(new FileOutputStream("haven.conf"), "Custom config options");
 		} catch (IOException e) {

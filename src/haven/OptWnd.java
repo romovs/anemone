@@ -650,6 +650,13 @@ public class OptWnd extends Window {
 					Config.saveOptions();
 				}
 			}).a = Config.gobHealth;
+
+			(new CheckBox(new Coord(10, y += 35), tab, "Show hitboxes for boats") {
+				public void changed(boolean val) {
+					Config.boatHitbox = val;
+					Config.saveOptions();
+				}
+			}).a = Config.boatHitbox;
 		}
 
 		new Frame(new Coord(-10, 20), new Coord(550, 430), this);

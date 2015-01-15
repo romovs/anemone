@@ -1388,6 +1388,27 @@ public class MapView extends Widget implements DTarget, Console.Directory {
 			}
 		}
 
+		if (Config.boatHitbox) {
+			g.chcolor(255, 0, 0, 128);
+			synchronized (glob.oc) {
+				for (Gob gob : glob.oc) {
+					Resource res = gob.getres();
+					if (res != null && res.basename().contains("boat")) {
+						Resource.Neg neg = gob.getneg();
+						if (neg == null)
+							continue;
+
+						if ((neg.bs.x > 0) && (neg.bs.y > 0)) {
+							Coord c1 = gob.getc().add(neg.bc);
+							Coord c2 = c1.add(neg.bs);
+							g.frect(m2s(c1).add(oc), m2s(new Coord(c2.x, c1.y)).add(oc), m2s(c2).add(oc), m2s(new Coord(c1.x, c2.y)).add(oc));
+						}
+					}
+				}
+			}
+			g.chcolor();
+		}
+
 		if (Config.showHidden && Config.hide) {
 			g.chcolor(255, 0, 0, 128);
 			synchronized (glob.oc) {
