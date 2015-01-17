@@ -26,6 +26,8 @@
 
 package haven;
 
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -73,6 +75,36 @@ public abstract class TexRT extends TexGL {
 	protected void fill(GOut g) {
 		rerender(g.gl);
 		byte[] idat = initdata();
+
+		// fix for very old drivers (e.g. for Intel 915x) which don't support textures > 1024
+		if (tdim.x > 1024)
+			tdim.x = 1024;
+		if (tdim.y > 1024)
+			tdim.y = 1024;
+
+		// make sure the sizes are power of two
+		if ((tdim.x & (tdim.x - 1)) != 0) {
+			tdim.x--;
+			tdim.x |= tdim.x >> 1;
+			tdim.x |= tdim.x >> 2;
+			tdim.x |= tdim.x >> 4;
+			tdim.x |= tdim.x >> 8;
+			tdim.x |= tdim.x >> 16;
+			tdim.x++;
+			tdim.x /= 2;
+		}
+
+		if ((tdim.y & (tdim.y - 1)) != 0) {
+			tdim.y--;
+			tdim.y |= tdim.y >> 1;
+			tdim.y |= tdim.y >> 2;
+			tdim.y |= tdim.y >> 4;
+			tdim.y |= tdim.x >> 8;
+			tdim.y |= tdim.y >> 16;
+			tdim.y++;
+			tdim.y /= 2;
+		}
+
 		g.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, tdim.x, tdim.y, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, (idat == null) ? null
 				: java.nio.ByteBuffer.wrap(idat));
 		GOut.checkerr(g.gl);
