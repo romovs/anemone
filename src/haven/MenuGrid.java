@@ -360,8 +360,6 @@ public class MenuGrid extends Widget {
 			Config.saveOptions();
 		} else if (list[1].equals("study")) {
 			ui.study.toggle();
-		} else if (list[1].equals("globalchat")) {
-			IRChatHW.open();
 		} else if (list[1].equals("wiki")) {
 			if (ui.wiki == null) {
 				new WikiBrowser(MainFrame.getCenterPoint().sub(115, 75), Coord.z, ui.root);

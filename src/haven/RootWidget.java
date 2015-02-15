@@ -91,8 +91,6 @@ public class RootWidget extends ConsoleHost {
 				ui.spd.setspeed(3, true);
 			} else if ((code == KeyEvent.VK_G) && ctrl) {
 				Config.grid = !Config.grid;
-			} else if ((code == KeyEvent.VK_G) && alt) {
-				IRChatHW.open();
 			} else if (((int) key == 2) & ctrl) {// CTRL-B have code of 02
 				BuddyWnd bw = MaidFrame.getCurrentSession().buddyWnd;
 				bw.visible = !bw.visible;
