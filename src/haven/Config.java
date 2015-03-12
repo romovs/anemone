@@ -160,6 +160,8 @@ public class Config {
 	public static boolean minerSafety = false;
 	// script bools
 
+	public static int maxTextureSize;
+
 	static {
 		try {
 			String p;

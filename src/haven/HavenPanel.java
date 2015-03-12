@@ -108,6 +108,11 @@ public class HavenPanel extends GLCanvas implements Runnable {
 				gl.glEnable(GL.GL_BLEND);
 				// gl.glEnable(GL.GL_LINE_SMOOTH);
 				gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+
+
+				int[] maxTextureSize = new int[1];
+				gl.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0);
+				Config.maxTextureSize = maxTextureSize[0];
 				GOut.checkerr(gl);
 			}
 

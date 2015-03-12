@@ -26,6 +26,8 @@
 
 package haven;
 
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -73,9 +75,26 @@ public abstract class TexRT extends TexGL {
 	protected void fill(GOut g) {
 		rerender(g.gl);
 		byte[] idat = initdata();
+
+		int[] tdimNew = normalizeTextureSize(tdim.x, tdim.y);
+		tdim.x = tdimNew[0];
+		tdim.y = tdimNew[1];
+
 		g.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, tdim.x, tdim.y, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, (idat == null) ? null
 				: java.nio.ByteBuffer.wrap(idat));
 		GOut.checkerr(g.gl);
+	}
+
+	// fix for very old drivers (e.g. for Intel 915x) which don't support textures > 1024
+	private int[] normalizeTextureSize(int x, int y)
+	{
+		if (x > Config.maxTextureSize) {
+			x = Config.maxTextureSize;
+		}
+		if (y > Config.maxTextureSize) {
+			y = Config.maxTextureSize;
+		}
+		return new int[] { x, y };
 	}
 
 	private void subrend2(GOut g) {
@@ -90,6 +109,11 @@ public abstract class TexRT extends TexGL {
 			curf.tick("render");
 		g.texsel(id);
 		GOut.checkerr(gl);
+
+		int[] dimNew = normalizeTextureSize(dim.x, dim.y);
+		dim.x = dimNew[0];
+		dim.y = dimNew[1];
+
 		gl.glCopyTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 0, 0, dim.x, dim.y);
 		GOut.checkerr(gl);
 		if (curf != null) {
