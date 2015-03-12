@@ -76,38 +76,25 @@ public abstract class TexRT extends TexGL {
 		rerender(g.gl);
 		byte[] idat = initdata();
 
-		// fix for very old drivers (e.g. for Intel 915x) which don't support textures > 1024
-		if (tdim.x > 1024)
-			tdim.x = 1024;
-		if (tdim.y > 1024)
-			tdim.y = 1024;
-
-		// make sure the sizes are power of two
-		if ((tdim.x & (tdim.x - 1)) != 0) {
-			tdim.x--;
-			tdim.x |= tdim.x >> 1;
-			tdim.x |= tdim.x >> 2;
-			tdim.x |= tdim.x >> 4;
-			tdim.x |= tdim.x >> 8;
-			tdim.x |= tdim.x >> 16;
-			tdim.x++;
-			tdim.x /= 2;
-		}
-
-		if ((tdim.y & (tdim.y - 1)) != 0) {
-			tdim.y--;
-			tdim.y |= tdim.y >> 1;
-			tdim.y |= tdim.y >> 2;
-			tdim.y |= tdim.y >> 4;
-			tdim.y |= tdim.x >> 8;
-			tdim.y |= tdim.y >> 16;
-			tdim.y++;
-			tdim.y /= 2;
-		}
+		int[] tdimNew = normalizeTextureSize(tdim.x, tdim.y);
+		tdim.x = tdimNew[0];
+		tdim.y = tdimNew[1];
 
 		g.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, tdim.x, tdim.y, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, (idat == null) ? null
 				: java.nio.ByteBuffer.wrap(idat));
 		GOut.checkerr(g.gl);
+	}
+
+	// fix for very old drivers (e.g. for Intel 915x) which don't support textures > 1024
+	private int[] normalizeTextureSize(int x, int y)
+	{
+		if (x > Config.maxTextureSize) {
+			x = Config.maxTextureSize;
+		}
+		if (y > Config.maxTextureSize) {
+			y = Config.maxTextureSize;
+		}
+		return new int[] { x, y };
 	}
 
 	private void subrend2(GOut g) {
@@ -122,6 +109,11 @@ public abstract class TexRT extends TexGL {
 			curf.tick("render");
 		g.texsel(id);
 		GOut.checkerr(gl);
+
+		int[] dimNew = normalizeTextureSize(dim.x, dim.y);
+		dim.x = dimNew[0];
+		dim.y = dimNew[1];
+
 		gl.glCopyTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 0, 0, dim.x, dim.y);
 		GOut.checkerr(gl);
 		if (curf != null) {
