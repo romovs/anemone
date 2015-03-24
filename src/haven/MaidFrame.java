@@ -221,6 +221,15 @@ public class MaidFrame extends MainFrame implements KeyListener {
 			}
 
 			e.consume();
+		} else if (e.isControlDown()) {
+			switch (e.getKeyCode()) {
+				case KeyEvent.VK_S:
+					addSession();
+					break;
+				default:
+					return;
+			}
+			e.consume();
 		}
 	}
 
