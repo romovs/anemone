@@ -177,7 +177,7 @@ public class Music {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Resource.addurl(new java.net.URL("https://www.havenandhearth.com/res/"));
+		Resource.addurl(new java.net.URL("https://legacy.havenandhearth.com/res/"));
 		debug = true;
 		play(Resource.load(args[0]), (args.length > 1) ? args[1].equals("y") : false);
 		player.join();
